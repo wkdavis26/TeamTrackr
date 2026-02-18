@@ -4,12 +4,14 @@ import { format, isToday, isTomorrow, differenceInDays } from 'date-fns';
 import GameCard from './GameCard';
 
 export default function UpcomingGames({ games }) {
-  // Group games by date
+  // Get the date string in Central Time (to avoid UTC midnight rollover issues)
+  const getCTDateKey = (date) =>
+    new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date(date)); // yields YYYY-MM-DD
+
+  // Group games by their Central Time date
   const groupedGames = games.reduce((acc, game) => {
-    const dateKey = format(new Date(game.date), 'yyyy-MM-dd');
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
+    const dateKey = getCTDateKey(game.date);
+    if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(game);
     return acc;
   }, {});
@@ -17,7 +19,8 @@ export default function UpcomingGames({ games }) {
   const sortedDates = Object.keys(groupedGames).sort();
 
   const getDateLabel = (dateStr) => {
-    const date = new Date(dateStr);
+    // Parse as local noon to avoid any timezone shifting in date-fns comparisons
+    const date = new Date(dateStr + 'T12:00:00');
     if (isToday(date)) return "Today";
     if (isTomorrow(date)) return "Tomorrow";
     const days = differenceInDays(date, new Date());
