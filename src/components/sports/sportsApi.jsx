@@ -307,33 +307,71 @@ const parseNHLEvent = (game, favoriteTeamIds) => {
   };
 };
 
-// Parse F1 event (races are events, not team vs team)
+// Session types to include and their display labels
+const F1_SESSION_TYPES = {
+  'FP1': 'Practice 1',
+  'FP2': 'Practice 2',
+  'FP3': 'Practice 3',
+  'Qual': 'Qualifying',
+  'SQ': 'Sprint Qualifying',
+  'SR': 'Sprint Race',
+  'Sprint': 'Sprint',
+  'Race': 'Race',
+};
+
+// Session types we want to show (exclude practice sessions)
+const F1_SHOWN_SESSIONS = new Set(['Qual', 'SQ', 'SR', 'Sprint', 'Race']);
+
+// Parse F1 event — creates one entry per relevant session per team
 const parseF1Event = (event, favoriteTeamIds) => {
   if (!event) return null;
-  
-  // For F1, we show the race for any favorite F1 team
+
   const f1TeamIds = favoriteTeamIds.filter(id => id.startsWith('f1-'));
   if (f1TeamIds.length === 0) return null;
-  
-  return f1TeamIds.map(teamId => ({
-    id: `${event.id}-${teamId}`,
-    date: new Date(event.date),
-    league: 'F1',
-    leagueIcon: '🏎️',
-    homeTeam: {
-      id: teamId,
-      name: getF1TeamName(teamId),
-      logo: getTeamEmoji(teamId),
-    },
-    awayTeam: {
-      id: 'f1-race',
-      name: event.name || event.shortName || 'Grand Prix',
-      logo: '🏁',
-    },
-    favoriteTeamId: teamId,
-    venue: event.circuit?.fullName || event.name || 'TBD',
-    isF1Race: true,
-  }));
+
+  const now = new Date();
+  const sessions = (event.competitions || []).filter(c => {
+    const abbr = c.type?.abbreviation;
+    return F1_SHOWN_SESSIONS.has(abbr) && new Date(c.date) > now;
+  });
+
+  // If no individual sessions, fall back to the event date (Race)
+  const entries = sessions.length > 0 ? sessions : [{ date: event.date, type: { abbreviation: 'Race' } }];
+
+  const results = [];
+  entries.forEach(session => {
+    const abbr = session.type?.abbreviation || 'Race';
+    const sessionLabel = F1_SESSION_TYPES[abbr] || abbr;
+    const grandPrixName = (event.name || event.shortName || 'Grand Prix')
+      .replace(/^[^A-Z]*/, '') // strip sponsor prefix if any
+      .trim();
+
+    f1TeamIds.forEach(teamId => {
+      results.push({
+        id: `${event.id}-${session.id || abbr}-${teamId}`,
+        date: new Date(session.date),
+        league: 'F1',
+        leagueIcon: '🏎️',
+        homeTeam: {
+          id: teamId,
+          name: getF1TeamName(teamId),
+          logo: getTeamEmoji(teamId),
+        },
+        awayTeam: {
+          id: 'f1-race',
+          name: `${event.name || 'Grand Prix'} – ${sessionLabel}`,
+          logo: abbr === 'Race' ? '🏁' : '⏱️',
+        },
+        favoriteTeamId: teamId,
+        venue: event.circuit?.fullName || event.name || 'TBD',
+        isF1Race: true,
+        f1Session: sessionLabel,
+        isMainRace: abbr === 'Race',
+      });
+    });
+  });
+
+  return results;
 };
 
 const getF1TeamName = (teamId) => {
