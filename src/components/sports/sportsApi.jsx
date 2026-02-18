@@ -120,10 +120,11 @@ export const fetchNHLSchedule = async (teamAbbrs = []) => {
         (data.games || []).forEach(g => {
           // Only include regular season (gameType 2) and playoffs (gameType 3)
           if (g.gameType === 1) return;
-          const gameDate = new Date(g.startTimeUTC || g.gameDate);
+          // Use gameDate (YYYY-MM-DD) for comparison to avoid timezone issues
+          const gameDate = new Date(g.gameDate + 'T00:00:00');
           if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
             seen.add(g.id);
-            games.push(g);
+            games.push({ ...g, startTimeUTC: g.startTimeUTC || g.gameDate });
           }
         });
       } catch (_) {}
