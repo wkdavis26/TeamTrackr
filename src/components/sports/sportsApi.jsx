@@ -432,12 +432,12 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
-  // Parse NHL games (NHLE format)
+  // Parse NHL games (ESPN format)
   if (teamIdsByLeague['NHL']) {
-    console.log('[NHL] parsing', nhlGames.length, 'games');
-    nhlGames.forEach(game => {
-      const parsed = parseNHLEvent(game, teamIdsByLeague['NHL']);
-      if (parsed && parsed.date > now) allGames.push(parsed);
+    console.log('[NHL] parsing', nhlGames.length, 'ESPN events');
+    nhlGames.forEach(event => {
+      const game = parseESPNEvent(event, 'NHL', teamIdsByLeague['NHL']);
+      if (game && game.date > now) allGames.push(game);
     });
   }
   
