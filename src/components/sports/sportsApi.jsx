@@ -170,8 +170,11 @@ export const fetchF1Schedule = async () => {
 // Map ESPN team abbreviation to our team ID
 const mapESPNTeamToId = (abbr, league) => {
   if (!abbr) return null;
-  // For NHL, derive id directly from abbreviation: DAL -> nhl-dal
-  if (league === 'NHL') return `nhl-${abbr.toLowerCase()}`;
+  // For NHL, reverse-lookup from NHL_ID_TO_ABBR to get our stored team ID (e.g. DAL -> nhl-stars)
+    if (league === 'NHL') {
+      const entry = Object.entries(NHL_ID_TO_ABBR).find(([, a]) => a === abbr);
+      return entry ? entry[0] : `nhl-${abbr.toLowerCase()}`;
+    }
   const mapping = {
     NFL: {
       KC: 'nfl-chiefs', SF: 'nfl-49ers', PHI: 'nfl-eagles', DAL: 'nfl-cowboys',
