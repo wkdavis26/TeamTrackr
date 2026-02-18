@@ -170,17 +170,16 @@ export const fetchF1Schedule = async () => {
 
 // Map ESPN team abbreviation to our team ID
 const mapESPNTeamToId = (abbr, league) => {
+  if (!abbr) return null;
+  // For NHL, derive id directly from abbreviation: DAL -> nhl-dal
+  if (league === 'NHL') return `nhl-${abbr.toLowerCase()}`;
   const mapping = {
     NFL: {
       KC: 'nfl-chiefs', SF: 'nfl-49ers', PHI: 'nfl-eagles', DAL: 'nfl-cowboys',
       BUF: 'nfl-bills', BAL: 'nfl-ravens', DET: 'nfl-lions', MIA: 'nfl-dolphins',
       GB: 'nfl-packers', NYJ: 'nfl-jets', NYG: 'nfl-giants', NE: 'nfl-patriots',
     },
-    NHL: {
-      BOS: 'nhl-bruins', NYR: 'nhl-rangers', TOR: 'nhl-maple-leafs', MTL: 'nhl-canadiens',
-      PIT: 'nhl-penguins', CHI: 'nhl-blackhawks', LAK: 'nhl-kings', EDM: 'nhl-oilers',
-      TBL: 'nhl-lightning', COL: 'nhl-avalanche', FLA: 'nhl-panthers', DAL: 'nhl-stars',
-    },
+    NHL: {}, // handled above
     MLB: {
       NYY: 'mlb-yankees', BOS: 'mlb-red-sox', LAD: 'mlb-dodgers', CHC: 'mlb-cubs',
       SF: 'mlb-giants', STL: 'mlb-cardinals', HOU: 'mlb-astros', ATL: 'mlb-braves',
