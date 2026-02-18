@@ -318,27 +318,31 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
 
 // Parse NHL event format
 const parseNHLEvent = (game, favoriteTeamIds) => {
-    const abbrToId = Object.fromEntries(Object.entries(NHL_ID_TO_ABBR).map(([id, abbr]) => [abbr, id]));
+  const abbrToId = Object.fromEntries(Object.entries(NHL_ID_TO_ABBR).map(([id, abbr]) => [abbr, id]));
 
-    const homeId = abbrToId[game.homeTeam?.abbrev] || null;
-    const awayId = abbrToId[game.awayTeam?.abbrev] || null;
-  
+  const homeId = abbrToId[game.homeTeam?.abbrev] || null;
+  const awayId = abbrToId[game.awayTeam?.abbrev] || null;
+
   const favoriteTeamId = favoriteTeamIds.find(id => id === homeId || id === awayId);
   if (!favoriteTeamId) return null;
-  
+
+  // Use gameDate (local date) to avoid UTC offset issues pushing the date backward
+  const dateStr = game.gameDate || game.startTimeUTC?.slice(0, 10);
+  const gameDate = new Date(dateStr + 'T12:00:00');
+
   return {
     id: `nhl-${game.id}`,
-    date: new Date(game.startTimeUTC),
+    date: gameDate,
     league: 'NHL',
     leagueIcon: '🏒',
     homeTeam: {
       id: homeId || game.homeTeam?.abbrev,
-      name: game.homeTeam?.placeName?.default + ' ' + (game.homeTeam?.commonName?.default || ''),
+      name: (game.homeTeam?.placeName?.default || '') + ' ' + (game.homeTeam?.commonName?.default || ''),
       logo: game.homeTeam?.logo || getTeamEmoji(homeId),
     },
     awayTeam: {
       id: awayId || game.awayTeam?.abbrev,
-      name: game.awayTeam?.placeName?.default + ' ' + (game.awayTeam?.commonName?.default || ''),
+      name: (game.awayTeam?.placeName?.default || '') + ' ' + (game.awayTeam?.commonName?.default || ''),
       logo: game.awayTeam?.logo || getTeamEmoji(awayId),
     },
     favoriteTeamId,
