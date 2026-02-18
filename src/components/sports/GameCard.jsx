@@ -27,12 +27,20 @@ const formatTimeCT = (date) =>
 export default function GameCard({ game, compact = false }) {
   const gameDate = new Date(game.date);
 
+  // Get a Date object at noon of the CT calendar date for this game (avoids UTC midnight shifts)
+  const getCTNoonDate = (d) => {
+    const ctDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(d);
+    return new Date(ctDateStr + 'T12:00:00');
+  };
+
+  const gameDateCT = getCTNoonDate(gameDate);
+
   const getDateLabel = () => {
-    if (isToday(gameDate)) return "Today";
-    if (isTomorrow(gameDate)) return "Tomorrow";
-    const days = differenceInDays(gameDate, new Date());
-    if (days < 7) return format(gameDate, "EEEE");
-    return format(gameDate, "MMM d");
+    if (isToday(gameDateCT)) return "Today";
+    if (isTomorrow(gameDateCT)) return "Tomorrow";
+    const days = differenceInDays(gameDateCT, getCTNoonDate(new Date()));
+    if (days < 7) return format(gameDateCT, "EEEE");
+    return format(gameDateCT, "MMM d");
   };
 
   const isFavoriteHome = game.homeTeam.id === game.favoriteTeamId;
