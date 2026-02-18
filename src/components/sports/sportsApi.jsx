@@ -448,7 +448,13 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   // Fetch all schedules in parallel
   const [nflGames, nhlGames, mlbGames, nbaGames, plGames, laligaGames, f1Games] = await Promise.all([
     teamIdsByLeague['NFL'] ? fetchNFLSchedule() : Promise.resolve([]),
-    teamIdsByLeague['NHL'] ? fetchNHLSchedule(teamIdsByLeague['NHL'].map(id => id.replace(/^nhl-/, '').toUpperCase())) : Promise.resolve([]),
+    teamIdsByLeague['NHL'] ? fetchNHLSchedule(
+      teamIdsByLeague['NHL'].map(id => {
+        // id may be 'nhl-dal' or 'nhl-stars' etc — look up abbreviation
+        const abbr = NHL_ID_TO_ABBR[id] || id.replace(/^nhl-/, '').toUpperCase();
+        return abbr;
+      })
+    ) : Promise.resolve([]),
     teamIdsByLeague['MLB'] ? fetchMLBSchedule() : Promise.resolve([]),
     teamIdsByLeague['NBA'] ? fetchNBASchedule() : Promise.resolve([]),
     teamIdsByLeague['Premier League'] ? fetchPremierLeagueSchedule() : Promise.resolve([]),
