@@ -431,7 +431,22 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   
   // Parse NHL games (ESPN format)
   if (teamIdsByLeague['NHL']) {
-    console.log('[NHL] parsing', nhlGames.length, 'ESPN events');
+    console.log('[NHL] favorite team IDs:', JSON.stringify(teamIdsByLeague['NHL']));
+    console.log('[NHL] total ESPN events fetched:', nhlGames.length);
+    // Log a sample of abbreviations ESPN returned
+    const sampleAbbrs = nhlGames.slice(0, 5).map(e => {
+      const c = e.competitions?.[0];
+      const home = c?.competitors?.find(t => t.homeAway === 'home')?.team?.abbreviation;
+      const away = c?.competitors?.find(t => t.homeAway === 'away')?.team?.abbreviation;
+      return `${away}@${home}`;
+    });
+    console.log('[NHL] sample matchups:', JSON.stringify(sampleAbbrs));
+    // Log any DAL games specifically
+    const dalGames = nhlGames.filter(e => {
+      const c = e.competitions?.[0];
+      return c?.competitors?.some(t => t.team?.abbreviation === 'DAL');
+    });
+    console.log('[NHL] DAL games found in raw ESPN data:', dalGames.length, dalGames.map(e => e.date));
     nhlGames.forEach(event => {
       const game = parseESPNEvent(event, 'NHL', teamIdsByLeague['NHL']);
       if (game && game.date > now) allGames.push(game);
