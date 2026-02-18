@@ -110,9 +110,11 @@ export const fetchNFLSchedule = async () => {
   }
 };
 
-// Fetch NHL schedule via ESPN scoreboard, returning ESPN events
+// Fetch NHL schedule via ESPN scoreboard — iterates day by day through end of regular season (Apr 17)
 export const fetchNHLSchedule = async () => {
-  return fetchESPNScheduleRange('hockey/nhl');
+  // NHL regular season ends ~April 17, 2026
+  const endOfSeason = new Date(2026, 3, 17); // April 17
+  return fetchESPNScheduleRange('hockey/nhl', endOfSeason);
 };
 
 // Fetch MLB schedule
