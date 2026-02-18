@@ -21,10 +21,11 @@ export default function UpcomingGames({ games }) {
   const getDateLabel = (dateStr) => {
     // Parse as local noon to avoid any timezone shifting in date-fns comparisons
     const date = new Date(dateStr + 'T12:00:00');
-    if (isToday(date)) return "Today";
-    if (isTomorrow(date)) return "Tomorrow";
+    const dateSuffix = format(date, "MMM d");
+    if (isToday(date)) return `Today, ${dateSuffix}`;
+    if (isTomorrow(date)) return `Tomorrow, ${dateSuffix}`;
     const days = differenceInDays(date, new Date());
-    if (days < 7) return format(date, "EEEE");
+    if (days < 7) return `${format(date, "EEEE")}, ${dateSuffix}`;
     return format(date, "EEEE, MMMM d");
   };
 
