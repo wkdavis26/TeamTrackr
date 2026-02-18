@@ -60,44 +60,21 @@ const fmtDate = (d) => {
   return `${y}${m}${day}`;
 };
 
-// Helper: fetch ESPN events for a specific sport, iterating day by day in 1-day chunks
-// This avoids range bugs — ESPN reliably returns all games for a single date
+// Helper: fetch ESPN events using a date range string (e.g. 20260218-20260417)
+// ESPN scoreboard supports ranges natively with limit=500
 const fetchESPNScheduleRange = async (sportPath, endDate) => {
-  const allEvents = [];
-  const seen = new Set();
   const now = new Date();
-  const end = endDate || new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
-
-  // Use day-by-day requests in parallel batches of 14 days
-  const dates = [];
-  const cursor = new Date(now);
-  cursor.setHours(0, 0, 0, 0);
-  while (cursor <= end) {
-    dates.push(fmtDate(new Date(cursor)));
-    cursor.setDate(cursor.getDate() + 1);
+  const end = endDate || new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
+  const startStr = fmtDate(now);
+  const endStr = fmtDate(end);
+  try {
+    const res = await fetch(`${ESPN_BASE}/${sportPath}/scoreboard?limit=500&dates=${startStr}-${endStr}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.events || [];
+  } catch (_) {
+    return [];
   }
-
-  // Batch into groups of 14 to avoid too many parallel requests
-  for (let i = 0; i < dates.length; i += 14) {
-    const batch = dates.slice(i, i + 14);
-    const results = await Promise.all(
-      batch.map(async (dateStr) => {
-        try {
-          const res = await fetch(`${ESPN_BASE}/${sportPath}/scoreboard?limit=100&dates=${dateStr}`);
-          if (!res.ok) return [];
-          const data = await res.json();
-          return data.events || [];
-        } catch (_) {
-          return [];
-        }
-      })
-    );
-    results.flat().forEach(e => {
-      if (!seen.has(e.id)) { seen.add(e.id); allEvents.push(e); }
-    });
-  }
-
-  return allEvents;
 };
 
 // Fetch NFL schedule
