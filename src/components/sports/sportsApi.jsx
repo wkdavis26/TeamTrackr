@@ -147,24 +147,14 @@ export const fetchF1Schedule = async () => {
 // Map ESPN team abbreviation to our team ID
 const mapESPNTeamToId = (abbr, league) => {
   if (!abbr) return null;
-  // For NHL, derive id directly from ESPN abbreviation: DAL -> nhl-dal (matches what TeamSelector stores)
-        if (league === 'NHL') return `nhl-${abbr.toLowerCase()}`;
+  // For NHL and MLB, derive id directly from ESPN abbreviation (matches what TeamSelector stores)
+  if (league === 'NHL') return `nhl-${abbr.toLowerCase()}`;
+  if (league === 'MLB') return `mlb-${abbr.toLowerCase()}`;
   const mapping = {
     NFL: {
       KC: 'nfl-chiefs', SF: 'nfl-49ers', PHI: 'nfl-eagles', DAL: 'nfl-cowboys',
       BUF: 'nfl-bills', BAL: 'nfl-ravens', DET: 'nfl-lions', MIA: 'nfl-dolphins',
       GB: 'nfl-packers', NYJ: 'nfl-jets', NYG: 'nfl-giants', NE: 'nfl-patriots',
-    },
-    NHL: {}, // handled above
-    MLB: {
-      NYY: 'mlb-yankees', BOS: 'mlb-red-sox', LAD: 'mlb-dodgers', CHC: 'mlb-cubs',
-      SF: 'mlb-giants', STL: 'mlb-cardinals', HOU: 'mlb-astros', ATL: 'mlb-braves',
-      NYM: 'mlb-mets', PHI: 'mlb-phillies', SD: 'mlb-padres', SEA: 'mlb-mariners',
-      TEX: 'mlb-rangers', NYY: 'mlb-yankees', MIN: 'mlb-twins', CLE: 'mlb-guardians',
-      DET: 'mlb-tigers', KC: 'mlb-royals', CWS: 'mlb-white-sox', TOR: 'mlb-blue-jays',
-      TB: 'mlb-rays', BAL: 'mlb-orioles', OAK: 'mlb-athletics', LAA: 'mlb-angels',
-      ARI: 'mlb-diamondbacks', COL: 'mlb-rockies', MIL: 'mlb-brewers', CIN: 'mlb-reds',
-      PIT: 'mlb-pirates', WSH: 'mlb-nationals', MIA: 'mlb-marlins',
     },
     NBA: {
       LAL: 'nba-lakers', BOS: 'nba-celtics', GSW: 'nba-warriors', GS: 'nba-warriors', 
