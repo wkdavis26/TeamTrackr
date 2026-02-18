@@ -471,6 +471,15 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   
   // Parse NBA games
   if (teamIdsByLeague['NBA']) {
+    console.log('[NBA] favorite team IDs:', JSON.stringify(teamIdsByLeague['NBA']));
+    console.log('[NBA] total ESPN events fetched:', nbaGames.length);
+    const sampleAbbrs = nbaGames.slice(0, 5).map(e => {
+      const c = e.competitions?.[0];
+      const home = c?.competitors?.find(t => t.homeAway === 'home')?.team?.abbreviation;
+      const away = c?.competitors?.find(t => t.homeAway === 'away')?.team?.abbreviation;
+      return `${away}@${home}`;
+    });
+    console.log('[NBA] sample matchups:', JSON.stringify(sampleAbbrs));
     nbaGames.forEach(event => {
       const game = parseESPNEvent(event, 'NBA', teamIdsByLeague['NBA']);
       if (game && game.date > now) allGames.push(game);
