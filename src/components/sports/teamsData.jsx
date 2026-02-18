@@ -140,12 +140,15 @@ export const LEAGUES = {
   }
 };
 
-// Generate mock upcoming games for favorite teams
-export const generateUpcomingGames = (favoriteTeams) => {
+// Generate mock upcoming games for favorite teams (non-F1)
+export const generateUpcomingGames = (favoriteTeams, f1Races = []) => {
   const games = [];
   const now = new Date();
   
   favoriteTeams.forEach(team => {
+    // Skip F1 teams - they use real API data
+    if (team.league === 'F1') return;
+    
     const league = LEAGUES[team.league];
     if (!league) return;
     
@@ -176,8 +179,35 @@ export const generateUpcomingGames = (favoriteTeams) => {
     }
   });
   
+  // Add F1 races for favorite F1 teams
+  const f1Teams = favoriteTeams.filter(t => t.league === 'F1');
+  if (f1Teams.length > 0 && f1Races.length > 0) {
+    f1Races.forEach(race => {
+      const raceDate = new Date(race.date);
+      if (raceDate > now) {
+        f1Teams.forEach(team => {
+          games.push({
+            id: `f1-${race._id || race.race_no}-${team.team_id}`,
+            date: raceDate,
+            league: 'F1',
+            leagueIcon: '🏎️',
+            homeTeam: { id: team.team_id, name: team.team_name, logo: LEAGUES.F1.teams.find(t => t.id === team.team_id)?.logo || "🏎️" },
+            awayTeam: { id: 'f1-race', name: race.track, logo: '🏁' },
+            favoriteTeamId: team.team_id,
+            venue: race.track,
+            isF1Race: true,
+            raceNo: race.race_no
+          });
+        });
+      }
+    });
+  }
+  
   return games.sort((a, b) => a.date - b.date);
 };
+
+// F1 API endpoint
+export const F1_API_URL = 'https://f1-race-schedule.p.rapidapi.com/api';
 
 export const getLeagueColor = (league) => {
   return LEAGUES[league]?.bgColor || "bg-slate-700";

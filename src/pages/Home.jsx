@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import TeamSelector from '@/components/sports/TeamSelector';
 import UpcomingGames from '@/components/sports/UpcomingGames';
 import CalendarView from '@/components/sports/CalendarView';
-import { generateUpcomingGames, LEAGUES } from '@/components/sports/teamsData';
+import { generateUpcomingGames, LEAGUES, F1_API_URL } from '@/components/sports/teamsData';
 
 export default function Home() {
   const [view, setView] = useState('upcoming'); // 'upcoming', 'calendar', 'teams'
