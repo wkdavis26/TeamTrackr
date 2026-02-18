@@ -40,31 +40,74 @@ const LALIGA_TEAM_IDS = {
   'll-valencia': 94, 'll-celta': 85, 'll-getafe': 9812, 'll-osasuna': 97,
 };
 
+// Helper: format date as YYYYMMDD for ESPN
+const fmtDate = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
+
+// Helper: fetch ESPN events across a 6-month date range by stepping through weeks
+const fetchESPNScheduleRange = async (sportPath) => {
+  const now = new Date();
+  const end = new Date(now);
+  end.setMonth(end.getMonth() + 6);
+
+  // Build list of weekly date pairs (ESPN accepts dates=YYYYMMDD-YYYYMMDD)
+  const allEvents = [];
+  const seen = new Set();
+  const cursor = new Date(now);
+
+  while (cursor < end) {
+    const from = fmtDate(cursor);
+    const to = new Date(cursor);
+    to.setDate(to.getDate() + 13); // 2-week chunks
+    if (to > end) to.setTime(end.getTime());
+    const toStr = fmtDate(to);
+    try {
+      const res = await fetch(`${ESPN_BASE}/${sportPath}/scoreboard?limit=100&dates=${from}-${toStr}`);
+      if (res.ok) {
+        const data = await res.json();
+        (data.events || []).forEach(e => {
+          if (!seen.has(e.id)) { seen.add(e.id); allEvents.push(e); }
+        });
+      }
+    } catch (_) {}
+    cursor.setDate(cursor.getDate() + 14);
+  }
+  return allEvents;
+};
+
 // Fetch NFL schedule
 export const fetchNFLSchedule = async () => {
   try {
-    const response = await fetch(`${ESPN_BASE}/football/nfl/scoreboard?limit=100`);
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.events || [];
+    return await fetchESPNScheduleRange('football/nfl');
   } catch (error) {
     console.error('Error fetching NFL schedule:', error);
     return [];
   }
 };
 
-// Fetch NHL schedule from NHL API
+// Fetch NHL schedule from NHL API (fetch season schedule for each team)
 export const fetchNHLSchedule = async () => {
   try {
-    const response = await fetch('https://api-web.nhle.com/v1/schedule/now');
-    if (!response.ok) return [];
-    const data = await response.json();
-    // Flatten all game weeks
+    const now = new Date();
+    const end = new Date(now);
+    end.setMonth(end.getMonth() + 6);
     const games = [];
-    if (data.gameWeek) {
-      data.gameWeek.forEach(week => {
-        if (week.games) games.push(...week.games);
-      });
+    const seen = new Set();
+    // NHL API: fetch week-by-week
+    const cursor = new Date(now);
+    while (cursor < end) {
+      const dateStr = cursor.toISOString().slice(0, 10);
+      const res = await fetch(`https://api-web.nhle.com/v1/schedule/${dateStr}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.gameWeek) {
+          data.gameWeek.forEach(week => {
+            (week.games || []).forEach(g => {
+              if (!seen.has(g.id)) { seen.add(g.id); games.push(g); }
+            });
+          });
+        }
+      }
+      cursor.setDate(cursor.getDate() + 7);
     }
     return games;
   } catch (error) {
@@ -76,10 +119,7 @@ export const fetchNHLSchedule = async () => {
 // Fetch MLB schedule
 export const fetchMLBSchedule = async () => {
   try {
-    const response = await fetch(`${ESPN_BASE}/baseball/mlb/scoreboard?limit=100`);
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.events || [];
+    return await fetchESPNScheduleRange('baseball/mlb');
   } catch (error) {
     console.error('Error fetching MLB schedule:', error);
     return [];
@@ -89,10 +129,7 @@ export const fetchMLBSchedule = async () => {
 // Fetch NBA schedule
 export const fetchNBASchedule = async () => {
   try {
-    const response = await fetch(`${ESPN_BASE}/basketball/nba/scoreboard?limit=100`);
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.events || [];
+    return await fetchESPNScheduleRange('basketball/nba');
   } catch (error) {
     console.error('Error fetching NBA schedule:', error);
     return [];
@@ -102,10 +139,7 @@ export const fetchNBASchedule = async () => {
 // Fetch Premier League schedule
 export const fetchPremierLeagueSchedule = async () => {
   try {
-    const response = await fetch(`${ESPN_BASE}/soccer/eng.1/scoreboard?limit=100`);
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.events || [];
+    return await fetchESPNScheduleRange('soccer/eng.1');
   } catch (error) {
     console.error('Error fetching Premier League schedule:', error);
     return [];
@@ -115,10 +149,7 @@ export const fetchPremierLeagueSchedule = async () => {
 // Fetch La Liga schedule
 export const fetchLaLigaSchedule = async () => {
   try {
-    const response = await fetch(`${ESPN_BASE}/soccer/esp.1/scoreboard?limit=100`);
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.events || [];
+    return await fetchESPNScheduleRange('soccer/esp.1');
   } catch (error) {
     console.error('Error fetching La Liga schedule:', error);
     return [];
@@ -128,10 +159,7 @@ export const fetchLaLigaSchedule = async () => {
 // Fetch F1 schedule
 export const fetchF1Schedule = async () => {
   try {
-    const response = await fetch(`${ESPN_BASE}/racing/f1/scoreboard?limit=50`);
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.events || [];
+    return await fetchESPNScheduleRange('racing/f1');
   } catch (error) {
     console.error('Error fetching F1 schedule:', error);
     return [];
