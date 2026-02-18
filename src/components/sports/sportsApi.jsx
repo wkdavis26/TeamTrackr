@@ -53,36 +53,50 @@ const LALIGA_TEAM_IDS = {
 };
 
 // Helper: format date as YYYYMMDD for ESPN
-const fmtDate = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
+const fmtDate = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}${m}${day}`;
+};
 
-// Helper: fetch ESPN events across a 6-month date range by stepping through weeks
-const fetchESPNScheduleRange = async (sportPath) => {
-  const now = new Date();
-  const end = new Date(now);
-  end.setMonth(end.getMonth() + 6);
-
-  // Build list of weekly date pairs (ESPN accepts dates=YYYYMMDD-YYYYMMDD)
+// Helper: fetch ESPN events for a specific sport, iterating day by day in 1-day chunks
+// This avoids range bugs — ESPN reliably returns all games for a single date
+const fetchESPNScheduleRange = async (sportPath, endDate) => {
   const allEvents = [];
   const seen = new Set();
-  const cursor = new Date(now);
+  const now = new Date();
+  const end = endDate || new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
 
-  while (cursor < end) {
-    const from = fmtDate(cursor);
-    const to = new Date(cursor);
-    to.setDate(to.getDate() + 13); // 2-week chunks
-    if (to > end) to.setTime(end.getTime());
-    const toStr = fmtDate(to);
-    try {
-      const res = await fetch(`${ESPN_BASE}/${sportPath}/scoreboard?limit=100&dates=${from}-${toStr}`);
-      if (res.ok) {
-        const data = await res.json();
-        (data.events || []).forEach(e => {
-          if (!seen.has(e.id)) { seen.add(e.id); allEvents.push(e); }
-        });
-      }
-    } catch (_) {}
-    cursor.setDate(cursor.getDate() + 14);
+  // Use day-by-day requests in parallel batches of 14 days
+  const dates = [];
+  const cursor = new Date(now);
+  cursor.setHours(0, 0, 0, 0);
+  while (cursor <= end) {
+    dates.push(fmtDate(new Date(cursor)));
+    cursor.setDate(cursor.getDate() + 1);
   }
+
+  // Batch into groups of 14 to avoid too many parallel requests
+  for (let i = 0; i < dates.length; i += 14) {
+    const batch = dates.slice(i, i + 14);
+    const results = await Promise.all(
+      batch.map(async (dateStr) => {
+        try {
+          const res = await fetch(`${ESPN_BASE}/${sportPath}/scoreboard?limit=100&dates=${dateStr}`);
+          if (!res.ok) return [];
+          const data = await res.json();
+          return data.events || [];
+        } catch (_) {
+          return [];
+        }
+      })
+    );
+    results.flat().forEach(e => {
+      if (!seen.has(e.id)) { seen.add(e.id); allEvents.push(e); }
+    });
+  }
+
   return allEvents;
 };
 
