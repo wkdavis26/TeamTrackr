@@ -20,6 +20,22 @@ export default function Home() {
     queryFn: () => base44.entities.FavoriteTeam.list(),
   });
 
+  // Fetch F1 race schedule
+  const { data: f1Races = [] } = useQuery({
+    queryKey: ['f1Races'],
+    queryFn: async () => {
+      const response = await fetch('https://f1-race-schedule.p.rapidapi.com/api', {
+        headers: {
+          'X-RapidAPI-Key': 'demo', // Will work with limited calls or user can add their key
+          'X-RapidAPI-Host': 'f1-race-schedule.p.rapidapi.com'
+        }
+      });
+      if (!response.ok) return [];
+      return response.json();
+    },
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+  });
+
   // Create team mutation
   const createTeamMutation = useMutation({
     mutationFn: (team) => base44.entities.FavoriteTeam.create(team),
@@ -51,8 +67,8 @@ export default function Home() {
 
   // Generate upcoming games based on favorites
   const upcomingGames = useMemo(() => {
-    return generateUpcomingGames(favoriteTeams);
-  }, [favoriteTeams]);
+    return generateUpcomingGames(favoriteTeams, f1Races);
+  }, [favoriteTeams, f1Races]);
 
   if (isLoading) {
     return (
