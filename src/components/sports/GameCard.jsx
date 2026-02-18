@@ -96,9 +96,10 @@ export default function GameCard({ game, compact = false }) {
         {/* Teams */}
         {game.isF1Race ? (
           <div className="text-center p-4 mb-4">
-            <div className="text-4xl mb-3">🏁</div>
-            <div className="text-lg font-bold text-gray-900 mb-1">{game.venue}</div>
-            <div className="flex items-center justify-center gap-2 mt-3">
+            <div className="text-4xl mb-2">{game.isMainRace ? '🏁' : '⏱️'}</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-1">{game.f1Session}</div>
+            <div className="text-base font-bold text-gray-900 mb-1">{game.venue}</div>
+            <div className="flex items-center justify-center gap-2 mt-2">
               <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} />
               <span className="text-sm text-emerald-600 font-medium">★ {game.homeTeam.name}</span>
             </div>
