@@ -13,6 +13,17 @@ const TeamLogo = ({ logo, name, size = "md" }) => {
   return <div className={`${sizeClass} flex items-center justify-center text-2xl`}>{logo || '🏆'}</div>;
 };
 
+// Format a date in Central Time
+const formatCT = (date, fmt) => {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    ...fmt,
+  }).format(date);
+};
+
+const formatTimeCT = (date) =>
+  formatCT(date, { hour: 'numeric', minute: '2-digit', hour12: true });
+
 export default function GameCard({ game, compact = false }) {
   const gameDate = new Date(game.date);
 
