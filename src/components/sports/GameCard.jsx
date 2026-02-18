@@ -154,7 +154,7 @@ export default function GameCard({ game, compact = false }) {
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center gap-1.5 text-gray-400">
             <Clock className="w-3.5 h-3.5" />
-            <span className="text-xs">{format(gameDate, "h:mm a")}</span>
+            <span className="text-xs">{formatTimeCT(gameDate)} CT</span>
           </div>
           <div className="flex items-center gap-1.5 text-gray-400">
             <MapPin className="w-3.5 h-3.5" />
