@@ -308,14 +308,10 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
 
 // Parse NHL event format
 const parseNHLEvent = (game, favoriteTeamIds) => {
-  const teamAbbrs = {
-    BOS: 'nhl-bruins', NYR: 'nhl-rangers', TOR: 'nhl-maple-leafs', MTL: 'nhl-canadiens',
-    PIT: 'nhl-penguins', CHI: 'nhl-blackhawks', LAK: 'nhl-kings', EDM: 'nhl-oilers',
-    TBL: 'nhl-lightning', COL: 'nhl-avalanche', FLA: 'nhl-panthers', DAL: 'nhl-stars',
-  };
-  
-  const homeId = teamAbbrs[game.homeTeam?.abbrev] || null;
-  const awayId = teamAbbrs[game.awayTeam?.abbrev] || null;
+    const abbrToId = Object.fromEntries(Object.entries(NHL_ID_TO_ABBR).map(([id, abbr]) => [abbr, id]));
+
+    const homeId = abbrToId[game.homeTeam?.abbrev] || null;
+    const awayId = abbrToId[game.awayTeam?.abbrev] || null;
   
   const favoriteTeamId = favoriteTeamIds.find(id => id === homeId || id === awayId);
   if (!favoriteTeamId) return null;
