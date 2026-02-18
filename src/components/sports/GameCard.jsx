@@ -149,9 +149,6 @@ export default function GameCard({ game, compact = false }) {
               )}>
                 {game.homeTeam.name}
               </div>
-              {isFavoriteHome && (
-                <div className="text-xs text-emerald-600 mt-1">★ Your Team</div>
-              )}
             </div>
           </div>
         )}
