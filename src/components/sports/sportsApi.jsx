@@ -106,20 +106,24 @@ export const fetchNHLSchedule = async (teamAbbrs = []) => {
     const games = [];
     const seen = new Set();
 
+    // Determine current NHL season (season starts in October)
+    const year = now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1;
+    const season = `${year}${year + 1}`;
+
     await Promise.all(teamAbbrs.map(async (abbr) => {
       try {
-        const res = await fetch(`https://api-web.nhle.com/v1/club-schedule-season/${abbr}/now`);
+        const res = await fetch(`https://api-web.nhle.com/v1/club-schedule-season/${abbr}/${season}`);
         if (!res.ok) return;
         const data = await res.json();
         (data.games || []).forEach(g => {
-            // Only include regular season (gameType 2) and playoffs (gameType 3)
-            if (g.gameType === 1) return; // skip preseason
-            const gameDate = new Date(g.startTimeUTC || g.gameDate);
-            if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
-              seen.add(g.id);
-              games.push(g);
-            }
-          });
+          // Only include regular season (gameType 2) and playoffs (gameType 3)
+          if (g.gameType === 1) return;
+          const gameDate = new Date(g.startTimeUTC || g.gameDate);
+          if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
+            seen.add(g.id);
+            games.push(g);
+          }
+        });
       } catch (_) {}
     }));
 
