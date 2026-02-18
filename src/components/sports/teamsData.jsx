@@ -1,5 +1,25 @@
 // Comprehensive teams data for all leagues
 export const LEAGUES = {
+  NFL: {
+    name: "NFL",
+    color: "#013369",
+    bgColor: "bg-blue-800",
+    icon: "🏈",
+    teams: [
+      { id: "nfl-chiefs", name: "Kansas City Chiefs", logo: "🔴" },
+      { id: "nfl-49ers", name: "San Francisco 49ers", logo: "🟡" },
+      { id: "nfl-eagles", name: "Philadelphia Eagles", logo: "🦅" },
+      { id: "nfl-cowboys", name: "Dallas Cowboys", logo: "⭐" },
+      { id: "nfl-bills", name: "Buffalo Bills", logo: "🦬" },
+      { id: "nfl-ravens", name: "Baltimore Ravens", logo: "🐦‍⬛" },
+      { id: "nfl-lions", name: "Detroit Lions", logo: "🦁" },
+      { id: "nfl-dolphins", name: "Miami Dolphins", logo: "🐬" },
+      { id: "nfl-packers", name: "Green Bay Packers", logo: "🟢" },
+      { id: "nfl-jets", name: "New York Jets", logo: "✈️" },
+      { id: "nfl-giants", name: "New York Giants", logo: "🔵" },
+      { id: "nfl-patriots", name: "New England Patriots", logo: "🔴🔵" },
+    ]
+  },
   NHL: {
     name: "NHL",
     color: "#000000",
