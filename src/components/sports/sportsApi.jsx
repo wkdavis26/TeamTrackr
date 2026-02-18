@@ -309,17 +309,14 @@ const parseNHLEvent = (game, favoriteTeamIds) => {
 
 // Session types to include and their display labels
 const F1_SESSION_TYPES = {
-  'FP1': 'Practice 1',
-  'FP2': 'Practice 2',
-  'FP3': 'Practice 3',
   'Qual': 'Qualifying',
   'SQ': 'Sprint Qualifying',
   'SR': 'Sprint Race',
-  'Sprint': 'Sprint',
+  'Sprint': 'Sprint Race',
   'Race': 'Race',
 };
 
-// Session types we want to show (exclude practice sessions)
+// Session types we want to show (FP1/FP2/FP3 excluded)
 const F1_SHOWN_SESSIONS = new Set(['Qual', 'SQ', 'SR', 'Sprint', 'Race']);
 
 // Parse F1 event — creates one entry per relevant session per team
