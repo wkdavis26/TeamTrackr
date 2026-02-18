@@ -318,20 +318,14 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
 
 // Parse NHL event format
 const parseNHLEvent = (game, favoriteTeamIds) => {
-  const abbrToId = Object.fromEntries(Object.entries(NHL_ID_TO_ABBR).map(([id, abbr]) => [abbr, id]));
-
   const homeAbbr = game.homeTeam?.abbrev;
   const awayAbbr = game.awayTeam?.abbrev;
 
-  // Match by hardcoded map OR by ESPN-style id (e.g. 'nhl-dal' matches abbrev 'DAL')
-  const homeId = abbrToId[homeAbbr] || (homeAbbr ? `nhl-${homeAbbr.toLowerCase()}` : null);
-  const awayId = abbrToId[awayAbbr] || (awayAbbr ? `nhl-${awayAbbr.toLowerCase()}` : null);
+  // Always derive id as nhl-{abbrev.toLowerCase()} (e.g. DAL -> nhl-dal)
+  const homeId = homeAbbr ? `nhl-${homeAbbr.toLowerCase()}` : null;
+  const awayId = awayAbbr ? `nhl-${awayAbbr.toLowerCase()}` : null;
 
-  const favoriteTeamId = favoriteTeamIds.find(id =>
-    id === homeId || id === awayId ||
-    (homeAbbr && id === `nhl-${homeAbbr.toLowerCase()}`) ||
-    (awayAbbr && id === `nhl-${awayAbbr.toLowerCase()}`)
-  );
+  const favoriteTeamId = favoriteTeamIds.find(id => id === homeId || id === awayId);
   if (!favoriteTeamId) return null;
 
   // Use gameDate (local date) to avoid UTC offset issues pushing the date backward
