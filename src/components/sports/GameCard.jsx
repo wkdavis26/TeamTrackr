@@ -92,7 +92,11 @@ export default function GameCard({ game, compact = false }) {
               "flex-1 text-center p-3 rounded-xl transition-colors",
               isFavoriteAway ? "bg-slate-700/50" : "bg-transparent"
             )}>
-              <div className="text-3xl mb-2">{game.awayTeam.logo}</div>
+              {game.awayTeam.logo?.startsWith('http') ? (
+            <img src={game.awayTeam.logo} alt={game.awayTeam.name} className="w-10 h-10 object-contain mb-2 mx-auto" />
+          ) : (
+            <div className="text-3xl mb-2">{game.awayTeam.logo}</div>
+          )}
               <div className={cn(
                 "text-sm font-medium truncate",
                 isFavoriteAway ? "text-white" : "text-slate-400"
@@ -114,7 +118,11 @@ export default function GameCard({ game, compact = false }) {
               "flex-1 text-center p-3 rounded-xl transition-colors",
               isFavoriteHome ? "bg-slate-700/50" : "bg-transparent"
             )}>
-              <div className="text-3xl mb-2">{game.homeTeam.logo}</div>
+              {game.homeTeam.logo?.startsWith('http') ? (
+            <img src={game.homeTeam.logo} alt={game.homeTeam.name} className="w-10 h-10 object-contain mb-2 mx-auto" />
+          ) : (
+            <div className="text-3xl mb-2">{game.homeTeam.logo}</div>
+          )}
               <div className={cn(
                 "text-sm font-medium truncate",
                 isFavoriteHome ? "text-white" : "text-slate-400"
