@@ -78,9 +78,6 @@ export default function CalendarView({ games }) {
             const isSelected = selectedDate && isSameDay(day, selectedDate);
             const dayIsToday = isToday(day);
 
-            // Get unique leagues for this day
-            const uniqueLeagues = [...new Set(dayGames.map(g => g.league))];
-
             return (
               <motion.button
                 key={day.toISOString()}
@@ -88,7 +85,7 @@ export default function CalendarView({ games }) {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedDate(isSelected ? null : day)}
                 className={cn(
-                    "aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all duration-200",
+                    "aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all duration-200 p-1",
                     isSelected
                       ? "bg-emerald-500 text-white"
                       : hasGames
@@ -103,20 +100,28 @@ export default function CalendarView({ games }) {
                 )}>
                   {format(day, "d")}
                 </span>
-                
+
                 {hasGames && (
-                  <div className="flex gap-0.5 mt-1 flex-wrap justify-center max-w-[40px]">
-                    {dayGames.slice(0, 5).map((game, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          "w-1.5 h-1.5 rounded-full",
-                          isSelected ? "bg-white/80" : getLeagueColor(game.league)
-                        )}
-                      />
-                    ))}
-                    {dayGames.length > 5 && (
-                      <span className={cn("text-[8px]", isSelected ? "text-white/70" : "text-gray-400")}>+{dayGames.length - 5}</span>
+                  <div className="text-[9px] space-y-0.5 mt-0.5 w-full overflow-hidden">
+                    {dayGames.slice(0, 2).map((game, i) => {
+                      const gameTime = new Intl.DateTimeFormat('en-US', {
+                        timeZone: 'America/Chicago',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      }).format(new Date(game.date));
+                      const awayAbbr = game.awayTeam.name.split(' ').pop();
+                      const homeAbbr = game.homeTeam.name.split(' ').pop();
+                      return (
+                        <div key={i} className={cn("truncate", isSelected ? "text-white/90" : "text-gray-700")}>
+                          {gameTime} {awayAbbr}@{homeAbbr}
+                        </div>
+                      );
+                    })}
+                    {dayGames.length > 2 && (
+                      <div className={cn("text-[8px]", isSelected ? "text-white/70" : "text-gray-500")}>
+                        +{dayGames.length - 2} more
+                      </div>
                     )}
                   </div>
                 )}
