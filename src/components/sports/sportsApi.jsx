@@ -96,48 +96,22 @@ export const fetchNFLSchedule = async () => {
   }
 };
 
-// Fetch NHL schedule using club-schedule-season per team
-// teamAbbrs: array of NHL team abbreviations (e.g. ['BOS', 'TOR'])
+// Fetch NHL schedule using ESPN scoreboard API (iterating date ranges)
+// teamAbbrs: array of NHL team abbreviations (e.g. ['DAL', 'BOS'])
 export const fetchNHLSchedule = async (teamAbbrs = []) => {
   try {
-    const now = new Date();
-    now.setHours(0, 0, 0, 0); // start of today
-    const end = new Date(now);
-    end.setMonth(end.getMonth() + 6);
-    const games = [];
-    const seen = new Set();
-
-    // Determine current NHL season (season year = year it started, starts in October)
-    // e.g. 2025-2026 season started Oct 2025, so for Feb 2026 => year=2025 => season=20252026
-    const year = now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1;
-    const season = `${year}${year + 1}`;
-    console.log('[NHL] Fetching season', season, 'for abbrs', teamAbbrs);
-
-    await Promise.all(teamAbbrs.map(async (abbr) => {
-      try {
-        const res = await fetch(`https://api-web.nhle.com/v1/club-schedule-season/${abbr}/${season}`);
-        if (!res.ok) {
-          console.error('[NHL] fetch not ok for', abbr, res.status);
-          return;
-        }
-        const data = await res.json();
-        console.log('[NHL]', abbr, 'total games from API:', data.games?.length, '| filtering gameType!=1, date >= today');
-        (data.games || []).forEach(g => {
-          // Only include regular season (gameType 2) and playoffs (gameType 3)
-          if (g.gameType === 1) return;
-          // Use gameDate (YYYY-MM-DD) for comparison to avoid timezone issues
-          const gameDate = new Date(g.gameDate + 'T00:00:00');
-          if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
-            seen.add(g.id);
-            games.push({ ...g, startTimeUTC: g.startTimeUTC || g.gameDate });
-          }
-        });
-      } catch (e) {
-        console.error('[NHL] fetch error for', abbr, e);
-      }
-    }));
-
-    return games;
+    const abbrSet = new Set(teamAbbrs.map(a => a.toUpperCase()));
+    console.log('[NHL] Fetching via ESPN for abbrs', [...abbrSet]);
+    const events = await fetchESPNScheduleRange('hockey/nhl');
+    console.log('[NHL] ESPN raw events:', events.length);
+    // Filter to only events involving our teams
+    const filtered = events.filter(event => {
+      const comp = event.competitions?.[0];
+      if (!comp) return false;
+      return comp.competitors?.some(c => abbrSet.has(c.team?.abbreviation?.toUpperCase()));
+    });
+    console.log('[NHL] filtered events for teams:', filtered.length);
+    return filtered;
   } catch (error) {
     console.error('Error fetching NHL schedule:', error);
     return [];
