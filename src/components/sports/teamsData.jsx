@@ -1,214 +1,94 @@
-// Comprehensive teams data for all leagues
+// League metadata only - teams are loaded dynamically from ESPN API
+
 export const LEAGUES = {
   NFL: {
     name: "NFL",
-    color: "#013369",
-    bgColor: "bg-blue-800",
     icon: "🏈",
-    teams: [
-      { id: "nfl-chiefs", name: "Kansas City Chiefs", logo: "🔴" },
-      { id: "nfl-49ers", name: "San Francisco 49ers", logo: "🟡" },
-      { id: "nfl-eagles", name: "Philadelphia Eagles", logo: "🦅" },
-      { id: "nfl-cowboys", name: "Dallas Cowboys", logo: "⭐" },
-      { id: "nfl-bills", name: "Buffalo Bills", logo: "🦬" },
-      { id: "nfl-ravens", name: "Baltimore Ravens", logo: "🐦‍⬛" },
-      { id: "nfl-lions", name: "Detroit Lions", logo: "🦁" },
-      { id: "nfl-dolphins", name: "Miami Dolphins", logo: "🐬" },
-      { id: "nfl-packers", name: "Green Bay Packers", logo: "🟢" },
-      { id: "nfl-jets", name: "New York Jets", logo: "✈️" },
-      { id: "nfl-giants", name: "New York Giants", logo: "🔵" },
-      { id: "nfl-patriots", name: "New England Patriots", logo: "🔴🔵" },
-    ]
+    espnPath: "football/nfl",
+    color: "#013369",
   },
   NHL: {
     name: "NHL",
-    color: "#000000",
-    bgColor: "bg-slate-800",
     icon: "🏒",
-    teams: [
-      { id: "nhl-bruins", name: "Boston Bruins", logo: "🐻" },
-      { id: "nhl-rangers", name: "New York Rangers", logo: "🗽" },
-      { id: "nhl-maple-leafs", name: "Toronto Maple Leafs", logo: "🍁" },
-      { id: "nhl-canadiens", name: "Montreal Canadiens", logo: "🔴" },
-      { id: "nhl-penguins", name: "Pittsburgh Penguins", logo: "🐧" },
-      { id: "nhl-blackhawks", name: "Chicago Blackhawks", logo: "🪶" },
-      { id: "nhl-kings", name: "Los Angeles Kings", logo: "👑" },
-      { id: "nhl-oilers", name: "Edmonton Oilers", logo: "🛢️" },
-      { id: "nhl-lightning", name: "Tampa Bay Lightning", logo: "⚡" },
-      { id: "nhl-avalanche", name: "Colorado Avalanche", logo: "🏔️" },
-      { id: "nhl-panthers", name: "Florida Panthers", logo: "🐆" },
-      { id: "nhl-stars", name: "Dallas Stars", logo: "⭐" },
-    ]
+    espnPath: "hockey/nhl",
+    color: "#000000",
   },
   MLB: {
     name: "MLB",
-    color: "#002D72",
-    bgColor: "bg-blue-900",
     icon: "⚾",
-    teams: [
-      { id: "mlb-yankees", name: "New York Yankees", logo: "🗽" },
-      { id: "mlb-red-sox", name: "Boston Red Sox", logo: "🧦" },
-      { id: "mlb-dodgers", name: "Los Angeles Dodgers", logo: "🔵" },
-      { id: "mlb-cubs", name: "Chicago Cubs", logo: "🐻" },
-      { id: "mlb-giants", name: "San Francisco Giants", logo: "🌉" },
-      { id: "mlb-cardinals", name: "St. Louis Cardinals", logo: "🐦" },
-      { id: "mlb-astros", name: "Houston Astros", logo: "⭐" },
-      { id: "mlb-braves", name: "Atlanta Braves", logo: "🪓" },
-      { id: "mlb-mets", name: "New York Mets", logo: "🍎" },
-      { id: "mlb-phillies", name: "Philadelphia Phillies", logo: "🔔" },
-      { id: "mlb-padres", name: "San Diego Padres", logo: "🎭" },
-      { id: "mlb-mariners", name: "Seattle Mariners", logo: "⚓" },
-    ]
+    espnPath: "baseball/mlb",
+    color: "#002D72",
   },
   NBA: {
     name: "NBA",
-    color: "#C9082A",
-    bgColor: "bg-orange-600",
     icon: "🏀",
-    teams: [
-      { id: "nba-lakers", name: "Los Angeles Lakers", logo: "💜" },
-      { id: "nba-celtics", name: "Boston Celtics", logo: "☘️" },
-      { id: "nba-warriors", name: "Golden State Warriors", logo: "🌉" },
-      { id: "nba-bulls", name: "Chicago Bulls", logo: "🐂" },
-      { id: "nba-heat", name: "Miami Heat", logo: "🔥" },
-      { id: "nba-knicks", name: "New York Knicks", logo: "🗽" },
-      { id: "nba-nets", name: "Brooklyn Nets", logo: "🌃" },
-      { id: "nba-76ers", name: "Philadelphia 76ers", logo: "🔔" },
-      { id: "nba-bucks", name: "Milwaukee Bucks", logo: "🦌" },
-      { id: "nba-nuggets", name: "Denver Nuggets", logo: "⛏️" },
-      { id: "nba-suns", name: "Phoenix Suns", logo: "☀️" },
-      { id: "nba-mavs", name: "Dallas Mavericks", logo: "🐴" },
-    ]
+    espnPath: "basketball/nba",
+    color: "#C9082A",
   },
   "Premier League": {
     name: "Premier League",
-    color: "#3D195B",
-    bgColor: "bg-purple-800",
     icon: "⚽",
-    teams: [
-      { id: "pl-arsenal", name: "Arsenal", logo: "🔴" },
-      { id: "pl-chelsea", name: "Chelsea", logo: "🔵" },
-      { id: "pl-liverpool", name: "Liverpool", logo: "🔴" },
-      { id: "pl-man-city", name: "Manchester City", logo: "🩵" },
-      { id: "pl-man-utd", name: "Manchester United", logo: "🔴" },
-      { id: "pl-tottenham", name: "Tottenham Hotspur", logo: "⚪" },
-      { id: "pl-newcastle", name: "Newcastle United", logo: "⚫" },
-      { id: "pl-aston-villa", name: "Aston Villa", logo: "🟤" },
-      { id: "pl-brighton", name: "Brighton", logo: "🔵" },
-      { id: "pl-west-ham", name: "West Ham United", logo: "🟣" },
-      { id: "pl-everton", name: "Everton", logo: "🔵" },
-      { id: "pl-wolves", name: "Wolverhampton", logo: "🟠" },
-    ]
+    espnPath: "soccer/eng.1",
+    color: "#3D195B",
   },
   "La Liga": {
     name: "La Liga",
-    color: "#EE8707",
-    bgColor: "bg-amber-600",
     icon: "⚽",
-    teams: [
-      { id: "ll-real-madrid", name: "Real Madrid", logo: "⚪" },
-      { id: "ll-barcelona", name: "FC Barcelona", logo: "🔵🔴" },
-      { id: "ll-atletico", name: "Atlético Madrid", logo: "🔴⚪" },
-      { id: "ll-sevilla", name: "Sevilla FC", logo: "🔴" },
-      { id: "ll-real-sociedad", name: "Real Sociedad", logo: "🔵⚪" },
-      { id: "ll-villarreal", name: "Villarreal CF", logo: "🟡" },
-      { id: "ll-athletic", name: "Athletic Bilbao", logo: "🔴⚪" },
-      { id: "ll-betis", name: "Real Betis", logo: "🟢" },
-      { id: "ll-valencia", name: "Valencia CF", logo: "🦇" },
-      { id: "ll-celta", name: "Celta Vigo", logo: "🩵" },
-      { id: "ll-getafe", name: "Getafe CF", logo: "🔵" },
-      { id: "ll-osasuna", name: "CA Osasuna", logo: "🔴" },
-    ]
+    espnPath: "soccer/esp.1",
+    color: "#EE8707",
   },
   F1: {
     name: "F1",
-    color: "#E10600",
-    bgColor: "bg-red-600",
     icon: "🏎️",
+    espnPath: null, // F1 teams fetched differently
+    color: "#E10600",
     teams: [
-      { id: "f1-red-bull", name: "Red Bull Racing", logo: "🐂" },
-      { id: "f1-ferrari", name: "Scuderia Ferrari", logo: "🐎" },
-      { id: "f1-mercedes", name: "Mercedes-AMG", logo: "⭐" },
-      { id: "f1-mclaren", name: "McLaren", logo: "🧡" },
-      { id: "f1-aston-martin", name: "Aston Martin", logo: "🟢" },
-      { id: "f1-alpine", name: "Alpine", logo: "🔵" },
-      { id: "f1-williams", name: "Williams", logo: "🔵" },
-      { id: "f1-alphatauri", name: "RB", logo: "⚪" },
-      { id: "f1-alfa-romeo", name: "Kick Sauber", logo: "🟢" },
-      { id: "f1-haas", name: "Haas F1 Team", logo: "⚫🔴" },
+      { id: "f1-red-bull", name: "Red Bull Racing", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/rbr.png" },
+      { id: "f1-ferrari", name: "Scuderia Ferrari", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/fer.png" },
+      { id: "f1-mercedes", name: "Mercedes-AMG", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/mer.png" },
+      { id: "f1-mclaren", name: "McLaren", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/mcl.png" },
+      { id: "f1-aston-martin", name: "Aston Martin", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/am.png" },
+      { id: "f1-alpine", name: "Alpine", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/alp.png" },
+      { id: "f1-williams", name: "Williams", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/wil.png" },
+      { id: "f1-alphatauri", name: "RB / Racing Bulls", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/rb.png" },
+      { id: "f1-sauber", name: "Kick Sauber", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/sau.png" },
+      { id: "f1-haas", name: "Haas F1 Team", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/has.png" },
     ]
   }
 };
 
-// Generate mock upcoming games for favorite teams (non-F1)
-export const generateUpcomingGames = (favoriteTeams, f1Races = []) => {
-  const games = [];
-  const now = new Date();
-  
-  favoriteTeams.forEach(team => {
-    // Skip F1 teams - they use real API data
-    if (team.league === 'F1') return;
-    
-    const league = LEAGUES[team.league];
-    if (!league) return;
-    
-    const otherTeams = league.teams.filter(t => t.id !== team.team_id);
-    
-    // Generate 3-5 upcoming games per team
-    const numGames = Math.floor(Math.random() * 3) + 3;
-    
-    for (let i = 0; i < numGames; i++) {
-      const daysAhead = Math.floor(Math.random() * 30) + 1;
-      const gameDate = new Date(now);
-      gameDate.setDate(gameDate.getDate() + daysAhead);
-      gameDate.setHours(Math.floor(Math.random() * 8) + 12, 0, 0, 0);
-      
-      const opponent = otherTeams[Math.floor(Math.random() * otherTeams.length)];
-      const isHome = Math.random() > 0.5;
-      
-      games.push({
-        id: `${team.team_id}-${i}-${daysAhead}`,
-        date: gameDate,
-        league: team.league,
-        leagueIcon: league.icon,
-        homeTeam: isHome ? { id: team.team_id, name: team.team_name, logo: league.teams.find(t => t.id === team.team_id)?.logo || "🏆" } : opponent,
-        awayTeam: isHome ? opponent : { id: team.team_id, name: team.team_name, logo: league.teams.find(t => t.id === team.team_id)?.logo || "🏆" },
-        favoriteTeamId: team.team_id,
-        venue: isHome ? `${team.team_name} Arena` : `${opponent.name} Arena`
-      });
-    }
-  });
-  
-  // Add F1 races for favorite F1 teams
-  const f1Teams = favoriteTeams.filter(t => t.league === 'F1');
-  if (f1Teams.length > 0 && f1Races.length > 0) {
-    f1Races.forEach(race => {
-      const raceDate = new Date(race.date);
-      if (raceDate > now) {
-        f1Teams.forEach(team => {
-          games.push({
-            id: `f1-${race._id || race.race_no}-${team.team_id}`,
-            date: raceDate,
-            league: 'F1',
-            leagueIcon: '🏎️',
-            homeTeam: { id: team.team_id, name: team.team_name, logo: LEAGUES.F1.teams.find(t => t.id === team.team_id)?.logo || "🏎️" },
-            awayTeam: { id: 'f1-race', name: race.track, logo: '🏁' },
-            favoriteTeamId: team.team_id,
-            venue: race.track,
-            isF1Race: true,
-            raceNo: race.race_no
-          });
-        });
-      }
-    });
+// Fetch all teams for a given league from ESPN
+export const fetchLeagueTeams = async (leagueKey) => {
+  const league = LEAGUES[leagueKey];
+  if (!league || !league.espnPath) {
+    // Return static data for F1
+    return league?.teams || [];
   }
-  
-  return games.sort((a, b) => a.date - b.date);
+  try {
+    const response = await fetch(
+      `https://site.api.espn.com/apis/site/v2/sports/${league.espnPath}/teams?limit=100`
+    );
+    if (!response.ok) return [];
+    const data = await response.json();
+    const teams = data.sports?.[0]?.leagues?.[0]?.teams || [];
+    return teams.map(({ team }) => ({
+      id: `${leagueKey.toLowerCase().replace(/\s+/g, '-')}-${team.abbreviation.toLowerCase()}`,
+      name: team.displayName,
+      abbreviation: team.abbreviation,
+      logo: team.logos?.[0]?.href || null,
+      color: team.color,
+    }));
+  } catch (e) {
+    console.error(`Error fetching teams for ${leagueKey}:`, e);
+    return [];
+  }
 };
 
-// F1 API endpoint
-export const F1_API_URL = 'https://f1-race-schedule.p.rapidapi.com/api';
-
 export const getLeagueColor = (league) => {
-  return LEAGUES[league]?.bgColor || "bg-slate-700";
+  const colors = {
+    NFL: "bg-blue-800", NHL: "bg-slate-800", MLB: "bg-blue-900",
+    NBA: "bg-orange-600", "Premier League": "bg-purple-800",
+    "La Liga": "bg-amber-600", F1: "bg-red-600",
+  };
+  return colors[league] || "bg-slate-700";
 };
