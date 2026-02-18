@@ -75,46 +75,58 @@ export default function GameCard({ game, compact = false }) {
         </div>
 
         {/* Teams */}
-        <div className="flex items-center justify-between gap-4 mb-4">
-          {/* Away Team */}
-          <div className={cn(
-            "flex-1 text-center p-3 rounded-xl transition-colors",
-            isFavoriteAway ? "bg-slate-700/50" : "bg-transparent"
-          )}>
-            <div className="text-3xl mb-2">{game.awayTeam.logo}</div>
-            <div className={cn(
-              "text-sm font-medium truncate",
-              isFavoriteAway ? "text-white" : "text-slate-400"
-            )}>
-              {game.awayTeam.name}
+        {game.isF1Race ? (
+          <div className="text-center p-4 mb-4">
+            <div className="text-4xl mb-3">🏁</div>
+            <div className="text-lg font-bold text-white mb-1">{game.venue}</div>
+            <div className="text-sm text-slate-400">Round {game.raceNo}</div>
+            <div className="flex items-center justify-center gap-2 mt-3">
+              <span className="text-lg">{game.homeTeam.logo}</span>
+              <span className="text-sm text-emerald-400">★ {game.homeTeam.name}</span>
             </div>
-            {isFavoriteAway && (
-              <div className="text-xs text-emerald-400 mt-1">★ Your Team</div>
-            )}
           </div>
-
-          {/* VS */}
-          <div className="flex flex-col items-center">
-            <div className="text-xs text-slate-500 uppercase tracking-wider">vs</div>
-          </div>
-
-          {/* Home Team */}
-          <div className={cn(
-            "flex-1 text-center p-3 rounded-xl transition-colors",
-            isFavoriteHome ? "bg-slate-700/50" : "bg-transparent"
-          )}>
-            <div className="text-3xl mb-2">{game.homeTeam.logo}</div>
+        ) : (
+          <div className="flex items-center justify-between gap-4 mb-4">
+            {/* Away Team */}
             <div className={cn(
-              "text-sm font-medium truncate",
-              isFavoriteHome ? "text-white" : "text-slate-400"
+              "flex-1 text-center p-3 rounded-xl transition-colors",
+              isFavoriteAway ? "bg-slate-700/50" : "bg-transparent"
             )}>
-              {game.homeTeam.name}
+              <div className="text-3xl mb-2">{game.awayTeam.logo}</div>
+              <div className={cn(
+                "text-sm font-medium truncate",
+                isFavoriteAway ? "text-white" : "text-slate-400"
+              )}>
+                {game.awayTeam.name}
+              </div>
+              {isFavoriteAway && (
+                <div className="text-xs text-emerald-400 mt-1">★ Your Team</div>
+              )}
             </div>
-            {isFavoriteHome && (
-              <div className="text-xs text-emerald-400 mt-1">★ Your Team</div>
-            )}
+
+            {/* VS */}
+            <div className="flex flex-col items-center">
+              <div className="text-xs text-slate-500 uppercase tracking-wider">vs</div>
+            </div>
+
+            {/* Home Team */}
+            <div className={cn(
+              "flex-1 text-center p-3 rounded-xl transition-colors",
+              isFavoriteHome ? "bg-slate-700/50" : "bg-transparent"
+            )}>
+              <div className="text-3xl mb-2">{game.homeTeam.logo}</div>
+              <div className={cn(
+                "text-sm font-medium truncate",
+                isFavoriteHome ? "text-white" : "text-slate-400"
+              )}>
+                {game.homeTeam.name}
+              </div>
+              {isFavoriteHome && (
+                <div className="text-xs text-emerald-400 mt-1">★ Your Team</div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-slate-700/50">
