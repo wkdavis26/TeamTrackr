@@ -5,9 +5,17 @@ import { MapPin, Clock } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { getLeagueColor } from './teamsData';
 
+const TeamLogo = ({ logo, name, size = "md" }) => {
+  const sizeClass = size === "sm" ? "w-8 h-8" : "w-12 h-12";
+  if (logo?.startsWith('http')) {
+    return <img src={logo} alt={name} className={`${sizeClass} object-contain`} />;
+  }
+  return <div className={`${sizeClass} flex items-center justify-center text-2xl`}>{logo || '🏆'}</div>;
+};
+
 export default function GameCard({ game, compact = false }) {
   const gameDate = new Date(game.date);
-  
+
   const getDateLabel = () => {
     if (isToday(gameDate)) return "Today";
     if (isTomorrow(gameDate)) return "Tomorrow";
@@ -24,22 +32,22 @@ export default function GameCard({ game, compact = false }) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50"
+        className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200"
       >
         <div className={cn("w-1 h-12 rounded-full", getLeagueColor(game.league))} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 text-sm">
-            <span className={cn(isFavoriteAway && "font-bold text-white", !isFavoriteAway && "text-slate-400")}>
-              {game.awayTeam.logo} {game.awayTeam.name}
+            <TeamLogo logo={game.awayTeam.logo} name={game.awayTeam.name} size="sm" />
+            <span className={cn(isFavoriteAway ? "font-bold text-gray-900" : "text-gray-500")}>
+              {game.awayTeam.name}
             </span>
-            <span className="text-slate-500">@</span>
-            <span className={cn(isFavoriteHome && "font-bold text-white", !isFavoriteHome && "text-slate-400")}>
-              {game.homeTeam.logo} {game.homeTeam.name}
+            <span className="text-gray-400">@</span>
+            <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} size="sm" />
+            <span className={cn(isFavoriteHome ? "font-bold text-gray-900" : "text-gray-500")}>
+              {game.homeTeam.name}
             </span>
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            {format(gameDate, "h:mm a")}
-          </div>
+          <div className="text-xs text-gray-400 mt-1">{format(gameDate, "h:mm a")}</div>
         </div>
       </motion.div>
     );
@@ -50,25 +58,25 @@ export default function GameCard({ game, compact = false }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm border border-slate-700/50 hover:border-slate-600/50 transition-all duration-300"
+      className="group relative overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
     >
       {/* League indicator strip */}
       <div className={cn("absolute top-0 left-0 right-0 h-1", getLeagueColor(game.league))} />
-      
-      <div className="p-5">
+
+      <div className="p-5 pt-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="text-lg">{game.leagueIcon}</span>
-            <span className="text-sm font-medium text-slate-400">{game.league}</span>
+            <span className="text-sm font-medium text-gray-500">{game.league}</span>
           </div>
           <div className={cn(
             "px-3 py-1 rounded-full text-xs font-semibold",
-            isToday(gameDate) 
-              ? "bg-emerald-500/20 text-emerald-400" 
+            isToday(gameDate)
+              ? "bg-emerald-100 text-emerald-700"
               : isTomorrow(gameDate)
-                ? "bg-amber-500/20 text-amber-400"
-                : "bg-slate-700 text-slate-300"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-gray-100 text-gray-600"
           )}>
             {getDateLabel()}
           </div>
@@ -78,11 +86,10 @@ export default function GameCard({ game, compact = false }) {
         {game.isF1Race ? (
           <div className="text-center p-4 mb-4">
             <div className="text-4xl mb-3">🏁</div>
-            <div className="text-lg font-bold text-white mb-1">{game.venue}</div>
-            <div className="text-sm text-slate-400">Round {game.raceNo}</div>
+            <div className="text-lg font-bold text-gray-900 mb-1">{game.venue}</div>
             <div className="flex items-center justify-center gap-2 mt-3">
-              <span className="text-lg">{game.homeTeam.logo}</span>
-              <span className="text-sm text-emerald-400">★ {game.homeTeam.name}</span>
+              <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} />
+              <span className="text-sm text-emerald-600 font-medium">★ {game.homeTeam.name}</span>
             </div>
           </div>
         ) : (
@@ -90,59 +97,55 @@ export default function GameCard({ game, compact = false }) {
             {/* Away Team */}
             <div className={cn(
               "flex-1 text-center p-3 rounded-xl transition-colors",
-              isFavoriteAway ? "bg-slate-700/50" : "bg-transparent"
+              isFavoriteAway ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-gray-50"
             )}>
-              {game.awayTeam.logo?.startsWith('http') ? (
-            <img src={game.awayTeam.logo} alt={game.awayTeam.name} className="w-10 h-10 object-contain mb-2 mx-auto" />
-          ) : (
-            <div className="text-3xl mb-2">{game.awayTeam.logo}</div>
-          )}
+              <div className="flex justify-center mb-2">
+                <TeamLogo logo={game.awayTeam.logo} name={game.awayTeam.name} />
+              </div>
               <div className={cn(
                 "text-sm font-medium truncate",
-                isFavoriteAway ? "text-white" : "text-slate-400"
+                isFavoriteAway ? "text-gray-900 font-semibold" : "text-gray-600"
               )}>
                 {game.awayTeam.name}
               </div>
               {isFavoriteAway && (
-                <div className="text-xs text-emerald-400 mt-1">★ Your Team</div>
+                <div className="text-xs text-emerald-600 mt-1">★ Your Team</div>
               )}
             </div>
 
             {/* VS */}
             <div className="flex flex-col items-center">
-              <div className="text-xs text-slate-500 uppercase tracking-wider">vs</div>
+              <div className="text-xs text-gray-400 uppercase tracking-wider font-bold">vs</div>
             </div>
 
             {/* Home Team */}
             <div className={cn(
               "flex-1 text-center p-3 rounded-xl transition-colors",
-              isFavoriteHome ? "bg-slate-700/50" : "bg-transparent"
+              isFavoriteHome ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-gray-50"
             )}>
-              {game.homeTeam.logo?.startsWith('http') ? (
-            <img src={game.homeTeam.logo} alt={game.homeTeam.name} className="w-10 h-10 object-contain mb-2 mx-auto" />
-          ) : (
-            <div className="text-3xl mb-2">{game.homeTeam.logo}</div>
-          )}
+              <div className="flex justify-center mb-2">
+                <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} />
+              </div>
               <div className={cn(
                 "text-sm font-medium truncate",
-                isFavoriteHome ? "text-white" : "text-slate-400"
+                isFavoriteHome ? "text-gray-900 font-semibold" : "text-gray-600"
               )}>
                 {game.homeTeam.name}
               </div>
               {isFavoriteHome && (
-                <div className="text-xs text-emerald-400 mt-1">★ Your Team</div>
+                <div className="text-xs text-emerald-600 mt-1">★ Your Team</div>
               )}
             </div>
           </div>
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-700/50">
-          <div className="flex items-center gap-1.5 text-slate-500">
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-1.5 text-gray-400">
             <Clock className="w-3.5 h-3.5" />
             <span className="text-xs">{format(gameDate, "h:mm a")}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-slate-500">
+          <div className="flex items-center gap-1.5 text-gray-400">
             <MapPin className="w-3.5 h-3.5" />
             <span className="text-xs truncate max-w-[120px]">{game.venue}</span>
           </div>
