@@ -105,18 +105,18 @@ export default function CalendarView({ games }) {
                 </span>
                 
                 {hasGames && (
-                  <div className="flex gap-0.5 mt-1">
-                    {uniqueLeagues.slice(0, 3).map((league, i) => (
-                      <div 
-                        key={i} 
+                  <div className="flex gap-0.5 mt-1 flex-wrap justify-center max-w-[40px]">
+                    {dayGames.slice(0, 5).map((game, i) => (
+                      <div
+                        key={i}
                         className={cn(
                           "w-1.5 h-1.5 rounded-full",
-                          isSelected ? "bg-white/70" : getLeagueColor(league)
-                        )} 
+                          isSelected ? "bg-white/80" : getLeagueColor(game.league)
+                        )}
                       />
                     ))}
-                    {uniqueLeagues.length > 3 && (
-                      <span className="text-[8px] text-slate-400">+{uniqueLeagues.length - 3}</span>
+                    {dayGames.length > 5 && (
+                      <span className={cn("text-[8px]", isSelected ? "text-white/70" : "text-gray-400")}>+{dayGames.length - 5}</span>
                     )}
                   </div>
                 )}
