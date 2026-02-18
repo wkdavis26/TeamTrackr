@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils";
 import TeamSelector from '@/components/sports/TeamSelector';
 import UpcomingGames from '@/components/sports/UpcomingGames';
 import CalendarView from '@/components/sports/CalendarView';
-import { generateUpcomingGames, LEAGUES, F1_API_URL } from '@/components/sports/teamsData';
+import { LEAGUES } from '@/components/sports/teamsData';
+import { fetchAllSchedules } from '@/components/sports/sportsApi';
 
 export default function Home() {
   const [view, setView] = useState('upcoming'); // 'upcoming', 'calendar', 'teams'
@@ -20,20 +21,12 @@ export default function Home() {
     queryFn: () => base44.entities.FavoriteTeam.list(),
   });
 
-  // Fetch F1 race schedule
-  const { data: f1Races = [] } = useQuery({
-    queryKey: ['f1Races'],
-    queryFn: async () => {
-      const response = await fetch('https://f1-race-schedule.p.rapidapi.com/api', {
-        headers: {
-          'X-RapidAPI-Key': 'demo', // Will work with limited calls or user can add their key
-          'X-RapidAPI-Host': 'f1-race-schedule.p.rapidapi.com'
-        }
-      });
-      if (!response.ok) return [];
-      return response.json();
-    },
-    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+  // Fetch real schedule data from APIs
+  const { data: upcomingGames = [], isLoading: isLoadingGames } = useQuery({
+    queryKey: ['schedules', favoriteTeams.map(t => t.team_id).join(',')],
+    queryFn: () => fetchAllSchedules(favoriteTeams),
+    enabled: favoriteTeams.length > 0,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   // Create team mutation
@@ -65,12 +58,9 @@ export default function Home() {
     }
   };
 
-  // Generate upcoming games based on favorites
-  const upcomingGames = useMemo(() => {
-    return generateUpcomingGames(favoriteTeams, f1Races);
-  }, [favoriteTeams, f1Races]);
 
-  if (isLoading) {
+
+  if (isLoading || isLoadingGames) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
