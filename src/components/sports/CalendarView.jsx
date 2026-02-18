@@ -41,7 +41,7 @@ export default function CalendarView({ games }) {
           <ChevronLeft className="w-5 h-5" />
         </Button>
         
-        <h2 className="text-xl font-bold text-white">
+        <h2 className="text-xl font-bold text-gray-900">
           {format(currentMonth, "MMMM yyyy")}
         </h2>
         
@@ -56,11 +56,11 @@ export default function CalendarView({ games }) {
       </div>
 
       {/* Calendar Grid */}
-      <div className="rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 p-4">
+      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="text-center text-xs font-medium text-slate-500 py-2">
+                <div key={day} className="text-center text-xs font-medium text-gray-400 py-2">
               {day}
             </div>
           ))}
@@ -88,14 +88,14 @@ export default function CalendarView({ games }) {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setSelectedDate(isSelected ? null : day)}
                 className={cn(
-                  "aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all duration-200",
-                  isSelected 
-                    ? "bg-emerald-500 text-white" 
-                    : hasGames 
-                      ? "bg-slate-700/50 text-white hover:bg-slate-700" 
-                      : "text-slate-500 hover:bg-slate-800/50",
-                  dayIsToday && !isSelected && "ring-2 ring-emerald-500/50"
-                )}
+                    "aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all duration-200",
+                    isSelected
+                      ? "bg-emerald-500 text-white"
+                      : hasGames
+                        ? "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                        : "text-gray-400 hover:bg-gray-50",
+                    dayIsToday && !isSelected && "ring-2 ring-emerald-400"
+                  )}
               >
                 <span className={cn(
                   "text-sm font-medium",
@@ -135,7 +135,7 @@ export default function CalendarView({ games }) {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-4"
           >
-            <h3 className="text-lg font-semibold text-white">
+            <h3 className="text-lg font-semibold text-gray-900">
               Games on {format(selectedDate, "MMMM d, yyyy")}
             </h3>
             
@@ -146,7 +146,7 @@ export default function CalendarView({ games }) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-gray-400">
                 No games scheduled for this date
               </div>
             )}
