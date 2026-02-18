@@ -112,12 +112,14 @@ export const fetchNHLSchedule = async (teamAbbrs = []) => {
         if (!res.ok) return;
         const data = await res.json();
         (data.games || []).forEach(g => {
-          const gameDate = new Date(g.startTimeUTC || g.gameDate);
-          if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
-            seen.add(g.id);
-            games.push(g);
-          }
-        });
+            // Only include regular season (gameType 2) and playoffs (gameType 3)
+            if (g.gameType === 1) return; // skip preseason
+            const gameDate = new Date(g.startTimeUTC || g.gameDate);
+            if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
+              seen.add(g.id);
+              games.push(g);
+            }
+          });
       } catch (_) {}
     }));
 
