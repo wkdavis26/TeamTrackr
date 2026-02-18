@@ -36,7 +36,7 @@ export default function CalendarView({ games }) {
           variant="ghost"
           size="icon"
           onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-          className="text-slate-400 hover:text-white hover:bg-slate-800"
+          className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
         >
           <ChevronLeft className="w-5 h-5" />
         </Button>
@@ -49,7 +49,7 @@ export default function CalendarView({ games }) {
           variant="ghost"
           size="icon"
           onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-          className="text-slate-400 hover:text-white hover:bg-slate-800"
+          className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
         >
           <ChevronRight className="w-5 h-5" />
         </Button>
