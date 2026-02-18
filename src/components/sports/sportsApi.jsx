@@ -84,31 +84,51 @@ export const fetchNFLSchedule = async () => {
   }
 };
 
-// Fetch NHL schedule from NHL API (fetch season schedule for each team)
+// Fetch NHL schedule using NHL calendar API
 export const fetchNHLSchedule = async () => {
   try {
     const now = new Date();
     const end = new Date(now);
     end.setMonth(end.getMonth() + 6);
+    const startStr = now.toISOString().slice(0, 10);
+    const endStr = end.toISOString().slice(0, 10);
+
+    const res = await fetch(`https://api-web.nhle.com/v1/schedule/calendar/${startStr}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+
     const games = [];
     const seen = new Set();
-    // NHL API: fetch week-by-week
-    const cursor = new Date(now);
-    while (cursor < end) {
-      const dateStr = cursor.toISOString().slice(0, 10);
-      const res = await fetch(`https://api-web.nhle.com/v1/schedule/${dateStr}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.gameWeek) {
-          data.gameWeek.forEach(week => {
+
+    // calendar API returns gamesByDate array
+    (data.gamesByDate || []).forEach(dayEntry => {
+      (dayEntry.games || []).forEach(g => {
+        const gameDate = new Date(g.startTimeUTC || g.gameDate);
+        if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
+          seen.add(g.id);
+          games.push(g);
+        }
+      });
+    });
+
+    // If calendar doesn't cover 6 months, also fetch week-by-week
+    if (games.length === 0) {
+      const cursor = new Date(now);
+      while (cursor < end) {
+        const dateStr = cursor.toISOString().slice(0, 10);
+        const r = await fetch(`https://api-web.nhle.com/v1/schedule/${dateStr}`);
+        if (r.ok) {
+          const d = await r.json();
+          (d.gameWeek || []).forEach(week => {
             (week.games || []).forEach(g => {
               if (!seen.has(g.id)) { seen.add(g.id); games.push(g); }
             });
           });
         }
+        cursor.setDate(cursor.getDate() + 7);
       }
-      cursor.setDate(cursor.getDate() + 7);
     }
+
     return games;
   } catch (error) {
     console.error('Error fetching NHL schedule:', error);
