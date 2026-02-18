@@ -28,10 +28,10 @@ export default function UpcomingGames({ games }) {
   if (games.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="text-6xl mb-4">🏆</div>
-        <h3 className="text-xl font-semibold text-white mb-2">No upcoming games</h3>
-        <p className="text-slate-400">Select some teams to see their upcoming games</p>
-      </div>
+          <div className="text-6xl mb-4">🏆</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No upcoming games</h3>
+          <p className="text-gray-500">Select some teams to see their upcoming games</p>
+        </div>
     );
   }
 
@@ -45,11 +45,11 @@ export default function UpcomingGames({ games }) {
           transition={{ delay: dateIndex * 0.1 }}
         >
           <div className="flex items-center gap-3 mb-4">
-            <h3 className="text-lg font-semibold text-white">
-              {getDateLabel(dateStr)}
-            </h3>
-            <div className="flex-1 h-px bg-slate-700/50" />
-            <span className="text-sm text-slate-500">
+            <h3 className="text-lg font-semibold text-gray-900">
+                {getDateLabel(dateStr)}
+              </h3>
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-sm text-gray-500">
               {groupedGames[dateStr].length} {groupedGames[dateStr].length === 1 ? 'game' : 'games'}
             </span>
           </div>
