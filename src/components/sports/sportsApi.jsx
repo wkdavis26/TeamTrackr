@@ -84,50 +84,30 @@ export const fetchNFLSchedule = async () => {
   }
 };
 
-// Fetch NHL schedule using NHL calendar API
-export const fetchNHLSchedule = async () => {
+// Fetch NHL schedule using club-schedule-season per team
+// teamAbbrs: array of NHL team abbreviations (e.g. ['BOS', 'TOR'])
+export const fetchNHLSchedule = async (teamAbbrs = []) => {
   try {
     const now = new Date();
     const end = new Date(now);
     end.setMonth(end.getMonth() + 6);
-    const startStr = now.toISOString().slice(0, 10);
-    const endStr = end.toISOString().slice(0, 10);
-
-    const res = await fetch(`https://api-web.nhle.com/v1/schedule/calendar/${startStr}`);
-    if (!res.ok) return [];
-    const data = await res.json();
-
     const games = [];
     const seen = new Set();
 
-    // calendar API returns gamesByDate array
-    (data.gamesByDate || []).forEach(dayEntry => {
-      (dayEntry.games || []).forEach(g => {
-        const gameDate = new Date(g.startTimeUTC || g.gameDate);
-        if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
-          seen.add(g.id);
-          games.push(g);
-        }
-      });
-    });
-
-    // If calendar doesn't cover 6 months, also fetch week-by-week
-    if (games.length === 0) {
-      const cursor = new Date(now);
-      while (cursor < end) {
-        const dateStr = cursor.toISOString().slice(0, 10);
-        const r = await fetch(`https://api-web.nhle.com/v1/schedule/${dateStr}`);
-        if (r.ok) {
-          const d = await r.json();
-          (d.gameWeek || []).forEach(week => {
-            (week.games || []).forEach(g => {
-              if (!seen.has(g.id)) { seen.add(g.id); games.push(g); }
-            });
-          });
-        }
-        cursor.setDate(cursor.getDate() + 7);
-      }
-    }
+    await Promise.all(teamAbbrs.map(async (abbr) => {
+      try {
+        const res = await fetch(`https://api-web.nhle.com/v1/club-schedule-season/${abbr}/now`);
+        if (!res.ok) return;
+        const data = await res.json();
+        (data.games || []).forEach(g => {
+          const gameDate = new Date(g.startTimeUTC || g.gameDate);
+          if (gameDate >= now && gameDate <= end && !seen.has(g.id)) {
+            seen.add(g.id);
+            games.push(g);
+          }
+        });
+      } catch (_) {}
+    }));
 
     return games;
   } catch (error) {
