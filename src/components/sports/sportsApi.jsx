@@ -158,10 +158,10 @@ const mapESPNTeamToId = (abbr, league) => {
       GB: 'nfl-packers', NYJ: 'nfl-jets', NYG: 'nfl-giants', NE: 'nfl-patriots',
     },
     NBA: {
-      LAL: 'nba-lakers', BOS: 'nba-celtics', GSW: 'nba-warriors', GS: 'nba-warriors', 
-      CHI: 'nba-bulls', MIA: 'nba-heat', NYK: 'nba-knicks', NY: 'nba-knicks',
-      BKN: 'nba-nets', BRK: 'nba-nets', PHI: 'nba-76ers', MIL: 'nba-bucks',
-      DEN: 'nba-nuggets', PHX: 'nba-suns', DAL: 'nba-mavs',
+      LAL: 'nba-lal', BOS: 'nba-bos', GSW: 'nba-gsw', GS: 'nba-gsw', 
+      CHI: 'nba-chi', MIA: 'nba-mia', NYK: 'nba-nyk', NY: 'nba-nyk',
+      BKN: 'nba-bkn', BRK: 'nba-bkn', PHI: 'nba-phi', MIL: 'nba-mil',
+      DEN: 'nba-den', PHX: 'nba-phx', DAL: 'nba-dal',
     },
   };
   return mapping[league]?.[abbr] || null;
