@@ -21,7 +21,7 @@ export default function UpcomingGames({ games }) {
   const getDateLabel = (dateStr) => {
     // Parse as local noon to avoid any timezone shifting in date-fns comparisons
     const date = new Date(dateStr + 'T12:00:00');
-    const dateSuffix = format(date, "MMM d");
+    const dateSuffix = format(date, "MMMM d");
     if (isToday(date)) return `Today, ${dateSuffix}`;
     if (isTomorrow(date)) return `Tomorrow, ${dateSuffix}`;
     const days = differenceInDays(date, new Date());
