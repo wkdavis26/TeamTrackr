@@ -160,6 +160,11 @@ const mapESPNTeamToId = (abbr, league) => {
       NYY: 'mlb-yankees', BOS: 'mlb-red-sox', LAD: 'mlb-dodgers', CHC: 'mlb-cubs',
       SF: 'mlb-giants', STL: 'mlb-cardinals', HOU: 'mlb-astros', ATL: 'mlb-braves',
       NYM: 'mlb-mets', PHI: 'mlb-phillies', SD: 'mlb-padres', SEA: 'mlb-mariners',
+      TEX: 'mlb-rangers', NYY: 'mlb-yankees', MIN: 'mlb-twins', CLE: 'mlb-guardians',
+      DET: 'mlb-tigers', KC: 'mlb-royals', CWS: 'mlb-white-sox', TOR: 'mlb-blue-jays',
+      TB: 'mlb-rays', BAL: 'mlb-orioles', OAK: 'mlb-athletics', LAA: 'mlb-angels',
+      ARI: 'mlb-diamondbacks', COL: 'mlb-rockies', MIL: 'mlb-brewers', CIN: 'mlb-reds',
+      PIT: 'mlb-pirates', WSH: 'mlb-nationals', MIA: 'mlb-marlins',
     },
     NBA: {
       LAL: 'nba-lakers', BOS: 'nba-celtics', GSW: 'nba-warriors', GS: 'nba-warriors', 
