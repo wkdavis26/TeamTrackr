@@ -116,8 +116,12 @@ export const fetchNHLSchedule = async (teamAbbrs = []) => {
     await Promise.all(teamAbbrs.map(async (abbr) => {
       try {
         const res = await fetch(`https://api-web.nhle.com/v1/club-schedule-season/${abbr}/${season}`);
-        if (!res.ok) return;
+        if (!res.ok) {
+          console.error('[NHL] fetch not ok for', abbr, res.status);
+          return;
+        }
         const data = await res.json();
+        console.log('[NHL]', abbr, 'total games from API:', data.games?.length, '| filtering gameType!=1, date >= today');
         (data.games || []).forEach(g => {
           // Only include regular season (gameType 2) and playoffs (gameType 3)
           if (g.gameType === 1) return;
@@ -128,7 +132,9 @@ export const fetchNHLSchedule = async (teamAbbrs = []) => {
             games.push({ ...g, startTimeUTC: g.startTimeUTC || g.gameDate });
           }
         });
-      } catch (_) {}
+      } catch (e) {
+        console.error('[NHL] fetch error for', abbr, e);
+      }
     }));
 
     return games;
