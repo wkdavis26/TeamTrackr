@@ -446,9 +446,12 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   
   // Parse NHL games
   if (teamIdsByLeague['NHL']) {
+    console.log('[NHL] raw games fetched:', nhlGames.length, nhlGames.slice(0,3).map(g => ({ id: g.id, type: g.gameType, date: g.gameDate, home: g.homeTeam?.abbrev, away: g.awayTeam?.abbrev })));
     nhlGames.forEach(game => {
       const parsed = parseNHLEvent(game, teamIdsByLeague['NHL']);
       if (parsed && parsed.date > now) allGames.push(parsed);
+      else if (parsed) console.log('[NHL] filtered out (past):', parsed.id, parsed.date);
+      else console.log('[NHL] parseNHLEvent returned null for game', game.id, game.homeTeam?.abbrev, 'vs', game.awayTeam?.abbrev);
     });
   }
   
