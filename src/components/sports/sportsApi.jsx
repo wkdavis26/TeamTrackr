@@ -101,6 +101,7 @@ export const fetchNFLSchedule = async () => {
 export const fetchNHLSchedule = async (teamAbbrs = []) => {
   try {
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // start of today
     const end = new Date(now);
     end.setMonth(end.getMonth() + 6);
     const games = [];
