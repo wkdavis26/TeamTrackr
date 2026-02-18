@@ -60,33 +60,27 @@ export default function Home() {
 
 
 
-  if (isLoading || isLoadingGames) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Ambient background effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
             My Sports
           </h1>
-          <p className="text-slate-400">
+          <p className="text-gray-500">
             Track your favorite teams across all leagues
           </p>
         </motion.header>
@@ -98,15 +92,15 @@ export default function Home() {
           transition={{ delay: 0.1 }}
           className="flex items-center justify-center gap-6 mb-8"
         >
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm">
             <Heart className="w-4 h-4 text-rose-500" />
-            <span className="text-white font-medium">{favoriteTeams.length}</span>
-            <span className="text-slate-400 text-sm">Teams</span>
+            <span className="text-gray-900 font-medium">{favoriteTeams.length}</span>
+            <span className="text-gray-500 text-sm">Teams</span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700/50">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm">
             <Calendar className="w-4 h-4 text-emerald-500" />
-            <span className="text-white font-medium">{upcomingGames.length}</span>
-            <span className="text-slate-400 text-sm">Upcoming</span>
+            <span className="text-gray-900 font-medium">{upcomingGames.length}</span>
+            <span className="text-gray-500 text-sm">Upcoming</span>
           </div>
         </motion.div>
 
@@ -117,15 +111,15 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           className="flex justify-center mb-8"
         >
-          <div className="inline-flex p-1 rounded-2xl bg-slate-800/50 border border-slate-700/50">
+          <div className="inline-flex p-1 rounded-2xl bg-white border border-gray-200 shadow-sm">
             <Button
               variant="ghost"
               onClick={() => setView('upcoming')}
               className={cn(
                 "rounded-xl px-6 transition-all duration-200",
-                view === 'upcoming' 
-                  ? "bg-emerald-500 text-white hover:bg-emerald-600" 
-                  : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                view === 'upcoming'
+                  ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               )}
             >
               <List className="w-4 h-4 mr-2" />
@@ -136,9 +130,9 @@ export default function Home() {
               onClick={() => setView('calendar')}
               className={cn(
                 "rounded-xl px-6 transition-all duration-200",
-                view === 'calendar' 
-                  ? "bg-emerald-500 text-white hover:bg-emerald-600" 
-                  : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                view === 'calendar'
+                  ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               )}
             >
               <Calendar className="w-4 h-4 mr-2" />
@@ -149,9 +143,9 @@ export default function Home() {
               onClick={() => setView('teams')}
               className={cn(
                 "rounded-xl px-6 transition-all duration-200",
-                view === 'teams' 
-                  ? "bg-emerald-500 text-white hover:bg-emerald-600" 
-                  : "text-slate-400 hover:text-white hover:bg-slate-700/50"
+                view === 'teams'
+                  ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               )}
             >
               <Settings className="w-4 h-4 mr-2" />
@@ -172,15 +166,20 @@ export default function Home() {
               {favoriteTeams.length === 0 ? (
                 <div className="text-center py-16">
                   <div className="text-6xl mb-4">🏆</div>
-                  <h3 className="text-xl font-semibold text-white mb-2">No teams selected</h3>
-                  <p className="text-slate-400 mb-6">Select your favorite teams to see upcoming games</p>
-                  <Button 
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No teams selected</h3>
+                  <p className="text-gray-500 mb-6">Select your favorite teams to see upcoming games</p>
+                  <Button
                     onClick={() => setView('teams')}
                     className="bg-emerald-500 hover:bg-emerald-600"
                   >
                     <Heart className="w-4 h-4 mr-2" />
                     Choose Teams
                   </Button>
+                </div>
+              ) : isLoadingGames ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mr-2" />
+                  <span className="text-gray-500">Loading schedules...</span>
                 </div>
               ) : (
                 <UpcomingGames games={upcomingGames} />
@@ -207,10 +206,10 @@ export default function Home() {
               exit={{ opacity: 0, x: 20 }}
             >
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-white mb-2">Select Your Teams</h2>
-                <p className="text-slate-400">Choose teams from any league to track their games</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Select Your Teams</h2>
+                <p className="text-gray-500">Choose teams from any league to track their games</p>
               </div>
-              <TeamSelector 
+              <TeamSelector
                 selectedTeams={favoriteTeams}
                 onToggleTeam={handleToggleTeam}
               />
