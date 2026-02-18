@@ -96,26 +96,60 @@ export const fetchNFLSchedule = async () => {
   }
 };
 
-// Fetch NHL schedule using ESPN scoreboard API (iterating date ranges)
+// Fetch NHL schedule by iterating day-by-day via api-web.nhle.com/v1/schedule/YYYY-MM-DD
 // teamAbbrs: array of NHL team abbreviations (e.g. ['DAL', 'BOS'])
 export const fetchNHLSchedule = async (teamAbbrs = []) => {
-  try {
-    const abbrSet = new Set(teamAbbrs.map(a => a.toUpperCase()));
-    console.log('[NHL] Fetching via ESPN for abbrs', [...abbrSet]);
-    const events = await fetchESPNScheduleRange('hockey/nhl');
-    console.log('[NHL] ESPN raw events:', events.length);
-    // Filter to only events involving our teams
-    const filtered = events.filter(event => {
-      const comp = event.competitions?.[0];
-      if (!comp) return false;
-      return comp.competitors?.some(c => abbrSet.has(c.team?.abbreviation?.toUpperCase()));
-    });
-    console.log('[NHL] filtered events for teams:', filtered.length);
-    return filtered;
-  } catch (error) {
-    console.error('Error fetching NHL schedule:', error);
-    return [];
+  const abbrSet = new Set(teamAbbrs.map(a => a.toUpperCase()));
+  const games = [];
+  const seen = new Set();
+
+  const now = new Date();
+  const end = new Date(now);
+  end.setMonth(end.getMonth() + 6);
+
+  // Iterate week by week — the NHLE schedule endpoint returns a full week at a time
+  const cursor = new Date(now);
+  cursor.setHours(0, 0, 0, 0);
+
+  while (cursor <= end) {
+    const dateStr = cursor.toISOString().slice(0, 10);
+    try {
+      const res = await fetch(`https://api-web.nhle.com/v1/schedule/${dateStr}`);
+      if (res.ok) {
+        const data = await res.json();
+        const gameWeek = data.gameWeek || [];
+        for (const day of gameWeek) {
+          for (const game of (day.games || [])) {
+            if (seen.has(game.id)) continue;
+            // Only regular season (2) and playoffs (3)
+            if (game.gameType === 1) continue;
+            const homeAbbr = game.homeTeam?.abbrev?.toUpperCase();
+            const awayAbbr = game.awayTeam?.abbrev?.toUpperCase();
+            if (!abbrSet.has(homeAbbr) && !abbrSet.has(awayAbbr)) continue;
+            seen.add(game.id);
+            games.push(game);
+          }
+        }
+        // Advance by the number of days in this week response, or 7
+        const lastDay = gameWeek[gameWeek.length - 1];
+        if (lastDay?.date) {
+          const lastDate = new Date(lastDay.date + 'T00:00:00');
+          lastDate.setDate(lastDate.getDate() + 1);
+          cursor.setTime(lastDate.getTime());
+        } else {
+          cursor.setDate(cursor.getDate() + 7);
+        }
+      } else {
+        cursor.setDate(cursor.getDate() + 7);
+      }
+    } catch (e) {
+      console.error('[NHL] fetch error for date', dateStr, e.message);
+      cursor.setDate(cursor.getDate() + 7);
+    }
   }
+
+  console.log('[NHL] total games fetched:', games.length);
+  return games;
 };
 
 // Fetch MLB schedule
