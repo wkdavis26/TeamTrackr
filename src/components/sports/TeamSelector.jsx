@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { Check, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { LEAGUES } from './teamsData';
+import { LEAGUES, fetchLeagueTeams } from './teamsData';
 
 export default function TeamSelector({ selectedTeams, onToggleTeam }) {
   const [expandedLeague, setExpandedLeague] = useState(null);
+  const [leagueTeams, setLeagueTeams] = useState({});
+  const [loadingLeague, setLoadingLeague] = useState(null);
 
-  const isTeamSelected = (teamId) => {
-    return selectedTeams.some(t => t.team_id === teamId);
-  };
+  const isTeamSelected = (teamId) =>
+    selectedTeams.some(t => t.team_id === teamId);
 
-  const getSelectedCountForLeague = (leagueKey) => {
-    return selectedTeams.filter(t => t.league === leagueKey).length;
+  const getSelectedCountForLeague = (leagueKey) =>
+    selectedTeams.filter(t => t.league === leagueKey).length;
+
+  const handleToggleLeague = async (leagueKey) => {
+    if (expandedLeague === leagueKey) {
+      setExpandedLeague(null);
+      return;
+    }
+    setExpandedLeague(leagueKey);
+    if (!leagueTeams[leagueKey]) {
+      setLoadingLeague(leagueKey);
+      const teams = await fetchLeagueTeams(leagueKey);
+      setLeagueTeams(prev => ({ ...prev, [leagueKey]: teams }));
+      setLoadingLeague(null);
+    }
   };
 
   return (
@@ -21,29 +34,31 @@ export default function TeamSelector({ selectedTeams, onToggleTeam }) {
       {Object.entries(LEAGUES).map(([leagueKey, league]) => {
         const isExpanded = expandedLeague === leagueKey;
         const selectedCount = getSelectedCountForLeague(leagueKey);
-        
+        const teams = leagueTeams[leagueKey] || [];
+        const isLoading = loadingLeague === leagueKey;
+
         return (
-          <div key={leagueKey} className="overflow-hidden rounded-2xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50">
+          <div key={leagueKey} className="overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm">
             <button
-              onClick={() => setExpandedLeague(isExpanded ? null : leagueKey)}
-              className="w-full flex items-center justify-between p-4 hover:bg-slate-700/30 transition-colors"
+              onClick={() => handleToggleLeague(leagueKey)}
+              className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{league.icon}</span>
-                <span className="font-semibold text-white">{league.name}</span>
+                <span className="font-semibold text-gray-900">{league.name}</span>
                 {selectedCount > 0 && (
-                  <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs rounded-full">
+                  <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
                     {selectedCount} selected
                   </span>
                 )}
               </div>
               {isExpanded ? (
-                <ChevronUp className="w-5 h-5 text-slate-400" />
+                <ChevronUp className="w-5 h-5 text-gray-400" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-slate-400" />
+                <ChevronDown className="w-5 h-5 text-gray-400" />
               )}
             </button>
-            
+
             <AnimatePresence>
               {isExpanded && (
                 <motion.div
@@ -53,35 +68,57 @@ export default function TeamSelector({ selectedTeams, onToggleTeam }) {
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-4 pt-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {league.teams.map((team) => {
-                      const selected = isTeamSelected(team.id);
-                      return (
-                        <motion.button
-                          key={team.id}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => onToggleTeam({
-                            team_id: team.id,
-                            team_name: team.name,
-                            league: leagueKey,
-                            logo: team.logo
-                          })}
-                          className={cn(
-                            "relative flex items-center gap-2 p-3 rounded-xl transition-all duration-200",
-                            selected 
-                              ? "bg-emerald-500/20 border-2 border-emerald-500 text-white" 
-                              : "bg-slate-700/50 border-2 border-transparent text-slate-300 hover:bg-slate-700"
-                          )}
-                        >
-                          <span className="text-lg">{team.logo}</span>
-                          <span className="text-sm font-medium truncate">{team.name}</span>
-                          {selected && (
-                            <Check className="absolute top-1 right-1 w-4 h-4 text-emerald-400" />
-                          )}
-                        </motion.button>
-                      );
-                    })}
+                  <div className="px-4 pb-4 border-t border-gray-100">
+                    {isLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+                      </div>
+                    ) : (
+                      <div className="pt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                        {teams.map((team) => {
+                          const selected = isTeamSelected(team.id);
+                          return (
+                            <motion.button
+                              key={team.id}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => onToggleTeam({
+                                team_id: team.id,
+                                team_name: team.name,
+                                league: leagueKey,
+                                logo: team.logo
+                              })}
+                              className={cn(
+                                "relative flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all duration-200 text-center",
+                                selected
+                                  ? "bg-emerald-50 border-2 border-emerald-500"
+                                  : "bg-gray-50 border-2 border-transparent hover:bg-gray-100"
+                              )}
+                            >
+                              {team.logo ? (
+                                <img
+                                  src={team.logo}
+                                  alt={team.name}
+                                  className="w-10 h-10 object-contain"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 flex items-center justify-center text-xl">
+                                  {league.icon}
+                                </div>
+                              )}
+                              <span className="text-xs font-medium text-gray-700 leading-tight line-clamp-2">
+                                {team.name}
+                              </span>
+                              {selected && (
+                                <div className="absolute top-1 right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center">
+                                  <Check className="w-2.5 h-2.5 text-white" />
+                                </div>
+                              )}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
