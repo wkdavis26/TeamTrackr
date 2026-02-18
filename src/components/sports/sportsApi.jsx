@@ -94,10 +94,11 @@ export const fetchNHLSchedule = async () => {
   return fetchESPNScheduleRange('hockey/nhl', endOfSeason);
 };
 
-// Fetch MLB schedule
+// Fetch MLB schedule (regular season ends ~Sep 27, 2026)
 export const fetchMLBSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('baseball/mlb');
+    const endOfSeason = new Date(2026, 8, 27); // Sep 27
+    return await fetchESPNScheduleRange('baseball/mlb', endOfSeason);
   } catch (error) {
     console.error('Error fetching MLB schedule:', error);
     return [];
