@@ -58,7 +58,7 @@ export default function GameCard({ game, compact = false }) {
               {game.homeTeam.name}
             </span>
           </div>
-          <div className="text-xs text-gray-400 mt-1">{format(gameDate, "h:mm a")}</div>
+          <div className="text-xs text-gray-400 mt-1">{formatTimeCT(gameDate)} CT</div>
         </div>
       </motion.div>
     );
