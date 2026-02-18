@@ -106,9 +106,11 @@ export const fetchNHLSchedule = async (teamAbbrs = []) => {
     const games = [];
     const seen = new Set();
 
-    // Determine current NHL season (season starts in October)
+    // Determine current NHL season (season year = year it started, starts in October)
+    // e.g. 2025-2026 season started Oct 2025, so for Feb 2026 => year=2025 => season=20252026
     const year = now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1;
     const season = `${year}${year + 1}`;
+    console.log('[NHL] Fetching season', season, 'for abbrs', teamAbbrs);
 
     await Promise.all(teamAbbrs.map(async (abbr) => {
       try {
