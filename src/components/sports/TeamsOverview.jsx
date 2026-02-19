@@ -143,13 +143,17 @@ function TeamStandingCard({ team, standing, loading }) {
   const streak = stats ? getStat(stats, 'streak', 'STRK') : '—';
   const gp = stats ? getStat(stats, 'gamesPlayed', 'GP') : '—';
 
+  const teamUrl = createPageUrl(`TeamDetails?team_id=${team.team_id}&team_name=${encodeURIComponent(team.team_name)}&league=${encodeURIComponent(team.league)}`);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col"
-      style={{ border: `3px solid ${borderColor}` }}
-    >
+    <Link to={teamUrl}>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -4 }}
+        className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+        style={{ border: `3px solid ${borderColor}` }}
+      >
       <div className="p-4 flex flex-col gap-3 flex-1">
         {/* Team header */}
         <div className="flex items-center gap-3 mb-2">
