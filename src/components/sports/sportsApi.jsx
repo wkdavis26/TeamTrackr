@@ -430,7 +430,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   const now = new Date();
   
   // Fetch all schedules in parallel
-  const [nflGames, nhlGames, mlbGames, nbaGames, plGames, laligaGames, f1Games] = await Promise.all([
+  const [nflGames, nhlGames, mlbGames, nbaGames, plGames, laligaGames, f1Games, ncaafGames] = await Promise.all([
     teamIdsByLeague['NFL'] ? fetchNFLSchedule() : Promise.resolve([]),
     teamIdsByLeague['NHL'] ? fetchNHLSchedule() : Promise.resolve([]),
     teamIdsByLeague['MLB'] ? fetchMLBSchedule() : Promise.resolve([]),
