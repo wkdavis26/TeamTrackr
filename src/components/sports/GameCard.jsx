@@ -91,20 +91,10 @@ export default function GameCard({ game, compact = false }) {
 
       <div className="p-5 pt-4">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center mb-4">
           <div className="flex items-center gap-2">
             <span className="text-lg">{game.leagueIcon}</span>
             <span className="text-sm font-medium text-gray-500">{game.league}</span>
-          </div>
-          <div className={cn(
-            "px-3 py-1 rounded-full text-xs font-semibold",
-            isToday(gameDate)
-              ? "bg-emerald-100 text-emerald-700"
-              : isTomorrow(gameDate)
-                ? "bg-amber-100 text-amber-700"
-                : "bg-gray-100 text-gray-600"
-          )}>
-            {getDateLabel()}
           </div>
         </div>
 
