@@ -75,10 +75,6 @@ function TeamStandingCard({ team, standing, loading }) {
     ? LEAGUES.F1.teams?.find(t => t.id === team.team_id)
     : null;
   
-  if (team.league === 'F1') {
-    console.log('F1 Team Debug:', { team_id: team.team_id, found: !!staticTeamData, logo: staticTeamData?.logo, allF1: LEAGUES.F1.teams?.map(t => t.id) });
-  }
-  
   const logoUrl = team.logo_url || staticTeamData?.logo || null;
 
   const rawColor = TEAM_COLOR_OVERRIDES[team.team_id]
