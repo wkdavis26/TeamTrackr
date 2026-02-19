@@ -351,27 +351,28 @@ const parseF1Event = (event, favoriteTeamIds) => {
       .trim();
 
     f1TeamIds.forEach(teamId => {
-      results.push({
-        id: `${event.id}-${session.id || abbr}-${teamId}`,
-        date: new Date(session.date),
-        league: 'F1',
-        leagueIcon: '🏎️',
-        homeTeam: {
-          id: teamId,
-          name: getF1TeamName(teamId),
-          logo: getTeamEmoji(teamId),
-        },
-        awayTeam: {
-          id: 'f1-race',
-          name: `${event.name || 'Grand Prix'} – ${sessionLabel}`,
-          logo: abbr === 'Race' ? '🏁' : '⏱️',
-        },
-        favoriteTeamId: teamId,
-        venue: event.circuit?.fullName || event.name || 'TBD',
-        isF1Race: true,
-        f1Session: sessionLabel,
-        isMainRace: abbr === 'Race',
-      });
+        results.push({
+          id: `${event.id}-${session.id || abbr}-${teamId}`,
+          date: new Date(session.date),
+          league: 'F1',
+          leagueIcon: '🏎️',
+          homeTeam: {
+            id: teamId,
+            name: getF1TeamName(teamId),
+            logo: getTeamEmoji(teamId),
+          },
+          awayTeam: {
+            id: 'f1-race',
+            name: `${event.name || 'Grand Prix'} – ${sessionLabel}`,
+            logo: abbr === 'Race' ? '🏁' : '⏱️',
+          },
+          favoriteTeamId: teamId,
+          venue: event.circuit?.fullName || event.name || 'TBD',
+          isF1Race: true,
+          f1Session: sessionLabel,
+          isMainRace: abbr === 'Race',
+          f1Country: event.circuit?.country || event.competitions?.[0]?.venue?.address?.country || extractF1Country(event.name || ''),
+        });
     });
   });
 
