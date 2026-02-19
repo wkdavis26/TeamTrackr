@@ -95,13 +95,25 @@ export default function GameCard({ game, compact = false }) {
 
         {/* Teams */}
         {game.isF1Race ? (
-          <div className="text-center p-4 mb-4">
-            <div className="text-4xl mb-2">{game.isMainRace ? '🏁' : '⏱️'}</div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-1">{game.f1Session}</div>
-            <div className="text-base font-bold text-gray-900 mb-1">{game.venue}</div>
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} />
-              <span className="text-sm text-emerald-600 font-medium">★ {game.homeTeam.name}</span>
+          <div className="flex items-center justify-between gap-4 mb-4">
+            {/* Team */}
+            <div className="flex-1 text-center p-3 rounded-xl bg-emerald-50 ring-1 ring-emerald-200">
+              <div className="flex justify-center mb-2">
+                <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} />
+              </div>
+              <div className="text-sm font-semibold text-gray-900 truncate">{game.homeTeam.name}</div>
+            </div>
+
+            {/* Session info */}
+            <div className="flex flex-col items-center gap-1">
+              <div className="text-lg">{game.isMainRace ? '🏁' : '⏱️'}</div>
+              <div className="text-xs text-gray-400 font-semibold uppercase tracking-wider text-center">{game.f1Session}</div>
+            </div>
+
+            {/* Race */}
+            <div className="flex-1 text-center p-3 rounded-xl bg-gray-50">
+              <div className="flex justify-center mb-2 text-2xl">{game.isMainRace ? '🏁' : '⏱️'}</div>
+              <div className="text-sm text-gray-600 truncate">{game.f1Country || 'Grand Prix'}</div>
             </div>
           </div>
         ) : (
