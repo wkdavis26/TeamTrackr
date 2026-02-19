@@ -69,6 +69,15 @@ const getTeamAbbr = (teamId) => {
 };
 
 const findEntryForTeam = (entries, teamId) => {
+  // For international teams, match by displayName
+  if (teamId.startsWith('intl-')) {
+    const teamName = teamId.replace('intl-', '').replace(/-/g, ' ').toUpperCase();
+    return entries.find(e => {
+      const displayName = (e.team?.displayName || '').toUpperCase();
+      return displayName.includes(teamName) || displayName === teamName;
+    });
+  }
+
   // For soccer leagues, match by team name instead of abbreviation
   if (teamId.startsWith('pl-') || teamId.startsWith('ll-')) {
     const teamName = teamIdToName[teamId];
