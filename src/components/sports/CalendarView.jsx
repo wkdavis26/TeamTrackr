@@ -95,90 +95,107 @@ export default function CalendarView({ games }) {
         </Button>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
-        {/* Day headers */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-center text-xs font-medium text-gray-400 py-2">
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Calendar days */}
-        <div className="grid grid-cols-7 gap-1">
-          {emptyDays.map((_, index) => (
-            <div key={`empty-${index}`} className="aspect-square" />
-          ))}
-          
-          {days.map(day => {
-            const dayGames = gamesOnDate(day);
-            const hasGames = dayGames.length > 0;
-            const isSelected = selectedDate && isSameDay(day, selectedDate);
-            const dayIsToday = isToday(day);
-
-            return (
-              <motion.button
-                key={day.toISOString()}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedDate(isSelected ? null : day)}
-                className={cn(
+      {/* Month View */}
+      {viewMode === 'month' && (
+        <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+              <div key={day} className="text-center text-xs font-medium text-gray-400 py-2">{day}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {emptyDays.map((_, index) => (
+              <div key={`empty-${index}`} className="aspect-square" />
+            ))}
+            {days.map(day => {
+              const dayGames = gamesOnDate(day);
+              const hasGames = dayGames.length > 0;
+              const isSelected = selectedDate && isSameDay(day, selectedDate);
+              const dayIsToday = isToday(day);
+              return (
+                <motion.button
+                  key={day.toISOString()}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedDate(isSelected ? null : day)}
+                  className={cn(
                     "aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all duration-200 p-1",
-                    isSelected
-                      ? "bg-emerald-500 text-white"
-                      : hasGames
-                        ? "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                        : "text-gray-400 hover:bg-gray-50",
+                    isSelected ? "bg-emerald-500 text-white" : hasGames ? "bg-gray-100 text-gray-900 hover:bg-gray-200" : "text-gray-400 hover:bg-gray-50",
                     dayIsToday && !isSelected && "ring-2 ring-emerald-400"
                   )}
-              >
-                <span className={cn(
-                  "text-sm font-medium",
-                  dayIsToday && "font-bold"
+                >
+                  <span className={cn("text-sm font-medium", dayIsToday && "font-bold")}>{format(day, "d")}</span>
+                  {hasGames && (
+                    <div className="text-[9px] space-y-0.5 mt-0.5 w-full overflow-hidden">
+                      {dayGames.slice(0, 2).map((game, i) => (
+                        <GamePill key={i} game={game} isSelected={isSelected} />
+                      ))}
+                      {dayGames.length > 2 && (
+                        <div className={cn("text-[8px]", isSelected ? "text-white/70" : "text-gray-500")}>
+                          +{dayGames.length - 2} more
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Week View */}
+      {viewMode === 'week' && (
+        <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+          <div className="grid grid-cols-7 border-b border-gray-100">
+            {weekDays.map(day => (
+              <div key={day.toISOString()} className={cn(
+                "text-center py-3 text-xs font-medium",
+                isToday(day) ? "text-emerald-600 font-bold" : "text-gray-400"
+              )}>
+                <div>{format(day, "EEE")}</div>
+                <div className={cn(
+                  "mx-auto mt-1 w-7 h-7 flex items-center justify-center rounded-full text-sm",
+                  isToday(day) ? "bg-emerald-500 text-white" : "text-gray-700"
                 )}>
                   {format(day, "d")}
-                </span>
-
-                {hasGames && (
-                  <div className="text-[9px] space-y-0.5 mt-0.5 w-full overflow-hidden">
-                    {dayGames.slice(0, 2).map((game, i) => {
-                      const gameTime = new Intl.DateTimeFormat('en-US', {
-                        timeZone: 'America/Chicago',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                      }).format(new Date(game.date));
-                      const awayAbbr = game.awayTeam.name.split(' ').pop();
-                      const homeAbbr = game.homeTeam.name.split(' ').pop();
-                      const label = game.isF1Race
-                              ? `${gameTime} ${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}${game.venue && game.venue !== 'TBD' ? ` · ${game.venue}` : ''}`
-                              : `${gameTime} ${awayAbbr}@${homeAbbr}`;
-                      const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
-                      const teamColor = favTeam?.color ? `#${favTeam.color.replace('#', '')}` : null;
-                      return (
-                        <div
-                          key={i}
-                          className="truncate rounded px-0.5"
-                          style={teamColor && !isSelected ? { backgroundColor: teamColor, color: '#fff' } : {}}
-                        >
-                          {label}
-                        </div>
-                      );
-                    })}
-                    {dayGames.length > 2 && (
-                      <div className={cn("text-[8px]", isSelected ? "text-white/70" : "text-gray-500")}>
-                        +{dayGames.length - 2} more
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 divide-x divide-gray-100 min-h-[200px]">
+            {weekDays.map(day => {
+              const dayGames = gamesOnDate(day);
+              return (
+                <div key={day.toISOString()} className="p-1.5 space-y-1">
+                  {dayGames.map((game, i) => {
+                    const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
+                    const teamColor = favTeam?.color ? `#${favTeam.color.replace('#', '')}` : '#6b7280';
+                    const gameTime = new Intl.DateTimeFormat('en-US', {
+                      timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit', hour12: true,
+                    }).format(new Date(game.date));
+                    const awayAbbr = game.awayTeam.name.split(' ').pop();
+                    const homeAbbr = game.homeTeam.name.split(' ').pop();
+                    const label = game.isF1Race
+                      ? `${game.f1Session || 'Race'}`
+                      : `${awayAbbr}@${homeAbbr}`;
+                    return (
+                      <div
+                        key={i}
+                        className="rounded-md px-1.5 py-1 text-white text-[10px] leading-tight cursor-default"
+                        style={{ backgroundColor: teamColor }}
+                      >
+                        <div className="font-semibold truncate">{label}</div>
+                        <div className="opacity-80">{gameTime} CT</div>
                       </div>
-                    )}
-                  </div>
-                )}
-              </motion.button>
-            );
-          })}
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Selected Date Games */}
       <AnimatePresence mode="wait">
