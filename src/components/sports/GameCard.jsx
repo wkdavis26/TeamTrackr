@@ -50,7 +50,7 @@ export default function GameCard({ game, compact = false }) {
   const favoriteTeam = isFavoriteHome ? game.homeTeam : game.awayTeam;
   const rawColor = favoriteTeam?.color;
   const teamColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
-  const borderStyle = teamColor ? { borderColor: teamColor, borderWidth: '2px', borderStyle: 'solid' } : {};
+  const borderStyle = teamColor ? { borderColor: teamColor, borderWidth: '4px', borderStyle: 'solid' } : {};
 
   if (compact) {
     return (
