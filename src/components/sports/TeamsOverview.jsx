@@ -13,6 +13,9 @@ const STANDINGS_PATHS = {
   'La Liga':        'soccer/esp.1',
   MLS:              'soccer/usa.1',
   NCAAF:            'football/college-football',
+  'FIFA World Cup': 'soccer/fifa.wc',
+  'UEFA Euro':      'soccer/uefa.euro',
+  'International':  'soccer/international',
 };
 
 // Cache fetched standings per league to avoid redundant requests
