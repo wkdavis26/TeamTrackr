@@ -84,11 +84,17 @@ export default function GameCard({ game, compact = false }) {
   const isFavoriteHome = game.homeTeam.id === game.favoriteTeamId;
   const isFavoriteAway = game.awayTeam.id === game.favoriteTeamId;
 
-  // Get the favorite team's primary color
-  const favoriteTeam = isFavoriteHome ? game.homeTeam : game.awayTeam;
-  const rawColor = favoriteTeam?.color;
-  const teamColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
-  const borderStyle = teamColor ? { borderColor: teamColor, borderWidth: '4px', borderStyle: 'solid' } : {};
+  // Get border color: F1 uses race country flag color, others use team color
+  let borderColor = null;
+  if (game.isF1Race) {
+    borderColor = getF1CountryColor(game.f1Country);
+  } else {
+    const favoriteTeam = isFavoriteHome ? game.homeTeam : game.awayTeam;
+    const rawColor = favoriteTeam?.color;
+    borderColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
+  }
+  const teamColor = borderColor;
+  const borderStyle = borderColor ? { borderColor, borderWidth: '4px', borderStyle: 'solid' } : {};
 
   if (compact) {
     return (
