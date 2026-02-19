@@ -580,6 +580,14 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
+  // Parse MLS games
+  if (teamIdsByLeague['MLS']) {
+    mlsGames.forEach(event => {
+      const game = parseESPNEvent(event, 'MLS', teamIdsByLeague['MLS']);
+      if (game && game.date > now) allGames.push(game);
+    });
+  }
+
   // Parse La Liga games
   if (teamIdsByLeague['La Liga']) {
     laligaGames.forEach(event => {
