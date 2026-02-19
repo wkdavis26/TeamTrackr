@@ -62,9 +62,24 @@ const getStat = (stats, ...names) => {
   return '—';
 };
 
+// Hard-coded primary color overrides where ESPN returns wrong/dark colors
+const TEAM_COLOR_OVERRIDES = {
+  'nhl-dal': '006D60', // Dallas Stars Victory Green
+};
+
 function TeamStandingCard({ team, standing, loading }) {
   const leagueIcon = LEAGUES[team.league]?.icon || '🏆';
-  const rawColor = team.color || LEAGUES[team.league]?.color;
+
+  // For F1, get logo from static LEAGUES data since it's not in the entity
+  const f1TeamData = team.league === 'F1'
+    ? LEAGUES.F1.teams?.find(t => t.id === team.team_id)
+    : null;
+  const logoUrl = team.logo_url || f1TeamData?.logo || null;
+
+  const rawColor = TEAM_COLOR_OVERRIDES[team.team_id]
+    || team.color
+    || (f1TeamData?.color)
+    || LEAGUES[team.league]?.color?.replace('#', '');
   const borderColor = rawColor ? `#${rawColor.replace('#', '')}` : '#e5e7eb';
 
   // Per-league stat layout
