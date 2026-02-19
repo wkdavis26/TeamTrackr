@@ -64,7 +64,7 @@ const fmtDate = (d) => {
 // ESPN scoreboard supports ranges natively with limit=500
 const fetchESPNScheduleRange = async (sportPath, endDate) => {
   const now = new Date();
-  const end = endDate || new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
+  const end = endDate || new Date(now.getFullYear(), 11, 31); // through December 31
   const startStr = fmtDate(now);
   const endStr = fmtDate(end);
   try {
