@@ -1,23 +1,26 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths, isToday } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths, isToday, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import GameCard from './GameCard';
-import { getLeagueColor } from './teamsData';
 
 export default function CalendarView({ games }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date()));
   const [selectedDate, setSelectedDate] = useState(null);
+  const [viewMode, setViewMode] = useState('month'); // 'month' | 'week'
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
-  // Get first day of week offset
   const startDayOfWeek = monthStart.getDay();
   const emptyDays = Array(startDayOfWeek).fill(null);
+
+  const weekStart = startOfWeek(currentWeek);
+  const weekEnd = endOfWeek(currentWeek);
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
   const gamesOnDate = (date) => {
     return games.filter(game => isSameDay(new Date(game.date), date));
@@ -28,27 +31,64 @@ export default function CalendarView({ games }) {
     return gamesOnDate(selectedDate);
   }, [selectedDate, games]);
 
+  const GamePill = ({ game, isSelected }) => {
+    const gameTime = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      hour: 'numeric', minute: '2-digit', hour12: true,
+    }).format(new Date(game.date));
+    const awayAbbr = game.awayTeam.name.split(' ').pop();
+    const homeAbbr = game.homeTeam.name.split(' ').pop();
+    const label = game.isF1Race
+      ? `${gameTime} ${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}`
+      : `${gameTime} ${awayAbbr}@${homeAbbr}`;
+    const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
+    const teamColor = favTeam?.color ? `#${favTeam.color.replace('#', '')}` : null;
+    return (
+      <div
+        className="truncate rounded px-0.5 text-[9px]"
+        style={teamColor && !isSelected ? { backgroundColor: teamColor, color: '#fff' } : {}}
+      >
+        {label}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
-      {/* Calendar Header */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+          onClick={() => viewMode === 'month' ? setCurrentMonth(subMonths(currentMonth, 1)) : setCurrentWeek(subWeeks(currentWeek, 1))}
           className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
         >
           <ChevronLeft className="w-5 h-5" />
         </Button>
-        
-        <h2 className="text-xl font-bold text-gray-900">
-          {format(currentMonth, "MMMM yyyy")}
-        </h2>
-        
+
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl font-bold text-gray-900">
+            {viewMode === 'month'
+              ? format(currentMonth, "MMMM yyyy")
+              : `${format(weekStart, "MMM d")} – ${format(weekEnd, "MMM d, yyyy")}`}
+          </h2>
+          {/* View toggle */}
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden text-sm">
+            <button
+              onClick={() => setViewMode('month')}
+              className={cn("px-3 py-1 transition-colors", viewMode === 'month' ? "bg-emerald-500 text-white" : "text-gray-500 hover:bg-gray-50")}
+            >Month</button>
+            <button
+              onClick={() => setViewMode('week')}
+              className={cn("px-3 py-1 transition-colors", viewMode === 'week' ? "bg-emerald-500 text-white" : "text-gray-500 hover:bg-gray-50")}
+            >Week</button>
+          </div>
+        </div>
+
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+          onClick={() => viewMode === 'month' ? setCurrentMonth(addMonths(currentMonth, 1)) : setCurrentWeek(addWeeks(currentWeek, 1))}
           className="text-gray-400 hover:text-gray-900 hover:bg-gray-100"
         >
           <ChevronRight className="w-5 h-5" />
