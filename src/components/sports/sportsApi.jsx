@@ -439,9 +439,46 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     teamIdsByLeague['La Liga'] ? fetchLaLigaSchedule() : Promise.resolve([]),
     teamIdsByLeague['F1'] ? fetchF1Schedule() : Promise.resolve([]),
         teamIdsByLeague['NCAAF'] ? fetchNCAAFSchedule() : Promise.resolve([]),
-  ]);
-  
-  // Parse NFL games
+      ]);
+
+      // Parse NCAAF games
+      if (teamIdsByLeague['NCAAF']) {
+        const ncaafIds = teamIdsByLeague['NCAAF'];
+        ncaafGames.forEach(event => {
+          if (!event.competitions?.[0]) return;
+          const competition = event.competitions[0];
+          const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+          const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+          if (!homeTeam || !awayTeam) return;
+          const homeId = `ncaaf-${homeTeam.team?.abbreviation?.toLowerCase()}`;
+          const awayId = `ncaaf-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+          const favoriteTeamId = ncaafIds.find(id => id === homeId || id === awayId);
+          if (!favoriteTeamId) return;
+          const gameDate = new Date(event.date);
+          if (gameDate <= now) return;
+          allGames.push({
+            id: event.id,
+            date: gameDate,
+            league: 'NCAAF',
+            leagueIcon: '🏈',
+            homeTeam: {
+              id: homeId,
+              name: homeTeam.team?.displayName || homeTeam.team?.name,
+              logo: homeTeam.team?.logo,
+            },
+            awayTeam: {
+              id: awayId,
+              name: awayTeam.team?.displayName || awayTeam.team?.name,
+              logo: awayTeam.team?.logo,
+            },
+            favoriteTeamId,
+            venue: competition.venue?.fullName || 'TBD',
+            status: event.status?.type?.description || 'Scheduled',
+          });
+        });
+      }
+
+      // Parse NFL games
   if (teamIdsByLeague['NFL']) {
     nflGames.forEach(event => {
       const game = parseESPNEvent(event, 'NFL', teamIdsByLeague['NFL']);
