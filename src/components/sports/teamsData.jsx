@@ -94,7 +94,7 @@ export const getLeagueColor = (league) => {
   const colors = {
     NFL: "bg-blue-800", NHL: "bg-slate-800", MLB: "bg-blue-900",
     NBA: "bg-orange-600", "Premier League": "bg-purple-800",
-    "La Liga": "bg-amber-600", F1: "bg-red-600",
+    "La Liga": "bg-amber-600", F1: "bg-red-600", NCAAF: "bg-orange-700",
   };
   return colors[league] || "bg-slate-700";
 };
