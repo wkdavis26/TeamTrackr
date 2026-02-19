@@ -55,7 +55,7 @@ export const LEAGUES = {
     espnPath: null, // F1 teams fetched differently
     color: "#E10600",
     teams: [
-        { id: "f1-red-bull", name: "Red Bull Racing", color: "1E3A5F", logo: "https://flagcdn.com/w60/rb.png" },
+        { id: "f1-red-bull", name: "Red Bull Racing", color: "1E3A5F", logo: "https://media.formula1.com/content/dam/fom-website/logos/team-logos/2025/red_bull_racing.svg" },
         { id: "f1-ferrari", name: "Scuderia Ferrari", color: "E8002D", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/ferrari-logo.png" },
         { id: "f1-mercedes", name: "Mercedes-AMG", color: "00A19C", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/mercedes-logo.png" },
         { id: "f1-mclaren", name: "McLaren", color: "FF8000", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/mclaren-logo.png" },
