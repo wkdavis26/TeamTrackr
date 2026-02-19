@@ -84,17 +84,25 @@ export default function GameCard({ game, compact = false }) {
   const isFavoriteHome = game.homeTeam.id === game.favoriteTeamId;
   const isFavoriteAway = game.awayTeam.id === game.favoriteTeamId;
 
-  // Get border color: F1 uses race country flag color, others use team color
-  let borderColor = null;
+  // Get border style: F1 uses checkered flag pattern, others use team color
+  let teamColor = null;
+  let borderStyle = {};
   if (game.isF1Race) {
-    borderColor = getF1CountryColor(game.f1Country);
+    borderStyle = {
+      border: '4px solid transparent',
+      backgroundImage: `
+        repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 12px 12px,
+        linear-gradient(white, white)
+      `,
+      backgroundOrigin: 'border-box',
+      backgroundClip: 'padding-box, border-box',
+    };
   } else {
     const favoriteTeam = isFavoriteHome ? game.homeTeam : game.awayTeam;
     const rawColor = favoriteTeam?.color;
-    borderColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
+    teamColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
+    borderStyle = teamColor ? { borderColor: teamColor, borderWidth: '4px', borderStyle: 'solid' } : {};
   }
-  const teamColor = borderColor;
-  const borderStyle = borderColor ? { borderColor, borderWidth: '4px', borderStyle: 'solid' } : {};
 
   if (compact) {
     return (
