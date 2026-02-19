@@ -43,6 +43,12 @@ export const LEAGUES = {
     espnPath: "football/college-football",
     color: "#CC5500",
   },
+  MLS: {
+    name: "MLS",
+    icon: "⚽",
+    espnPath: "soccer/usa.1",
+    color: "#002B5C",
+  },
   F1: {
     name: "F1",
     icon: "🏎️",
