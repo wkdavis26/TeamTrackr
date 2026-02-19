@@ -66,6 +66,24 @@ export const LEAGUES = {
               { id: "f1-sauber", name: "Kick Sauber", color: "52E252" },
               { id: "f1-haas", name: "Haas F1 Team", color: "B6BABD" },
       ]
+  },
+  "FIFA World Cup": {
+    name: "FIFA World Cup",
+    icon: "🌍",
+    espnPath: "soccer/fifa.wc",
+    color: "#FFD700",
+  },
+  "UEFA Euro": {
+    name: "UEFA Euro",
+    icon: "⚽",
+    espnPath: "soccer/uefa.euro",
+    color: "#1F4788",
+  },
+  "International": {
+    name: "International Football",
+    icon: "🌏",
+    espnPath: "soccer/international",
+    color: "#003399",
   }
 };
 
