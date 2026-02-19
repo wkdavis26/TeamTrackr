@@ -46,6 +46,11 @@ export default function GameCard({ game, compact = false }) {
   const isFavoriteHome = game.homeTeam.id === game.favoriteTeamId;
   const isFavoriteAway = game.awayTeam.id === game.favoriteTeamId;
 
+  // Get the favorite team's primary color
+  const favoriteTeam = isFavoriteHome ? game.homeTeam : game.awayTeam;
+  const teamColor = favoriteTeam?.color ? `#${favoriteTeam.color.replace('#', '')}` : null;
+  const borderStyle = teamColor ? { borderColor: teamColor, borderWidth: '2px' } : {};
+
   if (compact) {
     return (
       <motion.div
