@@ -32,9 +32,15 @@ const fetchLeagueStandings = async (league) => {
         sub => sub.standings?.entries || []
       )
     );
+    console.log(`[${league}] fetched ${entries.length} entries`);
+    if (league === 'La Liga') {
+      const sampleTeams = entries.slice(0, 3).map(e => e.team?.displayName);
+      console.log(`[${league}] sample team names:`, sampleTeams);
+    }
     standingsCache[league] = entries;
     return entries;
-  } catch {
+  } catch (e) {
+    console.error(`Error fetching ${league}:`, e);
     return [];
   }
 };
