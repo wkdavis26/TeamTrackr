@@ -33,6 +33,25 @@ const F1_COUNTRY_COLORS = {
   'Abu Dhabi': '#00732F',
 };
 
+const COUNTRY_TO_CODE = {
+  'Australia': 'AU', 'Bahrain': 'BH', 'Saudi Arabia': 'SA', 'Japan': 'JP',
+  'China': 'CN', 'Miami': 'US', 'Emilia Romagna': 'IT', 'Monaco': 'MC',
+  'Canada': 'CA', 'Spain': 'ES', 'Austria': 'AT', 'United Kingdom': 'GB',
+  'Hungary': 'HU', 'Belgium': 'BE', 'Netherlands': 'NL', 'Italy': 'IT',
+  'Azerbaijan': 'AZ', 'Singapore': 'SG', 'United States': 'US',
+  'Mexico': 'MX', 'Brazil': 'BR', 'Las Vegas': 'US', 'Qatar': 'QA', 'Abu Dhabi': 'AE',
+};
+
+const getFlagEmoji = (country) => {
+  if (!country) return '';
+  for (const [key, code] of Object.entries(COUNTRY_TO_CODE)) {
+    if (country.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(country.toLowerCase())) {
+      return code.toUpperCase().replace(/./g, c => String.fromCodePoint(0x1F1E0 + c.charCodeAt(0) - 65));
+    }
+  }
+  return '';
+};
+
 const getF1CountryColor = (country) => {
   if (!country) return null;
   for (const [key, color] of Object.entries(F1_COUNTRY_COLORS)) {
