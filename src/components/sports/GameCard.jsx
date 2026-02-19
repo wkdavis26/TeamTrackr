@@ -91,12 +91,7 @@ export default function GameCard({ game, compact = false }) {
 
       <div className="p-5 pt-4">
         {/* Header */}
-        <div className="flex items-center mb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">{game.leagueIcon}</span>
-            <span className="text-sm font-medium text-gray-500">{game.league}</span>
-          </div>
-        </div>
+        <div className="mb-4" />
 
         {/* Teams */}
         {game.isF1Race ? (
