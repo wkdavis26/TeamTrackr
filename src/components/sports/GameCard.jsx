@@ -87,8 +87,7 @@ export default function GameCard({ game, compact = false }) {
       className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300"
       style={teamColor ? borderStyle : { border: '1px solid #e5e7eb' }}
     >
-      {/* League indicator strip */}
-      <div className={cn("absolute top-0 left-0 right-0 h-1", getLeagueColor(game.league))} />
+      {/* League indicator strip removed */}
 
       <div className="p-5 pt-4">
         {/* Header */}
