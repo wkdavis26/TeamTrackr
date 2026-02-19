@@ -115,8 +115,14 @@ export default function CalendarView({ games }) {
                       const label = game.isF1Race
                               ? `${gameTime} ${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}${game.venue && game.venue !== 'TBD' ? ` · ${game.venue}` : ''}`
                               : `${gameTime} ${awayAbbr}@${homeAbbr}`;
+                      const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
+                      const teamColor = favTeam?.color ? `#${favTeam.color.replace('#', '')}` : null;
                       return (
-                        <div key={i} className={cn("truncate", isSelected ? "text-white/90" : "text-gray-700")}>
+                        <div
+                          key={i}
+                          className="truncate rounded px-0.5"
+                          style={teamColor && !isSelected ? { backgroundColor: teamColor, color: '#fff' } : {}}
+                        >
                           {label}
                         </div>
                       );
