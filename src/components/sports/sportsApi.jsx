@@ -126,6 +126,16 @@ export const fetchPremierLeagueSchedule = async () => {
   }
 };
 
+// Fetch MLS schedule
+export const fetchMLSSchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('soccer/usa.1');
+  } catch (error) {
+    console.error('Error fetching MLS schedule:', error);
+    return [];
+  }
+};
+
 // Fetch La Liga schedule
 export const fetchLaLigaSchedule = async () => {
   try {
