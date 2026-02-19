@@ -218,7 +218,8 @@ function TeamStandingCard({ team, standing, loading }) {
           )}
           </div>
       </div>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 }
 
