@@ -56,7 +56,8 @@ export default function GameCard({ game, compact = false }) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200"
+        className="flex items-center gap-3 p-3 rounded-xl bg-white border"
+        style={borderStyle}
       >
         <div className={cn("w-1 h-12 rounded-full", getLeagueColor(game.league))} />
         <div className="flex-1 min-w-0">
