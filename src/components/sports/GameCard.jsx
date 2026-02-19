@@ -194,7 +194,7 @@ export default function GameCard({ game, compact = false }) {
             </div>
 
             {/* VS */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-10 shrink-0">
               <div className="text-xs text-gray-400 uppercase tracking-wider font-bold">vs</div>
             </div>
 
