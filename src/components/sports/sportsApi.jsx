@@ -299,7 +299,7 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
   if (!homeTeam || !awayTeam) return null;
   
   let homeId, awayId;
-  
+
   if (league === 'Premier League') {
     homeId = mapPLTeamToId(homeTeam.team?.displayName || '');
     awayId = mapPLTeamToId(awayTeam.team?.displayName || '');
@@ -309,6 +309,9 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
   } else if (league === 'MLS') {
     homeId = mapMLSTeamToId(homeTeam.team?.displayName || '');
     awayId = mapMLSTeamToId(awayTeam.team?.displayName || '');
+  } else if (['FIFA World Cup', 'UEFA Euro', 'International'].includes(league)) {
+    homeId = mapInternationalTeamToId(homeTeam.team?.displayName || '');
+    awayId = mapInternationalTeamToId(awayTeam.team?.displayName || '');
   } else {
     homeId = mapESPNTeamToId(homeTeam.team?.abbreviation, league);
     awayId = mapESPNTeamToId(awayTeam.team?.abbreviation, league);
