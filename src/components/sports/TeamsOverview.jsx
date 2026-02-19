@@ -120,13 +120,13 @@ function TeamStandingCard({ team, standing, loading }) {
         </div>
 
         {/* Conference & Division Rank */}
-        {!loading && standing && (
-          <div className="text-xs text-gray-500 space-y-0.5">
-            {standing.stats?.find(s => s.name === 'conferenceRank' || s.abbreviation === 'CONF') && (
-              <div>Conf: <span className="font-semibold text-gray-700">#{getStat(standing.stats, 'conferenceRank', 'CONF')}</span></div>
+        {!loading && standing && (standing.conferenceRank || standing.divisionRank) && (
+          <div className="text-xs text-gray-500 space-y-0.5 mb-2">
+            {standing.conferenceRank && (
+              <div>Conf: <span className="font-semibold text-gray-700">#{standing.conferenceRank}</span></div>
             )}
-            {standing.stats?.find(s => s.name === 'divisionRank' || s.abbreviation === 'DIV') && (
-              <div>Div: <span className="font-semibold text-gray-700">#{getStat(standing.stats, 'divisionRank', 'DIV')}</span></div>
+            {standing.divisionRank && (
+              <div>Div: <span className="font-semibold text-gray-700">#{standing.divisionRank}</span></div>
             )}
           </div>
         )}
