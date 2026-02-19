@@ -474,11 +474,13 @@ export const fetchAllSchedules = async (favoriteTeams) => {
               id: homeId,
               name: homeTeam.team?.displayName || homeTeam.team?.name,
               logo: homeTeam.team?.logo,
+              color: homeTeam.team?.color || homeTeam.team?.alternateColor,
             },
             awayTeam: {
               id: awayId,
               name: awayTeam.team?.displayName || awayTeam.team?.name,
               logo: awayTeam.team?.logo,
+              color: awayTeam.team?.color || awayTeam.team?.alternateColor,
             },
             favoriteTeamId,
             venue: competition.venue?.fullName || 'TBD',
