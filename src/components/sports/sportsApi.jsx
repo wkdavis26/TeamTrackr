@@ -268,6 +268,9 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
   } else if (league === 'La Liga') {
     homeId = mapLaLigaTeamToId(homeTeam.team?.displayName || '');
     awayId = mapLaLigaTeamToId(awayTeam.team?.displayName || '');
+  } else if (league === 'MLS') {
+    homeId = mapMLSTeamToId(homeTeam.team?.displayName || '');
+    awayId = mapMLSTeamToId(awayTeam.team?.displayName || '');
   } else {
     homeId = mapESPNTeamToId(homeTeam.team?.abbreviation, league);
     awayId = mapESPNTeamToId(awayTeam.team?.abbreviation, league);
