@@ -147,11 +147,23 @@ export default function GameCard({ game, compact = false }) {
 
         {/* Teams */}
         {game.isF1Race ? (
-          <div className="flex flex-col items-center justify-center gap-2 mb-4 py-3">
-            <div className="text-5xl">{game.isMainRace ? '🏁' : '⏱️'}</div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-gray-400">{game.f1Session}</div>
-            <div className="text-base font-bold text-gray-900">{game.f1Country || 'Grand Prix'}</div>
-            <div className="text-sm text-gray-500">{game.venue}</div>
+          <div className="flex items-center justify-between gap-4 mb-4">
+            {/* Flag emoji / session icon */}
+            <div className="flex-1 text-center p-3 rounded-xl bg-gray-50 flex flex-col items-center justify-center gap-1">
+              <div className="text-4xl">{game.isMainRace ? '🏁' : '⏱️'}</div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-gray-400">{game.f1Session}</div>
+            </div>
+
+            {/* VS separator */}
+            <div className="flex flex-col items-center">
+              <div className="text-xs text-gray-400 uppercase tracking-wider font-bold">🏎️</div>
+            </div>
+
+            {/* Location */}
+            <div className="flex-1 text-center p-3 rounded-xl bg-gray-50 flex flex-col items-center justify-center gap-1">
+              <div className="text-2xl">📍</div>
+              <div className="text-sm font-bold text-gray-900 truncate">{game.f1Country || 'Grand Prix'}</div>
+            </div>
           </div>
         ) : (
           <div className="flex items-center justify-between gap-4 mb-4">
