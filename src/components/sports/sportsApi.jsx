@@ -438,6 +438,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     teamIdsByLeague['Premier League'] ? fetchPremierLeagueSchedule() : Promise.resolve([]),
     teamIdsByLeague['La Liga'] ? fetchLaLigaSchedule() : Promise.resolve([]),
     teamIdsByLeague['F1'] ? fetchF1Schedule() : Promise.resolve([]),
+        teamIdsByLeague['NCAAF'] ? fetchNCAAFSchedule() : Promise.resolve([]),
   ]);
   
   // Parse NFL games
