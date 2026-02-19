@@ -143,14 +143,18 @@ export default function GameCard({ game, compact = false }) {
         {game.isF1Race ? (
           <div className="flex items-center justify-between gap-4 mb-4">
             <div className="flex-1 text-center p-3 rounded-xl bg-gray-50">
-              <div className="flex justify-center mb-2 text-3xl">{game.isMainRace ? '🏁' : '⏱️'}</div>
+              <div className="flex justify-center mb-2">
+                <div className="w-12 h-12 flex items-center justify-center text-3xl">{game.isMainRace ? '🏁' : '⏱️'}</div>
+              </div>
               <div className="text-xs font-semibold uppercase tracking-wider text-gray-400">{game.f1Session}</div>
             </div>
             <div className="flex flex-col items-center gap-1">
               <div className="text-lg">🏎️</div>
             </div>
             <div className="flex-1 text-center p-3 rounded-xl bg-gray-50">
-              <div className="flex justify-center mb-2 text-2xl">🌍</div>
+              <div className="flex justify-center mb-2">
+                <div className="w-12 h-12 flex items-center justify-center text-3xl">🌍</div>
+              </div>
               <div className="text-sm font-semibold text-gray-900 truncate">{game.f1Country || 'Grand Prix'}</div>
             </div>
           </div>
