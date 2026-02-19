@@ -167,12 +167,7 @@ function TeamStandingCard({ team, standing, loading }) {
               ))}
             </div>
           )}
-          {standing && streak !== '—' && (
-            <div className="text-xs text-center text-gray-400 mt-2">
-              Streak: <span className="font-medium text-gray-600">{streak}</span>
-            </div>
-          )}
-        </div>
+          </div>
       </div>
     </motion.div>
   );
