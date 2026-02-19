@@ -113,8 +113,8 @@ export default function CalendarView({ games }) {
                       const awayAbbr = game.awayTeam.name.split(' ').pop();
                       const homeAbbr = game.homeTeam.name.split(' ').pop();
                       const label = game.isF1Race
-                        ? `${gameTime} ${game.f1Session || 'Race'}`
-                        : `${gameTime} ${awayAbbr}@${homeAbbr}`;
+                              ? `${gameTime} ${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}`
+                              : `${gameTime} ${awayAbbr}@${homeAbbr}`;
                       return (
                         <div key={i} className={cn("truncate", isSelected ? "text-white/90" : "text-gray-700")}>
                           {label}
