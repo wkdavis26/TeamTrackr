@@ -107,8 +107,8 @@ function TeamStandingCard({ team, standing, loading }) {
       <div className="p-4 flex flex-col gap-3 flex-1">
         {/* Team header */}
         <div className="flex items-center gap-3">
-          {team.logo_url ? (
-            <img src={team.logo_url} alt={team.team_name} className="w-10 h-10 object-contain flex-shrink-0" />
+          {logoUrl ? (
+            <img src={logoUrl} alt={team.team_name} className="w-10 h-10 object-contain flex-shrink-0" />
           ) : (
             <div className="w-10 h-10 flex items-center justify-center text-xl flex-shrink-0">{leagueIcon}</div>
           )}
