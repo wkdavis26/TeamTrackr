@@ -13,7 +13,7 @@ import { LEAGUES } from '@/components/sports/teamsData';
 import { fetchAllSchedules } from '@/components/sports/sportsApi';
 
 export default function Home() {
-  const [view, setView] = useState('upcoming'); // 'upcoming', 'calendar', 'teams'
+  const [view, setView] = useState('upcoming'); // 'upcoming', 'overview', 'calendar', 'teams'
   const queryClient = useQueryClient();
 
   // Fetch favorite teams
