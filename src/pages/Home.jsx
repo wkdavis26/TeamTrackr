@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Calendar, List, Settings, Heart, Loader2 } from 'lucide-react';
+import { Calendar, List, Settings, Heart, Loader2, LayoutGrid } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import TeamSelector from '@/components/sports/TeamSelector';
