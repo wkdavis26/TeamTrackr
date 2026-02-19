@@ -464,16 +464,17 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   const now = new Date();
   
   // Fetch all schedules in parallel
-  const [nflGames, nhlGames, mlbGames, nbaGames, plGames, laligaGames, f1Games, ncaafGames] = await Promise.all([
+  const [nflGames, nhlGames, mlbGames, nbaGames, plGames, laligaGames, mlsGames, f1Games, ncaafGames] = await Promise.all([
     teamIdsByLeague['NFL'] ? fetchNFLSchedule() : Promise.resolve([]),
     teamIdsByLeague['NHL'] ? fetchNHLSchedule() : Promise.resolve([]),
     teamIdsByLeague['MLB'] ? fetchMLBSchedule() : Promise.resolve([]),
     teamIdsByLeague['NBA'] ? fetchNBASchedule() : Promise.resolve([]),
     teamIdsByLeague['Premier League'] ? fetchPremierLeagueSchedule() : Promise.resolve([]),
     teamIdsByLeague['La Liga'] ? fetchLaLigaSchedule() : Promise.resolve([]),
+    teamIdsByLeague['MLS'] ? fetchMLSSchedule() : Promise.resolve([]),
     teamIdsByLeague['F1'] ? fetchF1Schedule() : Promise.resolve([]),
-        teamIdsByLeague['NCAAF'] ? fetchNCAAFSchedule() : Promise.resolve([]),
-      ]);
+    teamIdsByLeague['NCAAF'] ? fetchNCAAFSchedule() : Promise.resolve([]),
+  ]);
 
       // Parse NCAAF games
       if (teamIdsByLeague['NCAAF']) {
