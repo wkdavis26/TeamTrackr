@@ -197,7 +197,9 @@ export default function TeamsOverview({ favoriteTeams }) {
       const result = {};
       favoriteTeams.forEach(team => {
         const entries = leagueEntries[team.league] || [];
-        result[team.team_id] = findEntryForTeam(entries, team.team_id) || null;
+        const entry = findEntryForTeam(entries, team.team_id);
+        if (entry) console.log(`[${team.league}] ${team.team_name}:`, JSON.stringify(entry, null, 2));
+        result[team.team_id] = entry || null;
       });
       setStandings(result);
       setLoading(false);
