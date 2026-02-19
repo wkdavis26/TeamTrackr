@@ -55,16 +55,16 @@ export const LEAGUES = {
     espnPath: null, // F1 teams fetched differently
     color: "#E10600",
     teams: [
-        { id: "f1-red-bull", name: "Red Bull Racing", color: "1E3A5F", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/8/84/RedBullRacing2023.svg/1024px-RedBullRacing2023.svg.png" },
-              { id: "f1-ferrari", name: "Scuderia Ferrari", color: "E8002D", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/2/24/Ferrari_SF-24.png/1024px-Ferrari_SF-24.png" },
-              { id: "f1-mercedes", name: "Mercedes-AMG", color: "00A19C", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/e/e4/Mercedes_AMG_Petronas_F1_Team.svg/1024px-Mercedes_AMG_Petronas_F1_Team.svg.png" },
-              { id: "f1-mclaren", name: "McLaren", color: "FF8000", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/3/30/McLaren_F1_Team.svg/1024px-McLaren_F1_Team.svg.png" },
-              { id: "f1-aston-martin", name: "Aston Martin", color: "00665E", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/Aston_Martin_F1_Team_2023.svg/1024px-Aston_Martin_F1_Team_2023.svg.png" },
-              { id: "f1-alpine", name: "Alpine", color: "0090FF", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/3/34/Alpine_F1_Team.svg/1024px-Alpine_F1_Team.svg.png" },
-              { id: "f1-williams", name: "Williams", color: "005AFF", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/8/8f/Williams_F1_Team_2023.svg/1024px-Williams_F1_Team_2023.svg.png" },
-              { id: "f1-alphatauri", name: "RB / Racing Bulls", color: "1434CB", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/2/28/AlphaTauri_F1_2023.svg/1024px-AlphaTauri_F1_2023.svg.png" },
-              { id: "f1-sauber", name: "Kick Sauber", color: "52E252", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/7/7d/Sauber_F1_2023.svg/1024px-Sauber_F1_2023.svg.png" },
-              { id: "f1-haas", name: "Haas F1 Team", color: "B6BABD", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/5/54/Haas_F1_Team.svg/1024px-Haas_F1_Team.svg.png" },
+        { id: "f1-red-bull", name: "Red Bull Racing", color: "1E3A5F" },
+              { id: "f1-ferrari", name: "Scuderia Ferrari", color: "E8002D" },
+              { id: "f1-mercedes", name: "Mercedes-AMG", color: "00A19C" },
+              { id: "f1-mclaren", name: "McLaren", color: "FF8000" },
+              { id: "f1-aston-martin", name: "Aston Martin", color: "00665E" },
+              { id: "f1-alpine", name: "Alpine", color: "0090FF" },
+              { id: "f1-williams", name: "Williams", color: "005AFF" },
+              { id: "f1-alphatauri", name: "RB / Racing Bulls", color: "1434CB" },
+              { id: "f1-sauber", name: "Kick Sauber", color: "52E252" },
+              { id: "f1-haas", name: "Haas F1 Team", color: "B6BABD" },
       ]
   }
 };
