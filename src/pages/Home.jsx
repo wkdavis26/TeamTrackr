@@ -128,6 +128,19 @@ export default function Home() {
             </Button>
             <Button
               variant="ghost"
+              onClick={() => setView('overview')}
+              className={cn(
+                "rounded-xl px-6 transition-all duration-200",
+                view === 'overview'
+                  ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+              )}
+            >
+              <LayoutGrid className="w-4 h-4 mr-2" />
+              Overview
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => setView('calendar')}
               className={cn(
                 "rounded-xl px-6 transition-all duration-200",
