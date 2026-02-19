@@ -70,15 +70,16 @@ const TEAM_COLOR_OVERRIDES = {
 function TeamStandingCard({ team, standing, loading }) {
   const leagueIcon = LEAGUES[team.league]?.icon || '🏆';
 
-  // For F1, get logo from static LEAGUES data since it's not in the entity
-  const f1TeamData = team.league === 'F1'
+  // For F1, get both logo and color from static LEAGUES data
+  const staticTeamData = team.league === 'F1'
     ? LEAGUES.F1.teams?.find(t => t.id === team.team_id)
     : null;
-  const logoUrl = team.logo_url || f1TeamData?.logo || null;
+  
+  const logoUrl = team.logo_url || staticTeamData?.logo || null;
 
   const rawColor = TEAM_COLOR_OVERRIDES[team.team_id]
     || team.color
-    || (f1TeamData?.color)
+    || staticTeamData?.color
     || LEAGUES[team.league]?.color?.replace('#', '');
   const borderColor = rawColor ? `#${rawColor.replace('#', '')}` : '#e5e7eb';
 
