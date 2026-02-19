@@ -651,7 +651,31 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       }
     });
   }
-  
+
+  // Parse World Cup games
+  if (teamIdsByLeague['FIFA World Cup']) {
+    worldCupGames.forEach(event => {
+      const game = parseESPNEvent(event, 'FIFA World Cup', teamIdsByLeague['FIFA World Cup']);
+      if (game && game.date > now) allGames.push(game);
+    });
+  }
+
+  // Parse Euro games
+  if (teamIdsByLeague['UEFA Euro']) {
+    euroGames.forEach(event => {
+      const game = parseESPNEvent(event, 'UEFA Euro', teamIdsByLeague['UEFA Euro']);
+      if (game && game.date > now) allGames.push(game);
+    });
+  }
+
+  // Parse International games
+  if (teamIdsByLeague['International']) {
+    intlGames.forEach(event => {
+      const game = parseESPNEvent(event, 'International', teamIdsByLeague['International']);
+      if (game && game.date > now) allGames.push(game);
+    });
+  }
+
   // Sort by date
   return allGames.sort((a, b) => a.date - b.date);
 };
