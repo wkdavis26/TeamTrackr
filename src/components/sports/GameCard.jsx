@@ -141,22 +141,11 @@ export default function GameCard({ game, compact = false }) {
 
         {/* Teams */}
         {game.isF1Race ? (
-          <div className="flex items-center justify-between gap-4 mb-4">
-            <div className="flex-1 text-center p-3 rounded-xl bg-gray-50">
-              <div className="flex justify-center mb-2">
-                <div className="w-12 h-12 flex items-center justify-center text-3xl">{game.isMainRace ? '🏁' : '⏱️'}</div>
-              </div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-gray-400">{game.f1Session}</div>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <div className="text-lg">🏎️</div>
-            </div>
-            <div className="flex-1 text-center p-3 rounded-xl bg-gray-50">
-              <div className="flex justify-center mb-2">
-                <div className="w-12 h-12 flex items-center justify-center text-3xl">🌍</div>
-              </div>
-              <div className="text-sm font-semibold text-gray-900 truncate">{game.f1Country || 'Grand Prix'}</div>
-            </div>
+          <div className="flex flex-col items-center justify-center gap-1 mb-4 py-2">
+            <div className="text-4xl mb-1">{game.isMainRace ? '🏁' : '⏱️'}</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-gray-400">{game.f1Session}</div>
+            <div className="text-lg font-bold text-gray-900">{game.f1Country || 'Grand Prix'}</div>
+            <div className="text-sm text-gray-500 truncate max-w-full text-center">{game.venue}</div>
           </div>
         ) : (
           <div className="flex items-center justify-between gap-4 mb-4">
