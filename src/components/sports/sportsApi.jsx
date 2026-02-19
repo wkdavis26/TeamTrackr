@@ -264,6 +264,14 @@ const mapLaLigaTeamToId = (name) => {
   return null;
 };
 
+// Map international team names
+const mapInternationalTeamToId = (name) => {
+  if (!name) return null;
+  const lowerName = name.toLowerCase();
+  const slug = lowerName.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  return `intl-${slug}`;
+};
+
 // Map F1 team names
 const mapF1TeamToId = (name) => {
   const lowerName = name.toLowerCase();
