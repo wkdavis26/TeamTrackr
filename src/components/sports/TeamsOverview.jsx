@@ -1,79 +1,105 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import { cn } from "@/lib/utils";
 import { LEAGUES } from './teamsData';
 
-const fetchStandings = async (league, teamId) => {
-  const leagueData = LEAGUES[league];
-  if (!leagueData?.espnPath) return null;
+// ESPN standings API paths per league
+const STANDINGS_PATHS = {
+  NFL:              'football/nfl',
+  NHL:              'hockey/nhl',
+  MLB:              'baseball/mlb',
+  NBA:              'basketball/nba',
+  'Premier League': 'soccer/eng.1',
+  'La Liga':        'soccer/esp.1',
+  MLS:              'soccer/usa.1',
+  NCAAF:            'football/college-football',
+};
+
+// Cache fetched standings per league to avoid redundant requests
+const standingsCache = {};
+
+const fetchLeagueStandings = async (league) => {
+  if (standingsCache[league]) return standingsCache[league];
+  const path = STANDINGS_PATHS[league];
+  if (!path) return [];
   try {
-    const res = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/${leagueData.espnPath}/standings`
-    );
-    if (!res.ok) return null;
+    const res = await fetch(`https://site.api.espn.com/apis/v2/sports/${path}/standings`);
+    if (!res.ok) return [];
     const data = await res.json();
-    const entries = data.standings?.entries || data.children?.flatMap(c => c.standings?.entries || []) || [];
-    // Find matching team entry
-    const entry = entries.find(e => {
-      const abbr = e.team?.abbreviation?.toLowerCase();
-      const suffix = teamId.split('-').slice(1).join('-');
-      return abbr === suffix || teamId.endsWith(`-${abbr}`);
-    });
-    if (!entry) return null;
-    const stats = {};
-    entry.stats?.forEach(s => { stats[s.name] = s.displayValue; });
-    return {
-      rank: entry.note?.rank || entries.indexOf(entry) + 1,
-      wins: stats.wins || stats.W || stats.w || '—',
-      losses: stats.losses || stats.L || stats.l || '—',
-      pct: stats.winPercent || stats.PCT || stats.pct || null,
-      streak: stats.streak || stats.streakCode || null,
-      gb: stats.gamesBehind || stats.GB || null,
-      pts: stats.points || stats.PTS || null,
-    };
+    // Flatten entries from all conference/division children
+    const entries = (data.children || [data]).flatMap(
+      child => (child.children || [child]).flatMap(
+        sub => sub.standings?.entries || []
+      )
+    );
+    standingsCache[league] = entries;
+    return entries;
   } catch {
-    return null;
+    return [];
   }
 };
 
-function TeamStandingCard({ team }) {
-  const [standing, setStanding] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Extract the abbreviation suffix from a team_id (e.g. "nhl-dal" -> "dal", "pl-man-city" -> "man-city")
+const getTeamAbbr = (teamId) => {
+  const parts = teamId.split('-');
+  parts.shift(); // remove prefix like "nhl", "nba", "pl", etc.
+  return parts.join('-');
+};
 
-  useEffect(() => {
-    fetchStandings(team.league, team.team_id).then(s => {
-      setStanding(s);
-      setLoading(false);
-    });
-  }, [team.team_id, team.league]);
+const findEntryForTeam = (entries, teamId) => {
+  const suffix = getTeamAbbr(teamId).toUpperCase().replace(/-/g, '');
+  return entries.find(e => {
+    const abbr = (e.team?.abbreviation || '').toUpperCase().replace(/-/g, '');
+    return abbr === suffix;
+  });
+};
 
-  const leagueColor = LEAGUES[team.league]?.color || '#6b7280';
+const getStat = (stats, ...names) => {
+  for (const name of names) {
+    const s = stats?.find(s => s.name === name || s.abbreviation === name);
+    if (s) return s.displayValue;
+  }
+  return '—';
+};
+
+function TeamStandingCard({ team, standing, loading }) {
   const leagueIcon = LEAGUES[team.league]?.icon || '🏆';
+  const rawColor = team.color || LEAGUES[team.league]?.color;
+  const borderColor = rawColor ? `#${rawColor.replace('#', '')}` : '#e5e7eb';
+
+  // Per-league stat layout
+  const isHockey = team.league === 'NHL';
+  const isSoccer = ['Premier League', 'La Liga', 'MLS'].includes(team.league);
+  const isBaseball = team.league === 'MLB';
+
+  const stats = standing?.stats;
+
+  const w = stats ? getStat(stats, 'wins', 'W') : '—';
+  const l = stats ? getStat(stats, 'losses', 'L') : '—';
+  const otl = stats ? getStat(stats, 'otLosses', 'OTL') : null;
+  const pct = stats ? getStat(stats, 'winPercent', 'PCT') : '—';
+  const pts = stats ? getStat(stats, 'points', 'PTS') : '—';
+  const streak = stats ? getStat(stats, 'streak', 'STRK') : '—';
+  const gp = stats ? getStat(stats, 'gamesPlayed', 'GP') : '—';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col"
+      className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col"
+      style={{ border: `3px solid ${borderColor}` }}
     >
-      {/* Color bar */}
-      <div className="h-1.5" style={{ backgroundColor: leagueColor }} />
-
       <div className="p-4 flex flex-col gap-3 flex-1">
         {/* Team header */}
         <div className="flex items-center gap-3">
           {team.logo_url ? (
-            <img src={team.logo_url} alt={team.team_name} className="w-12 h-12 object-contain" />
+            <img src={team.logo_url} alt={team.team_name} className="w-10 h-10 object-contain flex-shrink-0" />
           ) : (
-            <div className="w-12 h-12 flex items-center justify-center text-2xl">{leagueIcon}</div>
+            <div className="w-10 h-10 flex items-center justify-center text-xl flex-shrink-0">{leagueIcon}</div>
           )}
           <div className="min-w-0">
-            <div className="font-semibold text-gray-900 truncate">{team.team_name}</div>
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <span>{leagueIcon}</span>
-              <span>{team.league}</span>
-            </div>
+            <div className="font-semibold text-gray-900 text-sm leading-tight truncate">{team.team_name}</div>
+            <div className="text-xs text-gray-400">{team.league}</div>
           </div>
         </div>
 
@@ -83,42 +109,40 @@ function TeamStandingCard({ team }) {
             <div className="flex items-center justify-center py-3">
               <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
             </div>
-          ) : standing ? (
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div>
-                <div className="text-lg font-bold text-gray-900">{standing.wins}</div>
-                <div className="text-xs text-gray-400">W</div>
-              </div>
-              <div>
-                <div className="text-lg font-bold text-gray-900">{standing.losses}</div>
-                <div className="text-xs text-gray-400">L</div>
-              </div>
-              <div>
-                {standing.pct ? (
-                  <>
-                    <div className="text-lg font-bold text-gray-900">{standing.pct}</div>
-                    <div className="text-xs text-gray-400">PCT</div>
-                  </>
-                ) : standing.pts ? (
-                  <>
-                    <div className="text-lg font-bold text-gray-900">{standing.pts}</div>
-                    <div className="text-xs text-gray-400">PTS</div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-lg font-bold text-gray-900">—</div>
-                    <div className="text-xs text-gray-400">—</div>
-                  </>
-                )}
-              </div>
-              {standing.streak && (
-                <div className="col-span-3 text-xs text-gray-400 mt-1">
-                  Streak: <span className="font-medium text-gray-600">{standing.streak}</span>
+          ) : !standing ? (
+            <div className="text-xs text-gray-400 text-center py-2">Standings unavailable</div>
+          ) : isHockey ? (
+            <div className="grid grid-cols-4 gap-1 text-center">
+              {[['W', w], ['L', l], ['OTL', otl ?? '—'], ['PTS', pts]].map(([label, val]) => (
+                <div key={label}>
+                  <div className="text-base font-bold text-gray-900">{val}</div>
+                  <div className="text-xs text-gray-400">{label}</div>
                 </div>
-              )}
+              ))}
+            </div>
+          ) : isSoccer ? (
+            <div className="grid grid-cols-3 gap-1 text-center">
+              {[['W', w], ['L', l], ['PTS', pts]].map(([label, val]) => (
+                <div key={label}>
+                  <div className="text-base font-bold text-gray-900">{val}</div>
+                  <div className="text-xs text-gray-400">{label}</div>
+                </div>
+              ))}
             </div>
           ) : (
-            <div className="text-xs text-gray-400 text-center py-2">Standings unavailable</div>
+            <div className="grid grid-cols-3 gap-1 text-center">
+              {[['W', w], ['L', l], isBaseball ? ['GB', getStat(stats, 'gamesBehind', 'GB')] : ['PCT', pct]].map(([label, val]) => (
+                <div key={label}>
+                  <div className="text-base font-bold text-gray-900">{val}</div>
+                  <div className="text-xs text-gray-400">{label}</div>
+                </div>
+              ))}
+            </div>
+          )}
+          {standing && streak !== '—' && (
+            <div className="text-xs text-center text-gray-400 mt-2">
+              Streak: <span className="font-medium text-gray-600">{streak}</span>
+            </div>
           )}
         </div>
       </div>
@@ -127,6 +151,32 @@ function TeamStandingCard({ team }) {
 }
 
 export default function TeamsOverview({ favoriteTeams }) {
+  const [standings, setStandings] = useState({}); // { team_id: entry | null }
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!favoriteTeams.length) { setLoading(false); return; }
+
+    const load = async () => {
+      setLoading(true);
+      // Group teams by league to minimize API calls
+      const leagues = [...new Set(favoriteTeams.map(t => t.league))];
+      const leagueEntries = {};
+      await Promise.all(leagues.map(async league => {
+        leagueEntries[league] = await fetchLeagueStandings(league);
+      }));
+
+      const result = {};
+      favoriteTeams.forEach(team => {
+        const entries = leagueEntries[team.league] || [];
+        result[team.team_id] = findEntryForTeam(entries, team.team_id) || null;
+      });
+      setStandings(result);
+      setLoading(false);
+    };
+    load();
+  }, [favoriteTeams.map(t => t.team_id).join(',')]);
+
   if (favoriteTeams.length === 0) {
     return (
       <div className="text-center py-16">
@@ -148,14 +198,14 @@ export default function TeamsOverview({ favoriteTeams }) {
     <div className="space-y-8">
       {Object.entries(byLeague).map(([league, teams]) => (
         <div key={league}>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xl">{LEAGUES[league]?.icon || '🏆'}</span>
-            <h3 className="text-lg font-bold text-gray-900">{league}</h3>
-            <span className="text-sm text-gray-400">({teams.length} team{teams.length !== 1 ? 's' : ''})</span>
-          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {teams.map(team => (
-              <TeamStandingCard key={team.team_id} team={team} />
+              <TeamStandingCard
+                key={team.team_id}
+                team={{ ...team, color: standings[team.team_id]?.team?.color }}
+                standing={standings[team.team_id]}
+                loading={loading}
+              />
             ))}
           </div>
         </div>
