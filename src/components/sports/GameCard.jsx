@@ -5,6 +5,44 @@ import { MapPin, Clock } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { getLeagueColor } from './teamsData';
 
+// Map F1 race country/location to a dominant flag color
+const F1_COUNTRY_COLORS = {
+  'Australia': '#00008B',
+  'Bahrain': '#CE1126',
+  'Saudi Arabia': '#006C35',
+  'Japan': '#BC002D',
+  'China': '#DE2910',
+  'Miami': '#0033A0',
+  'Emilia Romagna': '#009246',
+  'Monaco': '#CE1126',
+  'Canada': '#FF0000',
+  'Spain': '#AA151B',
+  'Austria': '#ED2939',
+  'United Kingdom': '#012169',
+  'Hungary': '#CE2939',
+  'Belgium': '#000000',
+  'Netherlands': '#AE1C28',
+  'Italy': '#009246',
+  'Azerbaijan': '#0092BC',
+  'Singapore': '#EF3340',
+  'United States': '#B22234',
+  'Mexico': '#006847',
+  'Brazil': '#009C3B',
+  'Las Vegas': '#C8A951',
+  'Qatar': '#8D1B3D',
+  'Abu Dhabi': '#00732F',
+};
+
+const getF1CountryColor = (country) => {
+  if (!country) return null;
+  for (const [key, color] of Object.entries(F1_COUNTRY_COLORS)) {
+    if (country.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(country.toLowerCase())) {
+      return color;
+    }
+  }
+  return null;
+};
+
 const TeamLogo = ({ logo, name, size = "md" }) => {
   const sizeClass = size === "sm" ? "w-8 h-8" : "w-12 h-12";
   if (logo?.startsWith('http')) {
