@@ -266,11 +266,13 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
       id: homeId || homeTeam.team?.abbreviation,
       name: homeTeam.team?.displayName || homeTeam.team?.name,
       logo: homeTeam.team?.logo || getTeamEmoji(homeId),
+      color: homeTeam.team?.color || homeTeam.team?.alternateColor,
     },
     awayTeam: {
       id: awayId || awayTeam.team?.abbreviation,
       name: awayTeam.team?.displayName || awayTeam.team?.name,
       logo: awayTeam.team?.logo || getTeamEmoji(awayId),
+      color: awayTeam.team?.color || awayTeam.team?.alternateColor,
     },
     favoriteTeamId,
     venue: competition.venue?.fullName || 'TBD',
