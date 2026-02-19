@@ -379,6 +379,12 @@ const parseF1Event = (event, favoriteTeamIds) => {
   return results;
 };
 
+// Extract country from F1 event name (e.g. "Formula 1 Australian Grand Prix" -> "Australia")
+const extractF1Country = (name) => {
+  const m = name.match(/(\w[\w\s]*)Grand Prix/i);
+  return m ? m[1].trim() : '';
+};
+
 const getF1TeamName = (teamId) => {
   const names = {
     'f1-red-bull': 'Red Bull Racing',
