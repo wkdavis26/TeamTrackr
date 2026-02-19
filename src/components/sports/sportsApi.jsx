@@ -168,6 +168,36 @@ export const fetchF1Schedule = async () => {
   }
 };
 
+// Fetch FIFA World Cup schedule
+export const fetchWorldCupSchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('soccer/fifa.wc');
+  } catch (error) {
+    console.error('Error fetching World Cup schedule:', error);
+    return [];
+  }
+};
+
+// Fetch UEFA Euro schedule
+export const fetchEuroSchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('soccer/uefa.euro');
+  } catch (error) {
+    console.error('Error fetching Euro schedule:', error);
+    return [];
+  }
+};
+
+// Fetch International football schedule
+export const fetchInternationalSchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('soccer/international');
+  } catch (error) {
+    console.error('Error fetching International schedule:', error);
+    return [];
+  }
+};
+
 // Map ESPN team abbreviation to our team ID
 const mapESPNTeamToId = (abbr, league) => {
   if (!abbr) return null;
