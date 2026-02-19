@@ -39,6 +39,19 @@ const fetchLeagueStandings = async (league) => {
   }
 };
 
+// Map team IDs to team names for soccer leagues
+const teamIdToName = {
+  'pl-arsenal': 'Arsenal', 'pl-chelsea': 'Chelsea', 'pl-liverpool': 'Liverpool',
+  'pl-man-city': 'Manchester City', 'pl-man-utd': 'Manchester United',
+  'pl-tottenham': 'Tottenham', 'pl-newcastle': 'Newcastle', 'pl-aston-villa': 'Aston Villa',
+  'pl-brighton': 'Brighton', 'pl-west-ham': 'West Ham', 'pl-everton': 'Everton',
+  'pl-wolves': 'Wolves',
+  'll-real-madrid': 'Real Madrid', 'll-barcelona': 'Barcelona', 'll-atletico': 'Atlético',
+  'll-sevilla': 'Sevilla', 'll-real-sociedad': 'Real Sociedad', 'll-villarreal': 'Villarreal',
+  'll-athletic': 'Athletic', 'll-betis': 'Betis', 'll-valencia': 'Valencia',
+  'll-celta': 'Celta', 'll-getafe': 'Getafe', 'll-osasuna': 'Osasuna',
+};
+
 // Extract the abbreviation suffix from a team_id (e.g. "nhl-dal" -> "dal", "pl-man-city" -> "man-city")
 const getTeamAbbr = (teamId) => {
   const parts = teamId.split('-');
@@ -47,6 +60,18 @@ const getTeamAbbr = (teamId) => {
 };
 
 const findEntryForTeam = (entries, teamId) => {
+  // For soccer leagues, match by team name instead of abbreviation
+  if (teamId.startsWith('pl-') || teamId.startsWith('ll-')) {
+    const teamName = teamIdToName[teamId];
+    if (teamName) {
+      return entries.find(e => {
+        const displayName = (e.team?.displayName || '').toLowerCase();
+        return displayName.includes(teamName.toLowerCase());
+      });
+    }
+  }
+
+  // For other leagues, match by abbreviation
   const suffix = getTeamAbbr(teamId).toUpperCase().replace(/-/g, '');
   return entries.find(e => {
     const abbr = (e.team?.abbreviation || '').toUpperCase().replace(/-/g, '');
