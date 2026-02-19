@@ -48,8 +48,9 @@ export default function GameCard({ game, compact = false }) {
 
   // Get the favorite team's primary color
   const favoriteTeam = isFavoriteHome ? game.homeTeam : game.awayTeam;
-  const teamColor = favoriteTeam?.color ? `#${favoriteTeam.color.replace('#', '')}` : null;
-  const borderStyle = teamColor ? { borderColor: teamColor, borderWidth: '2px' } : {};
+  const rawColor = favoriteTeam?.color;
+  const teamColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
+  const borderStyle = teamColor ? { borderColor: teamColor, borderWidth: '2px', borderStyle: 'solid' } : {};
 
   if (compact) {
     return (
