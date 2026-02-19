@@ -194,7 +194,7 @@ export default function GameCard({ game, compact = false }) {
             </div>
 
             {/* VS */}
-            <div className="flex flex-col items-center w-10 shrink-0">
+            <div className="flex flex-col items-center">
               <div className="text-xs text-gray-400 uppercase tracking-wider font-bold">vs</div>
             </div>
 
@@ -217,17 +217,17 @@ export default function GameCard({ game, compact = false }) {
         )}
 
         {/* Footer */}
-        <div className="pt-3 border-t border-gray-100 flex flex-col items-center gap-2">
-          <div className="flex items-center gap-1.5 text-gray-500">
+        <div className="pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-center gap-1.5 text-gray-500 mb-2">
             <span className="text-base">{game.isF1Race ? (game.isMainRace ? '🏁' : '⏱️') : game.leagueIcon}</span>
             <span className="text-xs font-medium">{game.isF1Race ? game.f1Session : game.league}</span>
           </div>
-          <div className="flex items-center gap-4 text-gray-400">
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-gray-400">
               <Clock className="w-3.5 h-3.5" />
               <span className="text-xs">{formatTimeCT(gameDate)} CT</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 text-gray-400">
               <MapPin className="w-3.5 h-3.5" />
               <span className="text-xs truncate max-w-[120px]">{game.venue}</span>
             </div>
