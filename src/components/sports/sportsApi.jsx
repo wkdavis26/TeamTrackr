@@ -354,6 +354,7 @@ const parseF1Event = (event, favoriteTeamIds) => {
       .trim();
 
     f1TeamIds.forEach(teamId => {
+        const f1TeamData = LEAGUES.F1.teams.find(t => t.id === teamId);
         results.push({
           id: `${event.id}-${session.id || abbr}-${teamId}`,
           date: new Date(session.date),
@@ -362,7 +363,8 @@ const parseF1Event = (event, favoriteTeamIds) => {
           homeTeam: {
             id: teamId,
             name: getF1TeamName(teamId),
-            logo: getTeamEmoji(teamId),
+            logo: f1TeamData?.logo || '🏎️',
+            color: f1TeamData?.color || null,
           },
           awayTeam: {
             id: 'f1-race',
