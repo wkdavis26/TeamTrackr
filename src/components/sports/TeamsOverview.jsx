@@ -107,17 +107,29 @@ function TeamStandingCard({ team, standing, loading }) {
     >
       <div className="p-4 flex flex-col gap-3 flex-1">
         {/* Team header */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-2">
           {logoUrl ? (
             <img src={logoUrl} alt={team.team_name} className="w-10 h-10 object-contain flex-shrink-0" />
           ) : (
             <div className="w-10 h-10 flex items-center justify-center text-xl flex-shrink-0">{leagueIcon}</div>
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="font-semibold text-gray-900 text-sm leading-tight truncate">{team.team_name}</div>
             <div className="text-xs text-gray-400">{team.league}</div>
           </div>
         </div>
+
+        {/* Conference & Division Rank */}
+        {!loading && standing && (
+          <div className="text-xs text-gray-500 space-y-0.5">
+            {standing.conferenceRank && (
+              <div>Conf: <span className="font-semibold text-gray-700">#{standing.conferenceRank}</span></div>
+            )}
+            {standing.divisionRank && (
+              <div>Div: <span className="font-semibold text-gray-700">#{standing.divisionRank}</span></div>
+            )}
+          </div>
+        )}
 
         {/* Standings */}
         <div className="border-t border-gray-100 pt-3">
