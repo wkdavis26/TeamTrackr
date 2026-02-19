@@ -135,6 +135,17 @@ export const fetchLaLigaSchedule = async () => {
   }
 };
 
+// Fetch NCAA Football schedule
+export const fetchNCAAFSchedule = async () => {
+  try {
+    const endOfSeason = new Date(2026, 5, 30); // through June
+    return await fetchESPNScheduleRange('football/college-football', endOfSeason);
+  } catch (error) {
+    console.error('Error fetching NCAAF schedule:', error);
+    return [];
+  }
+};
+
 // Fetch F1 schedule
 export const fetchF1Schedule = async () => {
   try {
