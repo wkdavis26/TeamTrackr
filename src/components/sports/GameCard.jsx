@@ -94,7 +94,9 @@ export default function GameCard({ game, compact = false }) {
     borderColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
   }
   const teamColor = borderColor;
-  const borderStyle = borderColor ? { borderColor, borderWidth: '4px', borderStyle: 'solid' } : {};
+  const borderStyle = game.isF1Race
+    ? { border: '4px solid transparent', backgroundImage: 'linear-gradient(white, white), repeating-linear-gradient(90deg, #000 0px, #000 8px, #fff 8px, #fff 16px)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box' }
+    : borderColor ? { borderColor, borderWidth: '4px', borderStyle: 'solid' } : {};
 
   if (compact) {
     return (
