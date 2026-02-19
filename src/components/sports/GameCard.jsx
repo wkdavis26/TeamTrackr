@@ -161,7 +161,11 @@ export default function GameCard({ game, compact = false }) {
         {/* Teams */}
         {game.isF1Race ? (
           <div className="flex flex-col items-center justify-center gap-1 mb-4 py-2">
-            <div className="text-xs font-bold uppercase tracking-widest text-gray-400">{game.f1Session}</div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">{getFlagEmoji(game.f1Country)}</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{game.f1Session}</span>
+              <span className="text-xl">{getFlagEmoji(game.f1Country)}</span>
+            </div>
             <div className="text-lg font-bold text-gray-900">{game.f1Country || 'Grand Prix'}</div>
             <div className="text-sm text-gray-500 truncate max-w-full text-center">{game.venue}</div>
           </div>
