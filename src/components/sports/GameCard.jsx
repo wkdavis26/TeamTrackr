@@ -83,7 +83,8 @@ export default function GameCard({ game, compact = false }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      className="group relative overflow-hidden rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300"
+      className="group relative overflow-hidden rounded-2xl bg-white border shadow-sm hover:shadow-md transition-all duration-300"
+      style={borderStyle}
     >
       {/* League indicator strip */}
       <div className={cn("absolute top-0 left-0 right-0 h-1", getLeagueColor(game.league))} />
