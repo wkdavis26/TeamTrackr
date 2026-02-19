@@ -34,22 +34,28 @@ const F1_COUNTRY_COLORS = {
 };
 
 const COUNTRY_TO_CODE = {
-  'Australia': 'AU', 'Bahrain': 'BH', 'Saudi Arabia': 'SA', 'Japan': 'JP',
-  'China': 'CN', 'Miami': 'US', 'Emilia Romagna': 'IT', 'Monaco': 'MC',
-  'Canada': 'CA', 'Spain': 'ES', 'Austria': 'AT', 'United Kingdom': 'GB',
-  'Hungary': 'HU', 'Belgium': 'BE', 'Netherlands': 'NL', 'Italy': 'IT',
-  'Azerbaijan': 'AZ', 'Singapore': 'SG', 'United States': 'US',
-  'Mexico': 'MX', 'Brazil': 'BR', 'Las Vegas': 'US', 'Qatar': 'QA', 'Abu Dhabi': 'AE',
+  'Australia': 'au', 'Bahrain': 'bh', 'Saudi Arabia': 'sa', 'Japan': 'jp',
+  'China': 'cn', 'Miami': 'us', 'Emilia Romagna': 'it', 'Monaco': 'mc',
+  'Canada': 'ca', 'Spain': 'es', 'Austria': 'at', 'United Kingdom': 'gb',
+  'Hungary': 'hu', 'Belgium': 'be', 'Netherlands': 'nl', 'Italy': 'it',
+  'Azerbaijan': 'az', 'Singapore': 'sg', 'United States': 'us',
+  'Mexico': 'mx', 'Brazil': 'br', 'Las Vegas': 'us', 'Qatar': 'qa', 'Abu Dhabi': 'ae',
 };
 
-const getFlagEmoji = (country) => {
-  if (!country) return '';
+const getFlagUrl = (country) => {
+  if (!country) return null;
   for (const [key, code] of Object.entries(COUNTRY_TO_CODE)) {
     if (country.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(country.toLowerCase())) {
-      return code.toUpperCase().replace(/./g, c => String.fromCodePoint(0x1F1E0 + c.charCodeAt(0) - 65));
+      return `https://flagcdn.com/w40/${code}.png`;
     }
   }
-  return '';
+  return null;
+};
+
+const FlagImage = ({ country }) => {
+  const url = getFlagUrl(country);
+  if (!url) return null;
+  return <img src={url} alt={country} className="w-7 h-5 object-cover rounded-sm shadow-sm" />;
 };
 
 const getF1CountryColor = (country) => {
