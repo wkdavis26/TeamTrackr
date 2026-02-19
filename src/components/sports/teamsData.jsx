@@ -49,17 +49,17 @@ export const LEAGUES = {
     espnPath: null, // F1 teams fetched differently
     color: "#E10600",
     teams: [
-      { id: "f1-red-bull", name: "Red Bull Racing", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/rbr.png" },
-      { id: "f1-ferrari", name: "Scuderia Ferrari", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/fer.png" },
-      { id: "f1-mercedes", name: "Mercedes-AMG", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/mer.png" },
-      { id: "f1-mclaren", name: "McLaren", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/mcl.png" },
-      { id: "f1-aston-martin", name: "Aston Martin", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/am.png" },
-      { id: "f1-alpine", name: "Alpine", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/alp.png" },
-      { id: "f1-williams", name: "Williams", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/wil.png" },
-      { id: "f1-alphatauri", name: "RB / Racing Bulls", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/rb.png" },
-      { id: "f1-sauber", name: "Kick Sauber", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/sau.png" },
-      { id: "f1-haas", name: "Haas F1 Team", logo: "https://a.espncdn.com/combiner/i?img=/i/teamlogos/racing/500/has.png" },
-    ]
+        { id: "f1-red-bull", name: "Red Bull Racing", color: "1E3A5F", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/red-bull-racing-logo.png" },
+        { id: "f1-ferrari", name: "Scuderia Ferrari", color: "E8002D", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/ferrari-logo.png" },
+        { id: "f1-mercedes", name: "Mercedes-AMG", color: "00A19C", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/mercedes-logo.png" },
+        { id: "f1-mclaren", name: "McLaren", color: "FF8000", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/mclaren-logo.png" },
+        { id: "f1-aston-martin", name: "Aston Martin", color: "00665E", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/aston-martin-logo.png" },
+        { id: "f1-alpine", name: "Alpine", color: "0090FF", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/alpine-logo.png" },
+        { id: "f1-williams", name: "Williams", color: "005AFF", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/williams-logo.png" },
+        { id: "f1-alphatauri", name: "RB / Racing Bulls", color: "1434CB", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/rb-logo.png" },
+        { id: "f1-sauber", name: "Kick Sauber", color: "52E252", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/kick-sauber-logo.png" },
+        { id: "f1-haas", name: "Haas F1 Team", color: "B6BABD", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/haas-logo.png" },
+      ]
   }
 };
 
