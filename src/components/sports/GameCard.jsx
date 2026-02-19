@@ -156,6 +156,7 @@ export default function GameCard({ game, compact = false }) {
             <Clock className="w-3.5 h-3.5" />
             <span className="text-xs">{formatTimeCT(gameDate)} CT</span>
           </div>
+          <span className="text-base">{game.leagueIcon}</span>
           <div className="flex items-center gap-1.5 text-gray-400">
             <MapPin className="w-3.5 h-3.5" />
             <span className="text-xs truncate max-w-[120px]">{game.venue}</span>
