@@ -72,6 +72,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+            TeamTrackr
+          </h1>
+          <p className="text-gray-500">
+            Track all your favorite teams so you never miss a play
+          </p>
+        </motion.header>
+
         {/* Navigation Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
