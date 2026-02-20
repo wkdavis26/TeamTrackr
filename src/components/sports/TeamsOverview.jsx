@@ -254,11 +254,13 @@ export default function TeamsOverview({ favoriteTeams }) {
         result[team.team_id] = entry || null;
 
         const leagueColorMap = colorsByLeague[team.league] || {};
-        // Always prefer the abbreviation from the matched standings entry (most accurate for soccer)
-        // Fall back to deriving from team_id only if no entry found
         const abbrKey = entry?.team?.abbreviation?.toUpperCase()
           || getTeamAbbr(team.team_id).toUpperCase().replace(/-/g, '');
-        colors[team.team_id] = leagueColorMap[abbrKey] || null;
+        const resolvedColor = leagueColorMap[abbrKey] || null;
+        if (['Premier League', 'La Liga'].includes(team.league)) {
+          console.log(`[COLOR] ${team.team_id} | entryAbbr=${entry?.team?.abbreviation} | abbrKey=${abbrKey} | colorMapKeys=${JSON.stringify(Object.keys(leagueColorMap))} | resolved=${resolvedColor}`);
+        }
+        colors[team.team_id] = resolvedColor;
       });
 
       setStandings(result);
