@@ -130,7 +130,7 @@ export default function Home() {
               )}
             >
               <Settings className="w-4 h-4 mr-2" />
-              My Teams
+              My Teams {favoriteTeams.length > 0 && `(${favoriteTeams.length})`}
             </Button>
           </div>
         </motion.div>
