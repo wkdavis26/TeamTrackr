@@ -21,7 +21,6 @@ const STANDINGS_PATHS = {
   'International':  'soccer/international',
 };
 
-// Cache fetched standings per league to avoid redundant requests
 const standingsCache = {};
 
 const fetchLeagueStandings = async (league) => {
@@ -32,17 +31,11 @@ const fetchLeagueStandings = async (league) => {
     const res = await fetch(`https://site.api.espn.com/apis/v2/sports/${path}/standings`);
     if (!res.ok) return [];
     const data = await res.json();
-    // Flatten entries from all conference/division children
     const entries = (data.children || [data]).flatMap(
       child => (child.children || [child]).flatMap(
         sub => sub.standings?.entries || []
       )
     );
-    console.log(`[${league}] fetched ${entries.length} entries`);
-    if (league === 'La Liga') {
-      const sampleTeams = entries.slice(0, 3).map(e => e.team?.displayName);
-      console.log(`[${league}] sample team names:`, sampleTeams);
-    }
     standingsCache[league] = entries;
     return entries;
   } catch (e) {
@@ -51,7 +44,6 @@ const fetchLeagueStandings = async (league) => {
   }
 };
 
-// Map team IDs to team names for soccer leagues
 const teamIdToName = {
   'pl-arsenal': 'Arsenal', 'pl-chelsea': 'Chelsea', 'pl-liverpool': 'Liverpool',
   'pl-man-city': 'Manchester City', 'pl-man-utd': 'Manchester United',
@@ -64,15 +56,13 @@ const teamIdToName = {
   'll-celta': 'Celta', 'll-getafe': 'Getafe', 'll-osasuna': 'Osasuna',
 };
 
-// Extract the abbreviation suffix from a team_id (e.g. "nhl-dal" -> "dal", "pl-man-city" -> "man-city")
 const getTeamAbbr = (teamId) => {
   const parts = teamId.split('-');
-  parts.shift(); // remove prefix like "nhl", "nba", "pl", etc.
+  parts.shift();
   return parts.join('-');
 };
 
 const findEntryForTeam = (entries, teamId) => {
-  // For international teams, match by displayName
   if (teamId.startsWith('intl-')) {
     const teamName = teamId.replace('intl-', '').replace(/-/g, ' ').toUpperCase();
     return entries.find(e => {
@@ -80,8 +70,6 @@ const findEntryForTeam = (entries, teamId) => {
       return displayName.includes(teamName) || displayName === teamName;
     });
   }
-
-  // For soccer leagues, match by team name instead of abbreviation
   if (teamId.startsWith('pl-') || teamId.startsWith('ll-')) {
     const teamName = teamIdToName[teamId];
     if (teamName) {
@@ -91,8 +79,6 @@ const findEntryForTeam = (entries, teamId) => {
       });
     }
   }
-
-  // For other leagues, match by abbreviation
   const suffix = getTeamAbbr(teamId).toUpperCase().replace(/-/g, '');
   return entries.find(e => {
     const abbr = (e.team?.abbreviation || '').toUpperCase().replace(/-/g, '');
@@ -108,19 +94,17 @@ const getStat = (stats, ...names) => {
   return '—';
 };
 
-// Hard-coded primary color overrides where ESPN returns wrong/dark colors
 const TEAM_COLOR_OVERRIDES = {
-  'nhl-dal': '006D60', // Dallas Stars Victory Green
+  'nhl-dal': '006D60',
 };
 
 function TeamStandingCard({ team, standing, loading }) {
   const leagueIcon = LEAGUES[team.league]?.icon || '🏆';
 
-  // For F1, get both logo and color from static LEAGUES data
   const staticTeamData = team.league === 'F1'
     ? LEAGUES.F1.teams?.find(t => t.id === team.team_id)
     : null;
-  
+
   const logoUrl = team.logo_url || staticTeamData?.logo || null;
 
   const rawColor = TEAM_COLOR_OVERRIDES[team.team_id]
@@ -129,20 +113,16 @@ function TeamStandingCard({ team, standing, loading }) {
     || LEAGUES[team.league]?.color?.replace('#', '');
   const borderColor = rawColor ? `#${rawColor.replace('#', '')}` : '#e5e7eb';
 
-  // Per-league stat layout
   const isHockey = team.league === 'NHL';
   const isSoccer = ['Premier League', 'La Liga', 'MLS'].includes(team.league);
   const isBaseball = team.league === 'MLB';
 
   const stats = standing?.stats;
-
   const w = stats ? getStat(stats, 'wins', 'W') : '—';
   const l = stats ? getStat(stats, 'losses', 'L') : '—';
   const otl = stats ? getStat(stats, 'otLosses', 'OTL') : null;
   const pct = stats ? getStat(stats, 'winPercent', 'PCT') : '—';
   const pts = stats ? getStat(stats, 'points', 'PTS') : '—';
-  const streak = stats ? getStat(stats, 'streak', 'STRK') : '—';
-  const gp = stats ? getStat(stats, 'gamesPlayed', 'GP') : '—';
 
   const teamUrl = createPageUrl(`TeamDetails?team_id=${team.team_id}&team_name=${encodeURIComponent(team.team_name)}&league=${encodeURIComponent(team.league)}`);
 
@@ -155,99 +135,90 @@ function TeamStandingCard({ team, standing, loading }) {
         className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow"
         style={{ border: `3px solid ${borderColor}` }}
       >
-      <div className="p-4 flex flex-col gap-3 flex-1">
-        {/* Team header */}
-        <div className="flex items-center gap-3 mb-2">
-          {logoUrl ? (
-            <img src={logoUrl} alt={team.team_name} className="w-10 h-10 object-contain flex-shrink-0" />
-          ) : (
-            <div className="w-10 h-10 flex items-center justify-center text-xl flex-shrink-0">{leagueIcon}</div>
-          )}
-          <div className="min-w-0 flex-1">
-            <div className="font-semibold text-gray-900 text-sm leading-tight truncate">{team.team_name}</div>
-            <div className="text-xs text-gray-400">{team.league}</div>
-          </div>
-        </div>
-
-        {/* Conference & Division Rank */}
-        {!loading && standing && (standing.conferenceRank || standing.divisionRank) && (
-          <div className="text-xs text-gray-500 space-y-0.5 mb-2">
-            {standing.conferenceRank && (
-              <div>Conf: <span className="font-semibold text-gray-700">#{standing.conferenceRank}</span></div>
+        <div className="p-4 flex flex-col gap-3 flex-1">
+          <div className="flex items-center gap-3 mb-2">
+            {logoUrl ? (
+              <img src={logoUrl} alt={team.team_name} className="w-10 h-10 object-contain flex-shrink-0" />
+            ) : (
+              <div className="w-10 h-10 flex items-center justify-center text-xl flex-shrink-0">{leagueIcon}</div>
             )}
-            {standing.divisionRank && (
-              <div>Div: <span className="font-semibold text-gray-700">#{standing.divisionRank}</span></div>
-            )}
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-gray-900 text-sm leading-tight truncate">{team.team_name}</div>
+              <div className="text-xs text-gray-400">{team.league}</div>
+            </div>
           </div>
-        )}
 
-        {/* Standings */}
-        <div className="border-t border-gray-100 pt-3">
-          {loading ? (
-            <div className="flex items-center justify-center py-3">
-              <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
-            </div>
-          ) : !standing ? (
-            <div className="text-xs text-gray-400 text-center py-2">Standings unavailable</div>
-          ) : isHockey ? (
-            <div className="grid grid-cols-4 gap-1 text-center">
-              {[['W', w], ['L', l], ['OTL', otl ?? '—'], ['PTS', pts]].map(([label, val]) => (
-                <div key={label}>
-                  <div className="text-base font-bold text-gray-900">{val}</div>
-                  <div className="text-xs text-gray-400">{label}</div>
-                </div>
-              ))}
-            </div>
-          ) : isSoccer ? (
-            <div className="grid grid-cols-3 gap-1 text-center">
-              {[['W', w], ['L', l], ['PTS', pts]].map(([label, val]) => (
-                <div key={label}>
-                  <div className="text-base font-bold text-gray-900">{val}</div>
-                  <div className="text-xs text-gray-400">{label}</div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-1 text-center">
-              {[['W', w], ['L', l], isBaseball ? ['GB', getStat(stats, 'gamesBehind', 'GB')] : ['PCT', pct]].map(([label, val]) => (
-                <div key={label}>
-                  <div className="text-base font-bold text-gray-900">{val}</div>
-                  <div className="text-xs text-gray-400">{label}</div>
-                </div>
-              ))}
+          {!loading && standing && (standing.conferenceRank || standing.divisionRank) && (
+            <div className="text-xs text-gray-500 space-y-0.5 mb-2">
+              {standing.conferenceRank && (
+                <div>Conf: <span className="font-semibold text-gray-700">#{standing.conferenceRank}</span></div>
+              )}
+              {standing.divisionRank && (
+                <div>Div: <span className="font-semibold text-gray-700">#{standing.divisionRank}</span></div>
+              )}
             </div>
           )}
+
+          <div className="border-t border-gray-100 pt-3">
+            {loading ? (
+              <div className="flex items-center justify-center py-3">
+                <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
+              </div>
+            ) : !standing ? (
+              <div className="text-xs text-gray-400 text-center py-2">Standings unavailable</div>
+            ) : isHockey ? (
+              <div className="grid grid-cols-4 gap-1 text-center">
+                {[['W', w], ['L', l], ['OTL', otl ?? '—'], ['PTS', pts]].map(([label, val]) => (
+                  <div key={label}>
+                    <div className="text-base font-bold text-gray-900">{val}</div>
+                    <div className="text-xs text-gray-400">{label}</div>
+                  </div>
+                ))}
+              </div>
+            ) : isSoccer ? (
+              <div className="grid grid-cols-3 gap-1 text-center">
+                {[['W', w], ['L', l], ['PTS', pts]].map(([label, val]) => (
+                  <div key={label}>
+                    <div className="text-base font-bold text-gray-900">{val}</div>
+                    <div className="text-xs text-gray-400">{label}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-1 text-center">
+                {[['W', w], ['L', l], isBaseball ? ['GB', getStat(stats, 'gamesBehind', 'GB')] : ['PCT', pct]].map(([label, val]) => (
+                  <div key={label}>
+                    <div className="text-base font-bold text-gray-900">{val}</div>
+                    <div className="text-xs text-gray-400">{label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       </motion.div>
     </Link>
   );
 }
 
 export default function TeamsOverview({ favoriteTeams }) {
-  const [standings, setStandings] = useState({}); // { team_id: entry | null }
+  const [standings, setStandings] = useState({});
   const [loading, setLoading] = useState(true);
   const [leagueOrder, setLeagueOrder] = useState([]);
 
   useEffect(() => {
     if (!favoriteTeams.length) { setLoading(false); return; }
-
     const load = async () => {
       setLoading(true);
-      // Group teams by league to minimize API calls
       const leagues = [...new Set(favoriteTeams.map(t => t.league))];
       const leagueEntries = {};
       await Promise.all(leagues.map(async league => {
         leagueEntries[league] = await fetchLeagueStandings(league);
       }));
-
       const result = {};
       favoriteTeams.forEach(team => {
         const entries = leagueEntries[team.league] || [];
-        console.log(`[${team.league}] ${team.team_name}: searching in ${entries.length} entries`);
         const entry = findEntryForTeam(entries, team.team_id);
-        if (entry) console.log(`[${team.league}] ${team.team_name}:`, JSON.stringify(entry, null, 2));
-        else console.log(`[${team.league}] ${team.team_name}: NO MATCH FOUND`);
         result[team.team_id] = entry || null;
       });
       setStandings(result);
@@ -256,21 +227,20 @@ export default function TeamsOverview({ favoriteTeams }) {
     load();
   }, [favoriteTeams.map(t => t.team_id).join(',')]);
 
-  // Build grouped leagues
+  // Group by league
   const byLeague = favoriteTeams.reduce((acc, t) => {
     if (!acc[t.league]) acc[t.league] = [];
     acc[t.league].push(t);
     return acc;
   }, {});
 
-  // Keep leagueOrder in sync with available leagues
   const availableLeagues = Object.keys(byLeague);
+
   const orderedLeagues = [
     ...leagueOrder.filter(l => availableLeagues.includes(l)),
     ...availableLeagues.filter(l => !leagueOrder.includes(l)),
   ];
 
-  // Update order state if new leagues appeared
   useEffect(() => {
     setLeagueOrder(prev => [
       ...prev.filter(l => availableLeagues.includes(l)),
