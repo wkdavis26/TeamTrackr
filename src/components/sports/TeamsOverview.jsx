@@ -107,8 +107,13 @@ function TeamStandingCard({ team, standing, loading }) {
 
   const logoUrl = team.logo_url || staticTeamData?.logo || null;
 
-  // team.color is populated from standings[team.team_id]?.team?.color by the parent
+  // standing.team?.color or standing.team?.alternateColor (both hex without #)
+  const espnPrimary = standing?.team?.color;
+  const espnAlt = standing?.team?.alternateColor;
+
   const rawColor = TEAM_COLOR_OVERRIDES[team.team_id]
+    || espnPrimary
+    || espnAlt
     || team.color
     || staticTeamData?.color
     || LEAGUES[team.league]?.color?.replace('#', '');
