@@ -72,39 +72,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-            My Sports
-          </h1>
-          <p className="text-gray-500">
-            Track your favorite teams across all leagues
-          </p>
-        </motion.header>
-
-        {/* Stats Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex items-center justify-center gap-6 mb-8"
-        >
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm">
-            <Heart className="w-4 h-4 text-rose-500" />
-            <span className="text-gray-900 font-medium">{favoriteTeams.length}</span>
-            <span className="text-gray-500 text-sm">Teams</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm">
-            <Calendar className="w-4 h-4 text-emerald-500" />
-            <span className="text-gray-900 font-medium">{upcomingGames.length}</span>
-            <span className="text-gray-500 text-sm">Upcoming</span>
-          </div>
-        </motion.div>
-
         {/* Navigation Tabs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
