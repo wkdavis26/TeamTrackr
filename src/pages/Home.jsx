@@ -91,7 +91,7 @@ export default function Home() {
               )}
             >
               <List className="w-4 h-4 mr-2" />
-              Upcoming
+              Upcoming {upcomingGames.length > 0 && `(${upcomingGames.length})`}
             </Button>
             <Button
               variant="ghost"
