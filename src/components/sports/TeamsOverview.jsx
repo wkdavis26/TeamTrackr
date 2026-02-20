@@ -256,6 +256,36 @@ export default function TeamsOverview({ favoriteTeams }) {
     load();
   }, [favoriteTeams.map(t => t.team_id).join(',')]);
 
+  // Build grouped leagues
+  const byLeague = favoriteTeams.reduce((acc, t) => {
+    if (!acc[t.league]) acc[t.league] = [];
+    acc[t.league].push(t);
+    return acc;
+  }, {});
+
+  // Keep leagueOrder in sync with available leagues
+  const availableLeagues = Object.keys(byLeague);
+  const orderedLeagues = [
+    ...leagueOrder.filter(l => availableLeagues.includes(l)),
+    ...availableLeagues.filter(l => !leagueOrder.includes(l)),
+  ];
+
+  // Update order state if new leagues appeared
+  useEffect(() => {
+    setLeagueOrder(prev => [
+      ...prev.filter(l => availableLeagues.includes(l)),
+      ...availableLeagues.filter(l => !prev.includes(l)),
+    ]);
+  }, [availableLeagues.join(',')]);
+
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+    const newOrder = Array.from(orderedLeagues);
+    const [moved] = newOrder.splice(result.source.index, 1);
+    newOrder.splice(result.destination.index, 0, moved);
+    setLeagueOrder(newOrder);
+  };
+
   if (favoriteTeams.length === 0) {
     return (
       <div className="text-center py-16">
