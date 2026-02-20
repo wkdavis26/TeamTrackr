@@ -296,29 +296,46 @@ export default function TeamsOverview({ favoriteTeams }) {
     );
   }
 
-  // Group by league
-  const byLeague = favoriteTeams.reduce((acc, t) => {
-    if (!acc[t.league]) acc[t.league] = [];
-    acc[t.league].push(t);
-    return acc;
-  }, {});
-
   return (
-    <div className="space-y-8">
-      {Object.entries(byLeague).map(([league, teams]) => (
-        <div key={league}>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {teams.map(team => (
-              <TeamStandingCard
-                key={team.team_id}
-                team={{ ...team, color: standings[team.team_id]?.team?.color }}
-                standing={standings[team.team_id]}
-                loading={loading}
-              />
-            ))}
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Droppable droppableId="leagues">
+        {(provided) => (
+          <div className="space-y-6" ref={provided.innerRef} {...provided.droppableProps}>
+            {orderedLeagues.map((league, index) => {
+              const teams = byLeague[league];
+              return (
+                <Draggable key={league} draggableId={league} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`rounded-2xl transition-shadow ${snapshot.isDragging ? 'shadow-lg' : ''}`}
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 p-1">
+                          <GripVertical className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">{league}</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {teams.map(team => (
+                          <TeamStandingCard
+                            key={team.team_id}
+                            team={{ ...team, color: standings[team.team_id]?.team?.color }}
+                            standing={standings[team.team_id]}
+                            loading={loading}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              );
+            })}
+            {provided.placeholder}
           </div>
-        </div>
-      ))}
-    </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 }
