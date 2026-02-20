@@ -254,8 +254,12 @@ export default function TeamsOverview({ favoriteTeams }) {
         result[team.team_id] = entry || null;
 
         // Priority: hardcoded override > standings entry color > teams API color
+        // For pl-/ll- teams, use the abbreviation from the matched entry (e.g. "RM", "BAR")
+        // For other teams, derive abbreviation from team_id suffix
         const entryColor = entry?.team?.color;
-        const abbrKey = getTeamAbbr(team.team_id).toUpperCase().replace(/-/g, '');
+        const entryAbbr = entry?.team?.abbreviation?.toUpperCase();
+        const idAbbr = getTeamAbbr(team.team_id).toUpperCase().replace(/-/g, '');
+        const abbrKey = entryAbbr || idAbbr;
         colors[team.team_id] = entryColor || abbrColorMap[abbrKey] || null;
       });
 
