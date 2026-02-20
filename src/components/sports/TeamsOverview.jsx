@@ -253,11 +253,11 @@ export default function TeamsOverview({ favoriteTeams }) {
         const entry = findEntryForTeam(entries, team.team_id);
         result[team.team_id] = entry || null;
 
-        // Use the matched entry's abbreviation to look up color from the teams API for this league
         const leagueColorMap = colorsByLeague[team.league] || {};
-        const entryAbbr = entry?.team?.abbreviation?.toUpperCase();
-        const idAbbr = getTeamAbbr(team.team_id).toUpperCase().replace(/-/g, '');
-        const abbrKey = entryAbbr || idAbbr;
+        // Always prefer the abbreviation from the matched standings entry (most accurate for soccer)
+        // Fall back to deriving from team_id only if no entry found
+        const abbrKey = entry?.team?.abbreviation?.toUpperCase()
+          || getTeamAbbr(team.team_id).toUpperCase().replace(/-/g, '');
         colors[team.team_id] = leagueColorMap[abbrKey] || null;
       });
 
