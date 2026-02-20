@@ -6,7 +6,6 @@ import { createPageUrl } from '@/utils';
 import { LEAGUES } from './teamsData';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
-// ESPN standings API paths per league
 const STANDINGS_PATHS = {
   NFL:              'football/nfl',
   NHL:              'hockey/nhl',
@@ -22,7 +21,7 @@ const STANDINGS_PATHS = {
 };
 
 const standingsCache = {};
-const teamColorsCache = {};
+const colorsCache = {};
 
 const fetchLeagueStandings = async (league) => {
   if (standingsCache[league]) return standingsCache[league];
@@ -40,14 +39,13 @@ const fetchLeagueStandings = async (league) => {
     standingsCache[league] = entries;
     return entries;
   } catch (e) {
-    console.error(`Error fetching ${league}:`, e);
     return [];
   }
 };
 
-// Fetch team colors from ESPN teams API (for leagues where standings don't include colors)
+// Returns { ABBR: 'hexcolor' } from ESPN teams endpoint
 const fetchLeagueTeamColors = async (league) => {
-  if (teamColorsCache[league]) return teamColorsCache[league];
+  if (colorsCache[league]) return colorsCache[league];
   const path = STANDINGS_PATHS[league];
   if (!path) return {};
   try {
@@ -55,14 +53,12 @@ const fetchLeagueTeamColors = async (league) => {
     if (!res.ok) return {};
     const data = await res.json();
     const teams = data.sports?.[0]?.leagues?.[0]?.teams || [];
-    const colorMap = {};
+    const map = {};
     teams.forEach(({ team }) => {
-      if (team?.abbreviation && team?.color) {
-        colorMap[team.abbreviation.toUpperCase()] = team.color;
-      }
+      if (team?.abbreviation) map[team.abbreviation.toUpperCase()] = team.color || null;
     });
-    teamColorsCache[league] = colorMap;
-    return colorMap;
+    colorsCache[league] = map;
+    return map;
   } catch (e) {
     return {};
   }
@@ -122,7 +118,7 @@ const TEAM_COLOR_OVERRIDES = {
   'nhl-dal': '006D60',
 };
 
-function TeamStandingCard({ team, standing, loading }) {
+function TeamStandingCard({ team, standing, loading, resolvedColor }) {
   const leagueIcon = LEAGUES[team.league]?.icon || '🏆';
 
   const staticTeamData = team.league === 'F1'
@@ -131,14 +127,8 @@ function TeamStandingCard({ team, standing, loading }) {
 
   const logoUrl = team.logo_url || staticTeamData?.logo || null;
 
-  // standing.team?.color or standing.team?.alternateColor (both hex without #)
-  const espnPrimary = standing?.team?.color;
-  const espnAlt = standing?.team?.alternateColor;
-
   const rawColor = TEAM_COLOR_OVERRIDES[team.team_id]
-    || espnPrimary
-    || espnAlt
-    || team.color
+    || resolvedColor
     || staticTeamData?.color
     || LEAGUES[team.league]?.color?.replace('#', '');
   const borderColor = rawColor ? `#${rawColor.replace('#', '')}` : '#e5e7eb';
@@ -233,6 +223,7 @@ function TeamStandingCard({ team, standing, loading }) {
 
 export default function TeamsOverview({ favoriteTeams }) {
   const [standings, setStandings] = useState({});
+  const [teamColors, setTeamColors] = useState({});
   const [loading, setLoading] = useState(true);
   const [leagueOrder, setLeagueOrder] = useState([]);
 
@@ -241,23 +232,40 @@ export default function TeamsOverview({ favoriteTeams }) {
     const load = async () => {
       setLoading(true);
       const leagues = [...new Set(favoriteTeams.map(t => t.league))];
-      const leagueEntries = {};
-      await Promise.all(leagues.map(async league => {
-        leagueEntries[league] = await fetchLeagueStandings(league);
-      }));
+
+      // Fetch standings and team colors in parallel
+      const [standingsList, colorsList] = await Promise.all([
+        Promise.all(leagues.map(async l => ({ league: l, entries: await fetchLeagueStandings(l) }))),
+        Promise.all(leagues.map(async l => ({ league: l, colors: await fetchLeagueTeamColors(l) }))),
+      ]);
+
+      const entriesByLeague = {};
+      standingsList.forEach(({ league, entries }) => { entriesByLeague[league] = entries; });
+
+      // Merge all abbr->color maps
+      const abbrColorMap = {};
+      colorsList.forEach(({ colors }) => { Object.assign(abbrColorMap, colors); });
+
       const result = {};
+      const colors = {};
       favoriteTeams.forEach(team => {
-        const entries = leagueEntries[team.league] || [];
+        const entries = entriesByLeague[team.league] || [];
         const entry = findEntryForTeam(entries, team.team_id);
         result[team.team_id] = entry || null;
+
+        // Priority: hardcoded override > standings entry color > teams API color
+        const entryColor = entry?.team?.color;
+        const abbrKey = getTeamAbbr(team.team_id).toUpperCase().replace(/-/g, '');
+        colors[team.team_id] = entryColor || abbrColorMap[abbrKey] || null;
       });
+
       setStandings(result);
+      setTeamColors(colors);
       setLoading(false);
     };
     load();
   }, [favoriteTeams.map(t => t.team_id).join(',')]);
 
-  // Group by league
   const byLeague = favoriteTeams.reduce((acc, t) => {
     if (!acc[t.league]) acc[t.league] = [];
     acc[t.league].push(t);
@@ -321,9 +329,10 @@ export default function TeamsOverview({ favoriteTeams }) {
                         {teams.map(team => (
                           <TeamStandingCard
                             key={team.team_id}
-                            team={{ ...team, color: standings[team.team_id]?.team?.color }}
+                            team={team}
                             standing={standings[team.team_id]}
                             loading={loading}
+                            resolvedColor={teamColors[team.team_id]}
                           />
                         ))}
                       </div>
