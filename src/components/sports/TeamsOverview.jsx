@@ -227,6 +227,7 @@ function TeamStandingCard({ team, standing, loading }) {
 export default function TeamsOverview({ favoriteTeams }) {
   const [standings, setStandings] = useState({}); // { team_id: entry | null }
   const [loading, setLoading] = useState(true);
+  const [leagueOrder, setLeagueOrder] = useState([]);
 
   useEffect(() => {
     if (!favoriteTeams.length) { setLoading(false); return; }
