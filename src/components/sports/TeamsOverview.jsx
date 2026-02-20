@@ -22,6 +22,7 @@ const STANDINGS_PATHS = {
 };
 
 const standingsCache = {};
+const teamColorsCache = {};
 
 const fetchLeagueStandings = async (league) => {
   if (standingsCache[league]) return standingsCache[league];
@@ -41,6 +42,29 @@ const fetchLeagueStandings = async (league) => {
   } catch (e) {
     console.error(`Error fetching ${league}:`, e);
     return [];
+  }
+};
+
+// Fetch team colors from ESPN teams API (for leagues where standings don't include colors)
+const fetchLeagueTeamColors = async (league) => {
+  if (teamColorsCache[league]) return teamColorsCache[league];
+  const path = STANDINGS_PATHS[league];
+  if (!path) return {};
+  try {
+    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${path}/teams?limit=100`);
+    if (!res.ok) return {};
+    const data = await res.json();
+    const teams = data.sports?.[0]?.leagues?.[0]?.teams || [];
+    const colorMap = {};
+    teams.forEach(({ team }) => {
+      if (team?.abbreviation && team?.color) {
+        colorMap[team.abbreviation.toUpperCase()] = team.color;
+      }
+    });
+    teamColorsCache[league] = colorMap;
+    return colorMap;
+  } catch (e) {
+    return {};
   }
 };
 
