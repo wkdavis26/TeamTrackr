@@ -90,15 +90,29 @@ const findEntryForTeam = (entries, teamId) => {
       return displayName.includes(teamName) || displayName === teamName;
     });
   }
-  if (teamId.startsWith('pl-') || teamId.startsWith('ll-')) {
-    const teamName = teamIdToName[teamId];
-    if (teamName) {
-      return entries.find(e => {
-        const displayName = (e.team?.displayName || '').toLowerCase();
-        return displayName.includes(teamName.toLowerCase());
-      });
-    }
+
+  // Soccer teams (both old pl-/ll- prefix style and new premier-league-/la-liga- style)
+  // Extract the ESPN abbreviation from the end of the team_id
+  const soccerPrefixes = ['premier-league-', 'la-liga-', 'pl-', 'll-', 'mls-'];
+  const isSoccer = soccerPrefixes.some(p => teamId.startsWith(p));
+  if (isSoccer) {
+    // The abbreviation is the last segment after the prefix
+    const prefix = soccerPrefixes.find(p => teamId.startsWith(p));
+    const abbrFromId = teamId.slice(prefix.length).toUpperCase();
+    // Try direct abbreviation match first
+    const byAbbr = entries.find(e =>
+      (e.team?.abbreviation || '').toUpperCase() === abbrFromId
+    );
+    if (byAbbr) return byAbbr;
+    // Fallback: displayName contains the abbreviation slug
+    return entries.find(e => {
+      const displayName = (e.team?.displayName || '').toLowerCase();
+      const slug = abbrFromId.toLowerCase().replace(/-/g, ' ');
+      return displayName.includes(slug);
+    });
   }
+
+  // All other sports: match by abbreviation derived from team_id suffix
   const suffix = getTeamAbbr(teamId).toUpperCase().replace(/-/g, '');
   return entries.find(e => {
     const abbr = (e.team?.abbreviation || '').toUpperCase().replace(/-/g, '');
