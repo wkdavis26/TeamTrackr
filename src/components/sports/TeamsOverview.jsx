@@ -242,9 +242,9 @@ export default function TeamsOverview({ favoriteTeams }) {
       const entriesByLeague = {};
       standingsList.forEach(({ league, entries }) => { entriesByLeague[league] = entries; });
 
-      // Merge all abbr->color maps
-      const abbrColorMap = {};
-      colorsList.forEach(({ colors }) => { Object.assign(abbrColorMap, colors); });
+      // Keep per-league color maps (avoid cross-league abbreviation collisions)
+      const colorsByLeague = {};
+      colorsList.forEach(({ league, colors }) => { colorsByLeague[league] = colors; });
 
       const result = {};
       const colors = {};
@@ -253,14 +253,12 @@ export default function TeamsOverview({ favoriteTeams }) {
         const entry = findEntryForTeam(entries, team.team_id);
         result[team.team_id] = entry || null;
 
-        // Priority: hardcoded override > standings entry color > teams API color
-        // For pl-/ll- teams, use the abbreviation from the matched entry (e.g. "RM", "BAR")
-        // For other teams, derive abbreviation from team_id suffix
-        const entryColor = entry?.team?.color;
+        // Use the matched entry's abbreviation to look up color from the teams API for this league
+        const leagueColorMap = colorsByLeague[team.league] || {};
         const entryAbbr = entry?.team?.abbreviation?.toUpperCase();
         const idAbbr = getTeamAbbr(team.team_id).toUpperCase().replace(/-/g, '');
         const abbrKey = entryAbbr || idAbbr;
-        colors[team.team_id] = entryColor || abbrColorMap[abbrKey] || null;
+        colors[team.team_id] = leagueColorMap[abbrKey] || null;
       });
 
       setStandings(result);
