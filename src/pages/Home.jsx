@@ -190,8 +190,8 @@ export default function Home() {
               exit={{ opacity: 0, x: 20 }}
             >
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Team Standings</h2>
-                <p className="text-gray-500">Current standings for your favorite teams</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Standings</h2>
+                <p className="text-gray-500">Current standings for your favorite teams · drag leagues to reorder</p>
               </div>
               <TeamsOverview favoriteTeams={favoriteTeams} />
             </motion.div>
