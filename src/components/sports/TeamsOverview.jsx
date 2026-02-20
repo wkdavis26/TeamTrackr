@@ -107,11 +107,8 @@ function TeamStandingCard({ team, standing, loading }) {
 
   const logoUrl = team.logo_url || staticTeamData?.logo || null;
 
-  // standing.team?.color is the ESPN-provided team color (hex without #)
-  const espnColor = standing?.team?.color;
-
+  // team.color is populated from standings[team.team_id]?.team?.color by the parent
   const rawColor = TEAM_COLOR_OVERRIDES[team.team_id]
-    || espnColor
     || team.color
     || staticTeamData?.color
     || LEAGUES[team.league]?.color?.replace('#', '');
