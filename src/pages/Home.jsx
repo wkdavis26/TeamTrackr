@@ -118,7 +118,7 @@ export default function Home() {
               )}
             >
               <LayoutGrid className="w-4 h-4 mr-2" />
-              Overview
+              Standings
             </Button>
             <Button
               variant="ghost"
