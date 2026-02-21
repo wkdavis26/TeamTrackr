@@ -38,17 +38,18 @@ export default function CalendarView({ games }) {
     }).format(new Date(game.date));
     const awayAbbr = game.awayTeam.name.split(' ').pop();
     const homeAbbr = game.homeTeam.name.split(' ').pop();
-    const label = game.isF1Race
-      ? `${gameTime} ${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}`
-      : `${gameTime} ${awayAbbr}@${homeAbbr}`;
     const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
     const teamColor = favTeam?.color ? `#${favTeam.color.replace('#', '')}` : null;
+    const teamsLabel = game.isF1Race
+      ? `${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}`
+      : `${awayAbbr} @ ${homeAbbr}`;
     return (
       <div
-        className="truncate rounded px-0.5 text-[9px]"
+        className="rounded px-1 py-0.5 text-[10px] leading-tight text-center"
         style={teamColor && !isSelected ? { backgroundColor: teamColor, color: '#fff' } : {}}
       >
-        {label}
+        <div className="opacity-80 text-[9px]">{gameTime}</div>
+        <div className="font-semibold truncate">{teamsLabel}</div>
       </div>
     );
   };
