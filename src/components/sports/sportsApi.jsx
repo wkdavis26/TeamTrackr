@@ -361,6 +361,12 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
   } else if (league === 'La Liga') {
     homeId = mapLaLigaTeamToId(homeTeam.team?.displayName || '');
     awayId = mapLaLigaTeamToId(awayTeam.team?.displayName || '');
+  } else if (league === 'Serie A') {
+    homeId = mapSerieATeamToId(homeTeam.team?.displayName || '');
+    awayId = mapSerieATeamToId(awayTeam.team?.displayName || '');
+  } else if (league === 'Bundesliga') {
+    homeId = mapBundesligaTeamToId(homeTeam.team?.displayName || '');
+    awayId = mapBundesligaTeamToId(awayTeam.team?.displayName || '');
   } else if (league === 'MLS') {
     homeId = mapMLSTeamToId(homeTeam.team?.displayName || '');
     awayId = mapMLSTeamToId(awayTeam.team?.displayName || '');
