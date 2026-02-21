@@ -12,6 +12,7 @@ const F1_COUNTRY_COLORS = {
   'Saudi Arabia': '#006C35',
   'Japan': '#BC002D',
   'China': '#DE2910',
+  'Chinese': '#DE2910',
   'Miami': '#0033A0',
   'Emilia Romagna': '#009246',
   'Monaco': '#CE1126',
