@@ -30,8 +30,8 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
 
   const selectedGames = useMemo(() => {
     if (!selectedDate) return [];
-    return gamesOnDate(selectedDate);
-  }, [selectedDate, games]);
+    return filteredGames.filter(game => isSameDay(new Date(game.date), selectedDate));
+  }, [selectedDate, filteredGames]);
 
   const GamePill = ({ game, isSelected }) => {
     const gameTime = new Intl.DateTimeFormat('en-US', {
