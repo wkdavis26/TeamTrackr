@@ -36,7 +36,7 @@ const F1_COUNTRY_COLORS = {
 
 const COUNTRY_TO_CODE = {
   'Australia': 'au', 'Bahrain': 'bh', 'Saudi Arabia': 'sa', 'Japan': 'jp',
-  'China': 'cn', 'Miami': 'us', 'Emilia Romagna': 'it', 'Monaco': 'mc',
+  'China': 'cn', 'Chinese': 'cn', 'Miami': 'us', 'Emilia Romagna': 'it', 'Monaco': 'mc',
   'Canada': 'ca', 'Spain': 'es', 'Austria': 'at', 'United Kingdom': 'gb',
   'Hungary': 'hu', 'Belgium': 'be', 'Netherlands': 'nl', 'Italy': 'it',
   'Azerbaijan': 'az', 'Singapore': 'sg', 'United States': 'us',
