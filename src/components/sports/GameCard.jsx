@@ -119,9 +119,9 @@ export default function GameCard({ game, compact = false }) {
     borderColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
   }
   const teamColor = borderColor;
-  const borderStyle = game.isF1Race
-    ? { borderColor: '#000000', borderWidth: '4px', borderStyle: 'solid' }
-    : borderColor ? { borderColor, borderWidth: '4px', borderStyle: 'solid' } : {};
+  const borderStyle = borderColor
+    ? { borderColor, borderWidth: '4px', borderStyle: 'solid' }
+    : {};
 
   if (compact) {
     return (
