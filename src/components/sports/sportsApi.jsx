@@ -593,11 +593,12 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
-  // Parse MLB games
+  // Parse MLB games - for MLB include games from today onwards (Spring Training games may have already started today)
   if (teamIdsByLeague['MLB']) {
+    const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
     mlbGames.forEach(event => {
       const game = parseESPNEvent(event, 'MLB', teamIdsByLeague['MLB']);
-      if (game && game.date > now) allGames.push(game);
+      if (game && game.date >= todayMidnight) allGames.push(game);
     });
   }
   
