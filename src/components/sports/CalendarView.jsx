@@ -127,12 +127,12 @@ export default function CalendarView({ games }) {
                 >
                   <span className={cn("text-sm font-medium", dayIsToday && "font-bold")}>{format(day, "d")}</span>
                   {hasGames && (
-                    <div className="text-[9px] space-y-0.5 mt-0.5 w-full overflow-hidden">
+                    <div className="space-y-0.5 mt-1 w-full overflow-hidden">
                       {dayGames.slice(0, 2).map((game, i) => (
                         <GamePill key={i} game={game} isSelected={isSelected} />
                       ))}
                       {dayGames.length > 2 && (
-                        <div className={cn("text-[8px]", isSelected ? "text-white/70" : "text-gray-500")}>
+                        <div className={cn("text-[8px] text-center", isSelected ? "text-white/70" : "text-gray-500")}>
                           +{dayGames.length - 2} more
                         </div>
                       )}
