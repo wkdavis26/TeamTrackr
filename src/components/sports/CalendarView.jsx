@@ -22,8 +22,10 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
   const weekEnd = endOfWeek(currentWeek);
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
+  const filteredGames = hidePreseason ? games.filter(g => !g.isPreseason) : games;
+
   const gamesOnDate = (date) => {
-    return games.filter(game => isSameDay(new Date(game.date), date));
+    return filteredGames.filter(game => isSameDay(new Date(game.date), date));
   };
 
   const selectedGames = useMemo(() => {
