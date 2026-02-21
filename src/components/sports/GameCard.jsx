@@ -112,7 +112,7 @@ export default function GameCard({ game, compact = false }) {
   // Get border color: F1 uses race country flag color, others use team color
   let borderColor = null;
   if (game.isF1Race) {
-    borderColor = getF1CountryColor(game.f1Country);
+    borderColor = getF1CountryColor(game.f1Country) || '#E10600'; // fallback to F1 red
   } else {
     const favoriteTeam = isFavoriteHome ? game.homeTeam : game.awayTeam;
     const rawColor = favoriteTeam?.color;
