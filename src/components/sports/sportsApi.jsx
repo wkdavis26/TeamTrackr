@@ -302,18 +302,16 @@ const slug = lowerName.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 return `mls-${slug}`;
 };
 
-// Map Serie A team names
-const mapSerieATeamToId = (name) => {
-  if (!name) return null;
-  const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  return `serie-a-${slug}`;
+// Map Serie A team names (ESPN uses abbreviation for matching)
+const mapSerieATeamToId = (abbr) => {
+  if (!abbr) return null;
+  return `serie-a-${abbr.toLowerCase()}`;
 };
 
-// Map Bundesliga team names
-const mapBundesligaTeamToId = (name) => {
-  if (!name) return null;
-  const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-  return `bundesliga-${slug}`;
+// Map Bundesliga team names (ESPN uses abbreviation for matching)
+const mapBundesligaTeamToId = (abbr) => {
+  if (!abbr) return null;
+  return `bundesliga-${abbr.toLowerCase()}`;
 };
 
 // Map La Liga team names
