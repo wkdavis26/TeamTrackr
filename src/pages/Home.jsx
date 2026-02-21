@@ -224,7 +224,14 @@ export default function Home() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
             >
-              <CalendarView games={upcomingGames} />
+              <CalendarView
+                games={upcomingGames}
+                hidePreseason={hidePreseason}
+                onToggleHidePreseason={checked => {
+                  setHidePreseason(checked);
+                  localStorage.setItem('hidePreseason', checked);
+                }}
+              />
             </motion.div>
           )}
 
