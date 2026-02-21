@@ -834,8 +834,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
       const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
       if (!homeTeam || !awayTeam) return;
-      const homeId = `ncaa-baseball-${homeTeam.team?.abbreviation?.toLowerCase()}`;
-      const awayId = `ncaa-baseball-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+      const homeId = `ncaab-baseball-${homeTeam.team?.abbreviation?.toLowerCase()}`;
+      const awayId = `ncaab-baseball-${awayTeam.team?.abbreviation?.toLowerCase()}`;
       const favoriteTeamId = ncaaBaseballIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(event.date);
