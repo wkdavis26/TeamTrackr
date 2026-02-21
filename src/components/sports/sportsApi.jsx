@@ -287,6 +287,20 @@ const slug = lowerName.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 return `mls-${slug}`;
 };
 
+// Map Serie A team names
+const mapSerieATeamToId = (name) => {
+  if (!name) return null;
+  const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  return `serie-a-${slug}`;
+};
+
+// Map Bundesliga team names
+const mapBundesligaTeamToId = (name) => {
+  if (!name) return null;
+  const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  return `bundesliga-${slug}`;
+};
+
 // Map La Liga team names
 const mapLaLigaTeamToId = (name) => {
   const lowerName = name.toLowerCase();
