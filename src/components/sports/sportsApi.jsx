@@ -516,9 +516,9 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     teamIdsByLeague['MLS'] ? fetchMLSSchedule() : Promise.resolve([]),
     teamIdsByLeague['F1'] ? fetchF1Schedule() : Promise.resolve([]),
     teamIdsByLeague['NCAAF'] ? fetchNCAAFSchedule() : Promise.resolve([]),
-    teamIdsByLeague['FIFA World Cup'] ? fetchWorldCupSchedule() : Promise.resolve([]),
-    teamIdsByLeague['UEFA Euro'] ? fetchEuroSchedule() : Promise.resolve([]),
-    teamIdsByLeague['International'] ? fetchInternationalSchedule() : Promise.resolve([]),
+    teamIdsByLeague['International Football'] ? fetchWorldCupSchedule() : Promise.resolve([]),
+        teamIdsByLeague['International Football'] ? fetchEuroSchedule() : Promise.resolve([]),
+        teamIdsByLeague['International Football'] ? fetchInternationalSchedule() : Promise.resolve([]),
   ]);
 
       // Parse NCAAF games
