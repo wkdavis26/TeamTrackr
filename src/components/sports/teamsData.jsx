@@ -70,13 +70,37 @@ export const LEAGUES = {
   "International Football": {
     name: "International Football",
     icon: "🌍",
-    espnPath: null, // Combines FIFA World Cup, UEFA Euro, and International
+    espnPath: null,
     color: "#003399",
     teams: [
       { id: "international-football-all", name: "All International", logo: "🌍" }
     ]
   },
-};
+  "Serie A": {
+    name: "Serie A",
+    icon: "⚽",
+    espnPath: "soccer/ita.1",
+    color: "#003DA5",
+  },
+  "Bundesliga": {
+    name: "Bundesliga",
+    icon: "⚽",
+    espnPath: "soccer/ger.1",
+    color: "#D3010C",
+  },
+  "NCAAB": {
+    name: "NCAA Basketball",
+    icon: "🏀",
+    espnPath: "basketball/mens-college-basketball",
+    color: "#CC5500",
+  },
+  "NCAAB-Baseball": {
+    name: "NCAA Baseball",
+    icon: "⚾",
+    espnPath: "baseball/college-baseball",
+    color: "#003087",
+  },
+  };
 
 // Fetch all teams for a given league from ESPN
 export const fetchLeagueTeams = async (leagueKey) => {
