@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import GameCard from './GameCard';
 
-export default function CalendarView({ games }) {
+export default function CalendarView({ games, hidePreseason, onToggleHidePreseason }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date()));
   const [selectedDate, setSelectedDate] = useState(null);
