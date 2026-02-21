@@ -120,7 +120,7 @@ export default function CalendarView({ games }) {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedDate(isSelected ? null : day)}
                   className={cn(
-                    "aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all duration-200 p-1",
+                    "rounded-xl flex flex-col items-center justify-start relative transition-all duration-200 p-1 pt-2 min-h-[70px]",
                     isSelected ? "bg-emerald-500 text-white" : hasGames ? "bg-gray-100 text-gray-900 hover:bg-gray-200" : "text-gray-400 hover:bg-gray-50",
                     dayIsToday && !isSelected && "ring-2 ring-emerald-400"
                   )}
