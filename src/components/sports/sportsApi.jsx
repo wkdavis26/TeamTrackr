@@ -593,13 +593,11 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
-  // Parse MLB games (include today's games even if already started)
+  // Parse MLB games
   if (teamIdsByLeague['MLB']) {
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
     mlbGames.forEach(event => {
       const game = parseESPNEvent(event, 'MLB', teamIdsByLeague['MLB']);
-      if (game && game.date >= todayStart) allGames.push(game);
+      if (game && game.date > now) allGames.push(game);
     });
   }
   
