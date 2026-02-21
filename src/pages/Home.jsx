@@ -186,7 +186,10 @@ export default function Home() {
                       type="checkbox"
                       id="hide-preseason"
                       checked={hidePreseason}
-                      onChange={e => setHidePreseason(e.target.checked)}
+                      onChange={e => {
+                        setHidePreseason(e.target.checked);
+                        localStorage.setItem('hidePreseason', e.target.checked);
+                      }}
                       className="w-4 h-4 accent-emerald-500 cursor-pointer"
                     />
                     <label htmlFor="hide-preseason" className="text-sm text-gray-500 cursor-pointer select-none">
