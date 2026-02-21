@@ -171,7 +171,7 @@ export const fetchF1Schedule = async () => {
 // Fetch FIFA World Cup schedule
 export const fetchWorldCupSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('soccer/fifa.wc');
+    return await fetchESPNScheduleRange('soccer/fifa.world');
   } catch (error) {
     console.error('Error fetching World Cup schedule:', error);
     return [];
@@ -188,10 +188,10 @@ export const fetchEuroSchedule = async () => {
   }
 };
 
-// Fetch International football schedule
+// Fetch International friendlies schedule
 export const fetchInternationalSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('soccer/international');
+    return await fetchESPNScheduleRange('soccer/fifa.friendly');
   } catch (error) {
     console.error('Error fetching International schedule:', error);
     return [];
