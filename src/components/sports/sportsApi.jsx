@@ -462,16 +462,17 @@ const parseNHLEvent = (game, favoriteTeamIds) => {
 };
 
 // Session types to include and their display labels
+// ESPN uses: Sprint = Sprint Qualifying, SR = Sprint Race, Qual = Qualifying, Race = Race
 const F1_SESSION_TYPES = {
   'Qual': 'Qualifying',
   'SQ': 'Sprint Qualifying',
+  'Sprint': 'Sprint Qualifying',
   'SR': 'Sprint Race',
-  'Sprint': 'Sprint Race',
   'Race': 'Race',
 };
 
 // Session types we want to show (FP1/FP2/FP3 excluded)
-const F1_SHOWN_SESSIONS = new Set(['Qual', 'SQ', 'SR', 'Sprint', 'Race']);
+const F1_SHOWN_SESSIONS = new Set(['Qual', 'SQ', 'Sprint', 'SR', 'Race']);
 
 // Parse F1 event — creates one entry per relevant session per team
 const parseF1Event = (event, favoriteTeamIds) => {
