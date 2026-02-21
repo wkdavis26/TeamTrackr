@@ -172,7 +172,7 @@ export default function GameCard({ game, compact = false }) {
 
         {/* Teams */}
         {game.isF1Race ? (
-            <div className="flex flex-col items-center justify-center gap-2 mb-4 h-[132px]">
+            <div className="flex flex-col items-center justify-center gap-2 mb-4 h-[115px]">
               <div className="flex items-center gap-2">
                 <FlagImage country={game.f1Country} />
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{game.f1Session}</span>
@@ -182,7 +182,7 @@ export default function GameCard({ game, compact = false }) {
               <div className="text-sm text-gray-500 truncate max-w-full text-center">{game.venue}</div>
             </div>
           ) : (
-            <div className="flex items-center justify-between gap-4 mb-4 h-[132px]">
+            <div className="flex items-center justify-between gap-4 mb-4 h-[115px]">
             {/* Away Team */}
             <div className={cn(
               "flex-1 text-center p-3 rounded-xl transition-colors",
