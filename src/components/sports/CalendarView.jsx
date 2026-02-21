@@ -214,19 +214,28 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
         </div>
       )}
 
-      {/* Selected Date Games */}
+      {/* Selected Date Day View */}
       <AnimatePresence mode="wait">
         {selectedDate && (
           <motion.div
+            key={selectedDate.toISOString()}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-4"
+            className="rounded-2xl bg-white border border-gray-200 shadow-sm p-5 space-y-4"
           >
-            <h3 className="text-lg font-semibold text-gray-900">
-              Games on {format(selectedDate, "MMMM d, yyyy")}
-            </h3>
-            
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {format(selectedDate, "EEEE, MMMM d, yyyy")}
+              </h3>
+              <button
+                onClick={() => setSelectedDate(null)}
+                className="text-gray-400 hover:text-gray-700 text-sm px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                ✕ Close
+              </button>
+            </div>
+
             {selectedGames.length > 0 ? (
               <div className="grid gap-4 md:grid-cols-2">
                 {selectedGames.map(game => (
