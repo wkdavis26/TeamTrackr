@@ -375,11 +375,11 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
     homeId = mapLaLigaTeamToId(homeTeam.team?.displayName || '');
     awayId = mapLaLigaTeamToId(awayTeam.team?.displayName || '');
   } else if (league === 'Serie A') {
-    homeId = mapSerieATeamToId(homeTeam.team?.displayName || '');
-    awayId = mapSerieATeamToId(awayTeam.team?.displayName || '');
+    homeId = mapSerieATeamToId(homeTeam.team?.abbreviation || '');
+    awayId = mapSerieATeamToId(awayTeam.team?.abbreviation || '');
   } else if (league === 'Bundesliga') {
-    homeId = mapBundesligaTeamToId(homeTeam.team?.displayName || '');
-    awayId = mapBundesligaTeamToId(awayTeam.team?.displayName || '');
+    homeId = mapBundesligaTeamToId(homeTeam.team?.abbreviation || '');
+    awayId = mapBundesligaTeamToId(awayTeam.team?.abbreviation || '');
   } else if (league === 'MLS') {
     homeId = mapMLSTeamToId(homeTeam.team?.displayName || '');
     awayId = mapMLSTeamToId(awayTeam.team?.displayName || '');
