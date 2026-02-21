@@ -161,10 +161,10 @@ export default function GameCard({ game, compact = false }) {
       {/* League indicator strip removed */}
 
       {game.isPreseason && (
-        <div className="absolute top-3 right-3 z-10">
-          <span className="bg-gray-400 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Preseason</span>
-        </div>
-      )}
+                <div className="absolute top-2 left-5 z-10">
+                  <span className="bg-gray-400 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Preseason</span>
+                </div>
+              )}
       <div className="p-5 pt-4">
         {/* Header */}
         <div className="mb-4" />
