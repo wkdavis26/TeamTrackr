@@ -158,10 +158,25 @@ export const fetchNCAAFSchedule = async () => {
   }
 };
 
-// Fetch NCAA Basketball schedule
+// Fetch NCAA Basketball schedule - must fetch day by day since range queries are unsupported
 export const fetchNCAABSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('basketball/mens-college-basketball');
+    const now = new Date();
+    const allEvents = [];
+    // Fetch next 45 days one week at a time
+    for (let weekOffset = 0; weekOffset < 7; weekOffset++) {
+      const day = new Date(now);
+      day.setDate(now.getDate() + weekOffset * 7);
+      const dateStr = fmtDate(day);
+      try {
+        const res = await fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}`);
+        if (res.ok) {
+          const data = await res.json();
+          allEvents.push(...(data.events || []));
+        }
+      } catch (_) {}
+    }
+    return allEvents;
   } catch (error) {
     console.error('Error fetching NCAAB schedule:', error);
     return [];
