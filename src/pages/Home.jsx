@@ -178,7 +178,21 @@ export default function Home() {
                   <span className="text-gray-500">Loading schedules...</span>
                 </div>
               ) : (
-                <UpcomingGames games={upcomingGames} />
+                <>
+                  <div className="flex items-center gap-2 mb-4">
+                    <input
+                      type="checkbox"
+                      id="hide-preseason"
+                      checked={hidePreseason}
+                      onChange={e => setHidePreseason(e.target.checked)}
+                      className="w-4 h-4 accent-emerald-500 cursor-pointer"
+                    />
+                    <label htmlFor="hide-preseason" className="text-sm text-gray-500 cursor-pointer select-none">
+                      Hide preseason games
+                    </label>
+                  </div>
+                  <UpcomingGames games={hidePreseason ? upcomingGames.filter(g => !g.isPreseason) : upcomingGames} />
+                </>
               )}
             </motion.div>
           )}
