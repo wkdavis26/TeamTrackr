@@ -370,6 +370,12 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
   } else if (league === 'MLS') {
     homeId = mapMLSTeamToId(homeTeam.team?.displayName || '');
     awayId = mapMLSTeamToId(awayTeam.team?.displayName || '');
+  } else if (league === 'NCAAB') {
+    homeId = `ncaab-${homeTeam.team?.abbreviation?.toLowerCase()}`;
+    awayId = `ncaab-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+  } else if (league === 'NCAAB-Baseball') {
+    homeId = `ncaa-baseball-${homeTeam.team?.abbreviation?.toLowerCase()}`;
+    awayId = `ncaa-baseball-${awayTeam.team?.abbreviation?.toLowerCase()}`;
   } else if (['FIFA World Cup', 'UEFA Euro', 'International', 'International Football'].includes(league)) {
     homeId = mapInternationalTeamToId(homeTeam.team?.displayName || '');
     awayId = mapInternationalTeamToId(awayTeam.team?.displayName || '');
