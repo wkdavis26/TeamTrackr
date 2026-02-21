@@ -760,6 +760,82 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       });
     }
 
+  // Parse Serie A games
+  if (teamIdsByLeague['Serie A']) {
+    serieAGames.forEach(event => {
+      const game = parseESPNEvent(event, 'Serie A', teamIdsByLeague['Serie A']);
+      if (game && game.date > now) allGames.push(game);
+    });
+  }
+
+  // Parse Bundesliga games
+  if (teamIdsByLeague['Bundesliga']) {
+    bundesligaGames.forEach(event => {
+      const game = parseESPNEvent(event, 'Bundesliga', teamIdsByLeague['Bundesliga']);
+      if (game && game.date > now) allGames.push(game);
+    });
+  }
+
+  // Parse NCAA Basketball games
+  if (teamIdsByLeague['NCAAB']) {
+    const ncaabIds = teamIdsByLeague['NCAAB'];
+    ncaabGames.forEach(event => {
+      if (!event.competitions?.[0]) return;
+      const competition = event.competitions[0];
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      if (!homeTeam || !awayTeam) return;
+      const homeId = `ncaab-${homeTeam.team?.abbreviation?.toLowerCase()}`;
+      const awayId = `ncaab-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+      const favoriteTeamId = ncaabIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(event.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: event.id,
+        date: gameDate,
+        league: 'NCAAB',
+        leagueIcon: '🏀',
+        homeTeam: { id: homeId, name: homeTeam.team?.displayName, logo: homeTeam.team?.logo, color: homeTeam.team?.color },
+        awayTeam: { id: awayId, name: awayTeam.team?.displayName, logo: awayTeam.team?.logo, color: awayTeam.team?.color },
+        favoriteTeamId,
+        venue: competition.venue?.fullName || 'TBD',
+        status: event.status?.type?.description || 'Scheduled',
+        isPreseason: false,
+      });
+    });
+  }
+
+  // Parse NCAA Baseball games
+  if (teamIdsByLeague['NCAAB-Baseball']) {
+    const ncaaBaseballIds = teamIdsByLeague['NCAAB-Baseball'];
+    ncaaBaseballGames.forEach(event => {
+      if (!event.competitions?.[0]) return;
+      const competition = event.competitions[0];
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      if (!homeTeam || !awayTeam) return;
+      const homeId = `ncaa-baseball-${homeTeam.team?.abbreviation?.toLowerCase()}`;
+      const awayId = `ncaa-baseball-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+      const favoriteTeamId = ncaaBaseballIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(event.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: event.id,
+        date: gameDate,
+        league: 'NCAAB-Baseball',
+        leagueIcon: '⚾',
+        homeTeam: { id: homeId, name: homeTeam.team?.displayName, logo: homeTeam.team?.logo, color: homeTeam.team?.color },
+        awayTeam: { id: awayId, name: awayTeam.team?.displayName, logo: awayTeam.team?.logo, color: awayTeam.team?.color },
+        favoriteTeamId,
+        venue: competition.venue?.fullName || 'TBD',
+        status: event.status?.type?.description || 'Scheduled',
+        isPreseason: false,
+      });
+    });
+  }
+
   // Sort by date
   return allGames.sort((a, b) => a.date - b.date);
 };
