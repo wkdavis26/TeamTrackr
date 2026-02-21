@@ -161,7 +161,7 @@ export default function GameCard({ game, compact = false }) {
       {/* League indicator strip removed */}
 
       {game.isPreseason && (
-                <div className="absolute top-2 right-5 z-10">
+                <div className="absolute right-5 z-10" style={{ top: '6px' }}>
                   <span className="bg-gray-400 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Preseason</span>
                 </div>
               )}
