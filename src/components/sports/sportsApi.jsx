@@ -341,6 +341,7 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
     favoriteTeamId,
     venue: competition.venue?.fullName || 'TBD',
     status: event.status?.type?.description || 'Scheduled',
+    isPreseason: event.season?.type === 1 || event.seasonType?.type?.id === '1',
   };
 };
 
