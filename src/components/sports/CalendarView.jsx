@@ -58,6 +58,20 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
 
   return (
     <div className="space-y-6">
+      {/* Hide Preseason Toggle */}
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="cal-hide-preseason"
+          checked={hidePreseason}
+          onChange={e => onToggleHidePreseason(e.target.checked)}
+          className="w-4 h-4 accent-emerald-500 cursor-pointer"
+        />
+        <label htmlFor="cal-hide-preseason" className="text-sm text-gray-500 cursor-pointer select-none">
+          Hide preseason games
+        </label>
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button
