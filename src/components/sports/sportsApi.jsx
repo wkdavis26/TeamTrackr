@@ -567,7 +567,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   const now = new Date();
 
   // Fetch all schedules in parallel
-  const [nflGames, nhlGames, mlbGames, nbaGames, plGames, laligaGames, mlsGames, f1Games, ncaafGames, worldCupGames, euroGames, intlGames] = await Promise.all([
+  const [nflGames, nhlGames, mlbGames, nbaGames, plGames, laligaGames, mlsGames, f1Games, ncaafGames, worldCupGames, euroGames, intlGames, serieAGames, bundesligaGames, ncaabGames, ncaaBaseballGames] = await Promise.all([
     teamIdsByLeague['NFL'] ? fetchNFLSchedule() : Promise.resolve([]),
     teamIdsByLeague['NHL'] ? fetchNHLSchedule() : Promise.resolve([]),
     teamIdsByLeague['MLB'] ? fetchMLBSchedule() : Promise.resolve([]),
@@ -578,8 +578,12 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     teamIdsByLeague['F1'] ? fetchF1Schedule() : Promise.resolve([]),
     teamIdsByLeague['NCAAF'] ? fetchNCAAFSchedule() : Promise.resolve([]),
     teamIdsByLeague['International Football'] ? fetchWorldCupSchedule() : Promise.resolve([]),
-        teamIdsByLeague['International Football'] ? fetchEuroSchedule() : Promise.resolve([]),
-        teamIdsByLeague['International Football'] ? fetchInternationalSchedule() : Promise.resolve([]),
+    teamIdsByLeague['International Football'] ? fetchEuroSchedule() : Promise.resolve([]),
+    teamIdsByLeague['International Football'] ? fetchInternationalSchedule() : Promise.resolve([]),
+    teamIdsByLeague['Serie A'] ? fetchSerieASchedule() : Promise.resolve([]),
+    teamIdsByLeague['Bundesliga'] ? fetchBundesligaSchedule() : Promise.resolve([]),
+    teamIdsByLeague['NCAAB'] ? fetchNCAABSchedule() : Promise.resolve([]),
+    teamIdsByLeague['NCAAB-Baseball'] ? fetchNCAABaseballSchedule() : Promise.resolve([]),
   ]);
 
       // Parse NCAAF games
