@@ -52,46 +52,37 @@ export const LEAGUES = {
   F1: {
     name: "F1",
     icon: "🏎️",
-    espnPath: null, // F1 teams fetched differently
+    espnPath: null,
     color: "#E10600",
     teams: [
-        { id: "f1-red-bull", name: "Red Bull Racing", color: "1E3A5F" },
-              { id: "f1-ferrari", name: "Scuderia Ferrari", color: "E8002D" },
-              { id: "f1-mercedes", name: "Mercedes-AMG", color: "00A19C" },
-              { id: "f1-mclaren", name: "McLaren", color: "FF8000" },
-              { id: "f1-aston-martin", name: "Aston Martin", color: "00665E" },
-              { id: "f1-alpine", name: "Alpine", color: "0090FF" },
-              { id: "f1-williams", name: "Williams", color: "005AFF" },
-              { id: "f1-alphatauri", name: "RB / Racing Bulls", color: "1434CB" },
-              { id: "f1-sauber", name: "Kick Sauber", color: "52E252" },
-              { id: "f1-haas", name: "Haas F1 Team", color: "B6BABD" },
-      ]
+      { id: "f1-red-bull", name: "Red Bull Racing", color: "1E3A5F" },
+      { id: "f1-ferrari", name: "Scuderia Ferrari", color: "E8002D" },
+      { id: "f1-mercedes", name: "Mercedes-AMG", color: "00A19C" },
+      { id: "f1-mclaren", name: "McLaren", color: "FF8000" },
+      { id: "f1-aston-martin", name: "Aston Martin", color: "00665E" },
+      { id: "f1-alpine", name: "Alpine", color: "0090FF" },
+      { id: "f1-williams", name: "Williams", color: "005AFF" },
+      { id: "f1-alphatauri", name: "RB / Racing Bulls", color: "1434CB" },
+      { id: "f1-sauber", name: "Kick Sauber", color: "52E252" },
+      { id: "f1-haas", name: "Haas F1 Team", color: "B6BABD" },
+    ]
   },
-  "FIFA World Cup": {
-    name: "FIFA World Cup",
-    icon: "🌍",
-    espnPath: "soccer/fifa.wc",
-    color: "#FFD700",
-  },
-  "UEFA Euro": {
-    name: "UEFA Euro",
-    icon: "⚽",
-    espnPath: "soccer/uefa.euro",
-    color: "#1F4788",
-  },
-  "International": {
+  "International Football": {
     name: "International Football",
-    icon: "🌏",
-    espnPath: "soccer/international",
+    icon: "🌍",
+    espnPath: null, // Combines FIFA World Cup, UEFA Euro, and International
     color: "#003399",
-  }
+    teams: [
+      { id: "international-football-all", name: "All International", logo: "🌍" }
+    ]
+  },
 };
 
 // Fetch all teams for a given league from ESPN
 export const fetchLeagueTeams = async (leagueKey) => {
   const league = LEAGUES[leagueKey];
   if (!league || !league.espnPath) {
-    // Return static data for F1
+    // Return static data for F1 and International Football
     return league?.teams || [];
   }
   try {
@@ -118,7 +109,8 @@ export const getLeagueColor = (league) => {
   const colors = {
     NFL: "bg-blue-800", NHL: "bg-slate-800", MLB: "bg-blue-900",
     NBA: "bg-orange-600", "Premier League": "bg-purple-800",
-    "La Liga": "bg-amber-600", MLS: "bg-blue-900", F1: "bg-red-600", NCAAF: "bg-orange-700",
+    "La Liga": "bg-amber-600", MLS: "bg-blue-900", F1: "bg-red-600",
+    NCAAF: "bg-orange-700", "International Football": "bg-blue-900",
   };
   return colors[league] || "bg-slate-700";
 };
