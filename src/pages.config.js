@@ -57,6 +57,6 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "TeamDetails",
     Pages: PAGES,
 };
