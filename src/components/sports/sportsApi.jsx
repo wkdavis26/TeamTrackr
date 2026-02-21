@@ -387,8 +387,8 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
     homeId = `ncaab-${homeTeam.team?.abbreviation?.toLowerCase()}`;
     awayId = `ncaab-${awayTeam.team?.abbreviation?.toLowerCase()}`;
   } else if (league === 'NCAAB-Baseball') {
-    homeId = `ncaa-baseball-${homeTeam.team?.abbreviation?.toLowerCase()}`;
-    awayId = `ncaa-baseball-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+    homeId = `ncaab-baseball-${homeTeam.team?.abbreviation?.toLowerCase()}`;
+    awayId = `ncaab-baseball-${awayTeam.team?.abbreviation?.toLowerCase()}`;
   } else if (['FIFA World Cup', 'UEFA Euro', 'International', 'International Football'].includes(league)) {
     homeId = mapInternationalTeamToId(homeTeam.team?.displayName || '');
     awayId = mapInternationalTeamToId(awayTeam.team?.displayName || '');
