@@ -556,6 +556,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
             favoriteTeamId,
             venue: competition.venue?.fullName || 'TBD',
             status: event.status?.type?.description || 'Scheduled',
+            isPreseason: event.season?.type === 1 || event.seasonType?.type?.id === '1',
           });
         });
       }
