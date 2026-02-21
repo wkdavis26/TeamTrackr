@@ -158,6 +158,47 @@ export const fetchNCAAFSchedule = async () => {
   }
 };
 
+// Fetch NCAA Basketball schedule
+export const fetchNCAABSchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('basketball/mens-college-basketball');
+  } catch (error) {
+    console.error('Error fetching NCAAB schedule:', error);
+    return [];
+  }
+};
+
+// Fetch NCAA Baseball schedule
+export const fetchNCAABaseballSchedule = async () => {
+  try {
+    const endOfSeason = new Date(2026, 5, 30);
+    return await fetchESPNScheduleRange('baseball/college-baseball', endOfSeason);
+  } catch (error) {
+    console.error('Error fetching NCAA Baseball schedule:', error);
+    return [];
+  }
+};
+
+// Fetch Serie A schedule
+export const fetchSerieASchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('soccer/ita.1');
+  } catch (error) {
+    console.error('Error fetching Serie A schedule:', error);
+    return [];
+  }
+};
+
+// Fetch Bundesliga schedule
+export const fetchBundesligaSchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('soccer/ger.1');
+  } catch (error) {
+    console.error('Error fetching Bundesliga schedule:', error);
+    return [];
+  }
+};
+
 // Fetch F1 schedule
 export const fetchF1Schedule = async () => {
   try {
