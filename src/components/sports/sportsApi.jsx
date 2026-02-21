@@ -655,29 +655,45 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
-  // Parse World Cup games
-  if (teamIdsByLeague['FIFA World Cup']) {
-    worldCupGames.forEach(event => {
-      const game = parseESPNEvent(event, 'FIFA World Cup', teamIdsByLeague['FIFA World Cup']);
-      if (game && game.date > now) allGames.push(game);
-    });
-  }
-
-  // Parse Euro games
-  if (teamIdsByLeague['UEFA Euro']) {
-    euroGames.forEach(event => {
-      const game = parseESPNEvent(event, 'UEFA Euro', teamIdsByLeague['UEFA Euro']);
-      if (game && game.date > now) allGames.push(game);
-    });
-  }
-
-  // Parse International games
-  if (teamIdsByLeague['International']) {
-    intlGames.forEach(event => {
-      const game = parseESPNEvent(event, 'International', teamIdsByLeague['International']);
-      if (game && game.date > now) allGames.push(game);
-    });
-  }
+  // Parse International Football games (World Cup + Euro + International combined)
+    if (teamIdsByLeague['International Football']) {
+      // For international football, any game matches since user selected "All International"
+      const intlTeamIds = teamIdsByLeague['International Football'];
+      const parseIntlEvent = (event, leagueName) => {
+        if (!event.competitions?.[0]) return null;
+        const competition = event.competitions[0];
+        const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+        const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+        if (!homeTeam || !awayTeam) return null;
+        const homeId = mapInternationalTeamToId(homeTeam.team?.displayName || '');
+        const awayId = mapInternationalTeamToId(awayTeam.team?.displayName || '');
+        return {
+          id: `${leagueName}-${event.id}`,
+          date: new Date(event.date),
+          league: 'International Football',
+          leagueIcon: '🌍',
+          homeTeam: {
+            id: homeId,
+            name: homeTeam.team?.displayName || homeTeam.team?.name,
+            logo: homeTeam.team?.logo,
+            color: homeTeam.team?.color,
+          },
+          awayTeam: {
+            id: awayId,
+            name: awayTeam.team?.displayName || awayTeam.team?.name,
+            logo: awayTeam.team?.logo,
+            color: awayTeam.team?.color,
+          },
+          favoriteTeamId: intlTeamIds[0],
+          venue: competition.venue?.fullName || 'TBD',
+          status: event.status?.type?.description || 'Scheduled',
+        };
+      };
+      [...worldCupGames, ...euroGames, ...intlGames].forEach(event => {
+        const game = parseIntlEvent(event, event.id);
+        if (game && game.date > now) allGames.push(game);
+      });
+    }
 
   // Sort by date
   return allGames.sort((a, b) => a.date - b.date);
