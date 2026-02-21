@@ -14,7 +14,9 @@ import { fetchAllSchedules } from '@/components/sports/sportsApi';
 
 export default function Home() {
   const [view, setView] = useState('overview'); // 'upcoming', 'overview', 'calendar', 'teams'
-  const [hidePreseason, setHidePreseason] = useState(false);
+  const [hidePreseason, setHidePreseason] = useState(() => {
+    return localStorage.getItem('hidePreseason') === 'true';
+  });
   const queryClient = useQueryClient();
 
   // Fetch favorite teams
