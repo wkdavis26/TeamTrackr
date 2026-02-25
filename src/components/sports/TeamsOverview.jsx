@@ -239,13 +239,7 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
             </div>
           </div>
 
-          {!loading && isNCAAF && apRank && (
-            <div className="flex items-center gap-1.5">
-              <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full">AP #{apRank}</span>
-            </div>
-          )}
-
-          {!loading && standing && (standing._confRank || standing._divRank) && (
+          {!loading && standing && (standing._confRank || standing._divRank || (isNCAAF && apRank)) && (
             <div className="flex gap-3 text-xs mb-1">
               {standing._confName && standing._confRank && (
                 <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
@@ -255,13 +249,22 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                   </span>
                 </div>
               )}
-              {standing._divName && standing._divRank && (
-                <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
-                  <span className="font-bold text-gray-900 text-sm">#{standing._divRank}</span>
-                  <span className="text-gray-400 truncate max-w-full text-center" title={standing._divName}>
-                    {standing._divName.replace('Division', 'Div')}
-                  </span>
-                </div>
+              {isNCAAF ? (
+                apRank ? (
+                  <div className="flex flex-col items-center bg-amber-50 rounded-lg px-2 py-1 flex-1">
+                    <span className="font-bold text-amber-800 text-sm">#{apRank}</span>
+                    <span className="text-amber-600 text-center">AP Poll</span>
+                  </div>
+                ) : null
+              ) : (
+                standing._divName && standing._divRank && (
+                  <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
+                    <span className="font-bold text-gray-900 text-sm">#{standing._divRank}</span>
+                    <span className="text-gray-400 truncate max-w-full text-center" title={standing._divName}>
+                      {standing._divName.replace('Division', 'Div')}
+                    </span>
+                  </div>
+                )
               )}
             </div>
           )}
