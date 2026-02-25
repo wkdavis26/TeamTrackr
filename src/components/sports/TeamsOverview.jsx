@@ -47,7 +47,10 @@ const fetchLeagueStandings = async (league) => {
   const path = STANDINGS_PATHS[league];
   if (!path) return [];
   try {
-    const res = await fetch(`https://site.api.espn.com/apis/v2/sports/${path}/standings`);
+    const url = league === 'NBA'
+      ? `https://site.api.espn.com/apis/v2/sports/${path}/standings?level=3`
+      : `https://site.api.espn.com/apis/v2/sports/${path}/standings`;
+    const res = await fetch(url);
     if (!res.ok) return [];
     const data = await res.json();
 
