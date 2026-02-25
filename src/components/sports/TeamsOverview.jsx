@@ -325,11 +325,11 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                   </div>
                 ) : null
               ) : (
-              standing._divRank && (
+              standing._divRank && standing._divName && (
               <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
                 <span className="font-bold text-gray-900 text-sm">#{standing._divRank}</span>
                 <span className="text-gray-400 truncate max-w-full text-center" title={standing._divName}>
-                  {standing._divName ? standing._divName.replace(' Division', '') : 'Div'}
+                  {standing._divName.replace(' Division', '')}
                 </span>
               </div>
               )
