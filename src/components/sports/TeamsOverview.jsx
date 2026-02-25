@@ -319,9 +319,9 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
               )}
               {isNCAAF ? (
                 apRank ? (
-                  <div className="flex flex-col items-center bg-amber-50 rounded-lg px-2 py-1 flex-1">
-                    <span className="font-bold text-amber-800 text-sm">#{apRank}</span>
-                    <span className="text-amber-600 text-center">AP Poll</span>
+                  <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
+                    <span className="font-bold text-gray-900 text-sm">#{apRank}</span>
+                    <span className="text-gray-400 text-center">AP Poll</span>
                   </div>
                 ) : null
               ) : (
