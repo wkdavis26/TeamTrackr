@@ -44,14 +44,54 @@ const fetchNCAAFApRankings = async () => {
   }
 };
 
+// NBA division group IDs: Southwest=26, Northwest=27, Pacific=25, Atlantic=1, Central=2, Southeast=3
+const NBA_DIVISION_GROUPS = [
+  { id: 25, conf: 'Western Conference', div: 'Pacific' },
+  { id: 26, conf: 'Western Conference', div: 'Southwest' },
+  { id: 27, conf: 'Western Conference', div: 'Northwest' },
+  { id: 1,  conf: 'Eastern Conference', div: 'Atlantic' },
+  { id: 2,  conf: 'Eastern Conference', div: 'Central' },
+  { id: 3,  conf: 'Eastern Conference', div: 'Southeast' },
+];
+
+const fetchNBAStandings = async () => {
+  const allEntries = [];
+  await Promise.all(NBA_DIVISION_GROUPS.map(async ({ id, conf, div }) => {
+    try {
+      const res = await fetch(`https://site.api.espn.com/apis/v2/sports/basketball/nba/standings?group=${id}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const divEntries = data.standings?.entries || [];
+      divEntries.forEach((entry, rank) => {
+        allEntries.push({ ...entry, _confName: conf, _divName: div, _divRank: rank + 1 });
+      });
+    } catch {}
+  }));
+  // Compute conference rank
+  const confMap = {};
+  allEntries.forEach(e => {
+    if (!confMap[e._confName]) confMap[e._confName] = [];
+    confMap[e._confName].push(e);
+  });
+  Object.values(confMap).forEach(list => {
+    list.sort((a, b) => parseFloat(b.stats?.find(s => s.name === 'wins')?.value ?? 0) - parseFloat(a.stats?.find(s => s.name === 'wins')?.value ?? 0));
+    list.forEach((e, i) => { e._confRank = i + 1; });
+  });
+  return allEntries;
+};
+
 const fetchLeagueStandings = async (league) => {
   if (standingsCache[league]) return standingsCache[league];
   const path = STANDINGS_PATHS[league];
   if (!path) return [];
   try {
-    const url = league === 'NBA'
-      ? `https://site.api.espn.com/apis/v2/sports/${path}/standings?level=3`
-      : `https://site.api.espn.com/apis/v2/sports/${path}/standings`;
+    if (league === 'NBA') {
+      const entries = await fetchNBAStandings();
+      standingsCache[league] = entries;
+      return entries;
+    }
+
+    const url = `https://site.api.espn.com/apis/v2/sports/${path}/standings`;
     const res = await fetch(url);
     if (!res.ok) return [];
     const data = await res.json();
