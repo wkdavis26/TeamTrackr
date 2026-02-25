@@ -197,6 +197,9 @@ export default function GameCard({ game, compact = false }) {
               )}>
                 {game.awayTeam.name}
               </div>
+              {game.awayTeam.record && (
+                <div className="text-xs text-gray-400 mt-0.5">{game.awayTeam.record}</div>
+              )}
             </div>
 
             {/* VS */}
@@ -218,6 +221,9 @@ export default function GameCard({ game, compact = false }) {
               )}>
                 {game.homeTeam.name}
               </div>
+              {game.homeTeam.record && (
+                <div className="text-xs text-gray-400 mt-0.5">{game.homeTeam.record}</div>
+              )}
             </div>
           </div>
         )}
