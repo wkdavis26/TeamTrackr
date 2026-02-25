@@ -245,7 +245,7 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
             </div>
           )}
 
-          {!loading && !isNCAAF && standing && (standing._confRank || standing._divRank) && (
+          {!loading && standing && (standing._confRank || standing._divRank) && (
             <div className="flex gap-3 text-xs mb-1">
               {standing._confName && standing._confRank && (
                 <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
