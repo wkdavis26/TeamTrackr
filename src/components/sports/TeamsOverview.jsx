@@ -310,10 +310,11 @@ export default function TeamsOverview({ favoriteTeams }) {
       setLoading(true);
       const leagues = [...new Set(favoriteTeams.map(t => t.league))];
 
-      // Fetch standings and team colors in parallel
-      const [standingsList, colorsList] = await Promise.all([
+      // Fetch standings, team colors, and AP rankings in parallel
+      const [standingsList, colorsList, apMap] = await Promise.all([
         Promise.all(leagues.map(async l => ({ league: l, entries: await fetchLeagueStandings(l) }))),
         Promise.all(leagues.map(async l => ({ league: l, colors: await fetchLeagueTeamColors(l) }))),
+        leagues.includes('NCAAF') ? fetchNCAAFApRankings() : Promise.resolve({}),
       ]);
 
       const entriesByLeague = {};
