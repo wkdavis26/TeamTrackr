@@ -22,6 +22,25 @@ const STANDINGS_PATHS = {
 
 const standingsCache = {};
 const colorsCache = {};
+let ncaafApRankingsCache = null;
+
+const fetchNCAAFApRankings = async () => {
+  if (ncaafApRankingsCache) return ncaafApRankingsCache;
+  try {
+    const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings');
+    if (!res.ok) return {};
+    const data = await res.json();
+    const apPoll = data.rankings?.find(r => r.type === 'ap');
+    const map = {};
+    apPoll?.ranks?.forEach(r => {
+      if (r.team?.abbreviation) map[r.team.abbreviation.toUpperCase()] = r.current;
+    });
+    ncaafApRankingsCache = map;
+    return map;
+  } catch (e) {
+    return {};
+  }
+};
 
 const fetchLeagueStandings = async (league) => {
   if (standingsCache[league]) return standingsCache[league];
