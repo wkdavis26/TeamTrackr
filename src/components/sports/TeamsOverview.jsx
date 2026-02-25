@@ -300,6 +300,7 @@ function TeamStandingCard({ team, standing, loading, resolvedColor }) {
 export default function TeamsOverview({ favoriteTeams }) {
   const [standings, setStandings] = useState({});
   const [teamColors, setTeamColors] = useState({});
+  const [apRankings, setApRankings] = useState({});
   const [loading, setLoading] = useState(true);
   const [leagueOrder, setLeagueOrder] = useState([]);
 
