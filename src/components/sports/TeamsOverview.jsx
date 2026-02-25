@@ -298,7 +298,7 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
             )}
             <div className="min-w-0 flex-1">
               <div className="font-semibold text-gray-900 text-sm leading-tight truncate">{team.team_name}</div>
-              <div className="text-xs text-gray-400">{team.league}</div>
+
             </div>
           </div>
 
