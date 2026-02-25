@@ -411,11 +411,12 @@ export default function TeamsOverview({ favoriteTeams }) {
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {teams.map(team => (
                           <TeamStandingCard
-                            key={team.team_id}
-                            team={team}
-                            standing={standings[team.team_id]}
-                            loading={loading}
-                            resolvedColor={teamColors[team.team_id]}
+                           key={team.team_id}
+                           team={team}
+                           standing={standings[team.team_id]}
+                           loading={loading}
+                           resolvedColor={teamColors[team.team_id]}
+                           apRankings={apRankings}
                           />
                         ))}
                       </div>
