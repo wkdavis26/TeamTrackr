@@ -401,6 +401,11 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
   const favoriteTeamId = favoriteTeamIds.find(id => id === homeId || id === awayId);
   if (!favoriteTeamId) return null;
   
+  const getRecord = (competitor) => {
+    const rec = competitor.records?.find(r => r.type === 'total' || !r.type);
+    return rec?.summary || null;
+  };
+
   return {
     id: event.id,
     date: new Date(event.date),
@@ -411,12 +416,14 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
       name: homeTeam.team?.displayName || homeTeam.team?.name,
       logo: homeTeam.team?.logo || getTeamEmoji(homeId),
       color: homeTeam.team?.color || homeTeam.team?.alternateColor,
+      record: getRecord(homeTeam),
     },
     awayTeam: {
       id: awayId || awayTeam.team?.abbreviation,
       name: awayTeam.team?.displayName || awayTeam.team?.name,
       logo: awayTeam.team?.logo || getTeamEmoji(awayId),
       color: awayTeam.team?.color || awayTeam.team?.alternateColor,
+      record: getRecord(awayTeam),
     },
     favoriteTeamId,
     venue: competition.venue?.fullName || 'TBD',
