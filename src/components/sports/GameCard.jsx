@@ -209,11 +209,11 @@ export default function GameCard({ game, compact = false }) {
 
             {/* Home Team */}
             <div className={cn(
-              "flex-1 text-center p-3 rounded-xl transition-colors",
+              "flex-1 text-center p-2 rounded-xl transition-colors",
               isFavoriteHome ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-gray-50"
             )}>
-              <div className="flex justify-center mb-2">
-                <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} />
+              <div className="flex justify-center mb-1.5">
+                <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} size="sm" />
               </div>
               <div className={cn(
                 "text-sm font-medium truncate",
