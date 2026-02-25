@@ -202,6 +202,11 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
   const isHockey = team.league === 'NHL';
   const isSoccer = ['Premier League', 'La Liga', 'MLS'].includes(team.league);
   const isBaseball = team.league === 'MLB';
+  const isNCAAF = team.league === 'NCAAF';
+
+  // AP ranking for NCAAF: look up by team abbreviation from the standing entry
+  const ncaafAbbr = standing?.team?.abbreviation?.toUpperCase();
+  const apRank = isNCAAF && ncaafAbbr ? apRankings[ncaafAbbr] || null : null;
 
   const stats = standing?.stats;
   const w = stats ? getStat(stats, 'wins', 'W') : '—';
