@@ -23,6 +23,8 @@ const STANDINGS_PATHS = {
 const standingsCache = {};
 const colorsCache = {};
 let ncaafApRankingsCache = null;
+// Clear NBA cache so the new ?level=3 URL is used
+delete standingsCache['NBA'];
 
 const fetchNCAAFApRankings = async () => {
   if (ncaafApRankingsCache) return ncaafApRankingsCache;
