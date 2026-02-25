@@ -184,7 +184,7 @@ const TEAM_COLOR_OVERRIDES = {
   'nhl-dal': '006D60',
 };
 
-function TeamStandingCard({ team, standing, loading, resolvedColor }) {
+function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings = {} }) {
   const leagueIcon = LEAGUES[team.league]?.icon || '🏆';
 
   const staticTeamData = team.league === 'F1'
