@@ -62,7 +62,12 @@ const fetchNBAStandings = async () => {
       if (!res.ok) return;
       const data = await res.json();
       const divEntries = data.standings?.entries || [];
-      divEntries.forEach((entry, rank) => {
+      // Sort by wins descending to get correct division rank
+      const sorted = [...divEntries].sort((a, b) =>
+        parseFloat(b.stats?.find(s => s.name === 'wins')?.value ?? 0) -
+        parseFloat(a.stats?.find(s => s.name === 'wins')?.value ?? 0)
+      );
+      sorted.forEach((entry, rank) => {
         allEntries.push({ ...entry, _confName: conf, _divName: div, _divRank: rank + 1 });
       });
     } catch {}
