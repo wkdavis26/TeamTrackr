@@ -67,12 +67,7 @@ const fetchLeagueStandings = async (league) => {
         // Has divisions under conference
         divGroups.forEach((divGroup) => {
           const divName = divGroup.name || null;
-          const divEntries = [...(divGroup.standings?.entries || [])];
-          // Sort by wins descending to get true division rank
-          divEntries.sort((a, b) => {
-            const getWins = (e) => parseFloat(e.stats?.find(s => s.name === 'wins')?.value ?? 0);
-            return getWins(b) - getWins(a);
-          });
+          const divEntries = divGroup.standings?.entries || [];
           divEntries.forEach((entry, rank) => {
             entries.push({
               ...entry,
