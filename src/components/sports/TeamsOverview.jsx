@@ -94,7 +94,7 @@ const fetchLeagueStandings = async (league) => {
       return entries;
     }
 
-    const url = `https://site.api.espn.com/apis/v2/sports/${path}/standings`;
+    const url = `https://site.api.espn.com/apis/v2/sports/${path}/standings?level=3`;
     const res = await fetch(url);
     if (!res.ok) return [];
     const data = await res.json();
