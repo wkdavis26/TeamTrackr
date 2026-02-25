@@ -215,13 +215,23 @@ function TeamStandingCard({ team, standing, loading, resolvedColor }) {
             </div>
           </div>
 
-          {!loading && standing && (standing.conferenceRank || standing.divisionRank) && (
-            <div className="text-xs text-gray-500 space-y-0.5 mb-2">
-              {standing.conferenceRank && (
-                <div>Conf: <span className="font-semibold text-gray-700">#{standing.conferenceRank}</span></div>
+          {!loading && standing && (standing._confRank || standing._divRank) && (
+            <div className="flex gap-3 text-xs mb-1">
+              {standing._confName && standing._confRank && (
+                <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
+                  <span className="font-bold text-gray-900 text-sm">#{standing._confRank}</span>
+                  <span className="text-gray-400 truncate max-w-full text-center" title={standing._confName}>
+                    {standing._confName.replace('National Football Conference', 'NFC').replace('American Football Conference', 'AFC').replace('Conference', 'Conf')}
+                  </span>
+                </div>
               )}
-              {standing.divisionRank && (
-                <div>Div: <span className="font-semibold text-gray-700">#{standing.divisionRank}</span></div>
+              {standing._divName && standing._divRank && (
+                <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
+                  <span className="font-bold text-gray-900 text-sm">#{standing._divRank}</span>
+                  <span className="text-gray-400 truncate max-w-full text-center" title={standing._divName}>
+                    {standing._divName.replace('Division', 'Div')}
+                  </span>
+                </div>
               )}
             </div>
           )}
