@@ -106,7 +106,6 @@ const fetchLeagueStandings = async (league) => {
       confEntries.forEach((e, i) => { e._confRank = i + 1; });
     });
 
-    if (league === 'NBA') console.log('[NBA standings sample]', entries.slice(0, 3).map(e => ({ name: e.team?.displayName, conf: e._confName, div: e._divName, divRank: e._divRank })));
     standingsCache[league] = entries;
     return entries;
   } catch (e) {
