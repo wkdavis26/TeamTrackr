@@ -185,11 +185,11 @@ export default function GameCard({ game, compact = false }) {
             <div className="flex items-center justify-between gap-4 mb-4 h-[100px]">
             {/* Away Team */}
             <div className={cn(
-              "flex-1 text-center p-3 rounded-xl transition-colors",
+              "flex-1 text-center p-2 rounded-xl transition-colors",
               isFavoriteAway ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-gray-50"
             )}>
-              <div className="flex justify-center mb-2">
-                <TeamLogo logo={game.awayTeam.logo} name={game.awayTeam.name} />
+              <div className="flex justify-center mb-1.5">
+                <TeamLogo logo={game.awayTeam.logo} name={game.awayTeam.name} size="sm" />
               </div>
               <div className={cn(
                 "text-sm font-medium truncate",
