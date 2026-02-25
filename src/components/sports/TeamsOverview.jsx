@@ -343,6 +343,7 @@ export default function TeamsOverview({ favoriteTeams }) {
 
       setStandings(result);
       setTeamColors(colors);
+      setApRankings(apMap);
       setLoading(false);
     };
     load();
