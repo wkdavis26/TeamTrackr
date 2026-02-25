@@ -31,11 +31,44 @@ const fetchLeagueStandings = async (league) => {
     const res = await fetch(`https://site.api.espn.com/apis/v2/sports/${path}/standings`);
     if (!res.ok) return [];
     const data = await res.json();
-    const entries = (data.children || [data]).flatMap(
-      child => (child.children || [child]).flatMap(
-        sub => sub.standings?.entries || []
-      )
-    );
+
+    // Walk the hierarchy: top-level = conference, next = division
+    const entries = [];
+    const topGroups = data.children || [data];
+    topGroups.forEach((confGroup, confIdx) => {
+      const confName = confGroup.name || null;
+      const divGroups = confGroup.children || [confGroup];
+      divGroups.forEach((divGroup, divIdx) => {
+        const divName = divGroup.name || null;
+        const divEntries = divGroup.standings?.entries || [];
+        divEntries.forEach((entry, rank) => {
+          entries.push({
+            ...entry,
+            _confName: confName,
+            _divName: divName,
+            _divRank: rank + 1,
+          });
+        });
+      });
+    });
+
+    // Compute conference rank per conference
+    const confEntriesMap = {};
+    entries.forEach(e => {
+      if (e._confName) {
+        if (!confEntriesMap[e._confName]) confEntriesMap[e._confName] = [];
+        confEntriesMap[e._confName].push(e);
+      }
+    });
+    // Sort by points or wins descending to assign conf rank
+    Object.values(confEntriesMap).forEach(confEntries => {
+      confEntries.sort((a, b) => {
+        const getPts = (e) => parseFloat(e.stats?.find(s => s.name === 'points' || s.name === 'wins')?.value ?? 0);
+        return getPts(b) - getPts(a);
+      });
+      confEntries.forEach((e, i) => { e._confRank = i + 1; });
+    });
+
     standingsCache[league] = entries;
     return entries;
   } catch (e) {
