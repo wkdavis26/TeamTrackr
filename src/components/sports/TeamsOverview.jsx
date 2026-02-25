@@ -167,7 +167,7 @@ function TeamStandingCard({ team, standing, loading, resolvedColor }) {
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -4 }}
         className="bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow"
-        style={{ border: `3px solid ${borderColor}` }}
+        style={{ border: `3px solid ${borderColor}`, minHeight: '200px' }}
       >
         <div className="p-4 flex flex-col gap-3 flex-1">
           <div className="flex items-center gap-3 mb-2">
