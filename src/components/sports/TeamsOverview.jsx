@@ -99,11 +99,13 @@ const fetchLeagueStandings = async (league) => {
         confEntriesMap[e._confName].push(e);
       }
     });
-    // Sort by points or wins descending to assign conf rank
+    // Sort by winPercent, then wins descending to assign conf rank
     Object.values(confEntriesMap).forEach(confEntries => {
       confEntries.sort((a, b) => {
-        const getPts = (e) => parseFloat(e.stats?.find(s => s.name === 'points' || s.name === 'wins')?.value ?? 0);
-        return getPts(b) - getPts(a);
+        const getWinPct = (e) => parseFloat(e.stats?.find(s => s.name === 'winPercent')?.value ?? 0);
+        const getWins = (e) => parseFloat(e.stats?.find(s => s.name === 'wins')?.value ?? 0);
+        const pctDiff = getWinPct(b) - getWinPct(a);
+        return pctDiff !== 0 ? pctDiff : getWins(b) - getWins(a);
       });
       confEntries.forEach((e, i) => { e._confRank = i + 1; });
     });
