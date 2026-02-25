@@ -54,21 +54,36 @@ const fetchLeagueStandings = async (league) => {
     // Walk the hierarchy: top-level = conference, next = division
     const entries = [];
     const topGroups = data.children || [data];
-    topGroups.forEach((confGroup, confIdx) => {
+    topGroups.forEach((confGroup) => {
       const confName = confGroup.name || null;
-      const divGroups = confGroup.children || [confGroup];
-      divGroups.forEach((divGroup, divIdx) => {
-        const divName = divGroup.name || null;
-        const divEntries = divGroup.standings?.entries || [];
-        divEntries.forEach((entry, rank) => {
+      const divGroups = confGroup.children || [];
+
+      if (divGroups.length > 0) {
+        // Has divisions under conference
+        divGroups.forEach((divGroup) => {
+          const divName = divGroup.name || null;
+          const divEntries = divGroup.standings?.entries || [];
+          divEntries.forEach((entry, rank) => {
+            entries.push({
+              ...entry,
+              _confName: confName,
+              _divName: divName,
+              _divRank: rank + 1,
+            });
+          });
+        });
+      } else {
+        // No divisions, entries are directly under conference
+        const confEntries = confGroup.standings?.entries || [];
+        confEntries.forEach((entry, rank) => {
           entries.push({
             ...entry,
             _confName: confName,
-            _divName: divName,
+            _divName: null,
             _divRank: rank + 1,
           });
         });
-      });
+      }
     });
 
     // Compute conference rank per conference
