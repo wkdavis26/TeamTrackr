@@ -96,58 +96,58 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           className="flex justify-center mb-8"
         >
-          <div className="inline-flex p-1 rounded-2xl bg-white border border-gray-200 shadow-sm">
+          <div className="inline-flex p-1 rounded-2xl bg-white border border-gray-200 shadow-sm overflow-x-auto max-w-full">
             <Button
               variant="ghost"
               onClick={() => setView('upcoming')}
               className={cn(
-                "rounded-xl px-6 transition-all duration-200",
+                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
                 view === 'upcoming'
                   ? "bg-emerald-500 text-white hover:bg-emerald-600"
                   : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               )}
             >
-              <List className="w-4 h-4 mr-2" />
-              Upcoming {upcomingGames.length > 0 && `(${upcomingGames.length})`}
+              <List className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="text-sm">Upcoming {upcomingGames.length > 0 && `(${upcomingGames.length})`}</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => setView('overview')}
               className={cn(
-                "rounded-xl px-6 transition-all duration-200",
+                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
                 view === 'overview'
                   ? "bg-emerald-500 text-white hover:bg-emerald-600"
                   : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               )}
             >
-              <LayoutGrid className="w-4 h-4 mr-2" />
-              Standings
+              <LayoutGrid className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="text-sm">Standings</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => setView('calendar')}
               className={cn(
-                "rounded-xl px-6 transition-all duration-200",
+                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
                 view === 'calendar'
                   ? "bg-emerald-500 text-white hover:bg-emerald-600"
                   : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               )}
             >
-              <Calendar className="w-4 h-4 mr-2" />
-              Calendar
+              <Calendar className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="text-sm">Calendar</span>
             </Button>
             <Button
               variant="ghost"
               onClick={() => setView('teams')}
               className={cn(
-                "rounded-xl px-6 transition-all duration-200",
+                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
                 view === 'teams'
                   ? "bg-emerald-500 text-white hover:bg-emerald-600"
                   : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
               )}
             >
-              <Settings className="w-4 h-4 mr-2" />
-              My Teams {favoriteTeams.length > 0 && `(${favoriteTeams.length})`}
+              <Settings className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="text-sm">My Teams {favoriteTeams.length > 0 && `(${favoriteTeams.length})`}</span>
             </Button>
           </div>
         </motion.div>
