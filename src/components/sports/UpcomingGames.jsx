@@ -58,7 +58,7 @@ export default function UpcomingGames({ games }) {
             </span>
           </div>
           
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {groupedGames[dateStr].map((game, gameIndex) => (
               <motion.div
                 key={game.id}
