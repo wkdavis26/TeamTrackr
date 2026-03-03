@@ -250,7 +250,7 @@ export default function GameCard({ game, compact = false }) {
         {game.broadcasts && game.broadcasts.length > 0 &&
         <div className="pt-2 flex items-center gap-1.5 overflow-hidden">
             <Tv className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-1.5 overflow-x-auto" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
             {game.broadcasts.map((channel, i) =>
           <span key={i} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">{channel}</span>
           )}
