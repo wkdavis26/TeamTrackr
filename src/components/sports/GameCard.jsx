@@ -32,7 +32,7 @@ const F1_COUNTRY_COLORS = {
   'Brazil': '#009C3B',
   'Las Vegas': '#C8A951',
   'Qatar': '#8D1B3D',
-  'Abu Dhabi': '#00732F',
+  'Abu Dhabi': '#00732F'
 };
 
 const COUNTRY_TO_CODE = {
@@ -41,7 +41,7 @@ const COUNTRY_TO_CODE = {
   'Canada': 'ca', 'Spain': 'es', 'Austria': 'at', 'United Kingdom': 'gb',
   'Hungary': 'hu', 'Belgium': 'be', 'Netherlands': 'nl', 'Italy': 'it',
   'Azerbaijan': 'az', 'Singapore': 'sg', 'United States': 'us',
-  'Mexico': 'mx', 'Brazil': 'br', 'Las Vegas': 'us', 'Qatar': 'qa', 'Abu Dhabi': 'ae',
+  'Mexico': 'mx', 'Brazil': 'br', 'Las Vegas': 'us', 'Qatar': 'qa', 'Abu Dhabi': 'ae'
 };
 
 const getFlagUrl = (country) => {
@@ -82,12 +82,12 @@ const TeamLogo = ({ logo, name, size = "md" }) => {
 const formatCT = (date, fmt) => {
   return new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/Chicago',
-    ...fmt,
+    ...fmt
   }).format(date);
 };
 
 const formatTimeCT = (date) =>
-  formatCT(date, { hour: 'numeric', minute: '2-digit', hour12: true });
+formatCT(date, { hour: 'numeric', minute: '2-digit', hour12: true });
 
 const ODDS_SUPPORTED = new Set(['NBA', 'NFL', 'MLB', 'NHL']);
 
@@ -124,9 +124,9 @@ export default function GameCard({ game, compact = false }) {
     borderColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
   }
   const teamColor = borderColor;
-  const borderStyle = borderColor
-    ? { borderColor, borderWidth: '4px', borderStyle: 'solid' }
-    : {};
+  const borderStyle = borderColor ?
+  { borderColor, borderWidth: '4px', borderStyle: 'solid' } :
+  {};
 
   if (compact) {
     return (
@@ -134,8 +134,8 @@ export default function GameCard({ game, compact = false }) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center gap-3 p-3 rounded-xl bg-white"
-        style={teamColor ? borderStyle : { border: '1px solid #e5e7eb' }}
-      >
+        style={teamColor ? borderStyle : { border: '1px solid #e5e7eb' }}>
+
         <div className={cn("w-1 h-12 rounded-full", getLeagueColor(game.league))} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 text-sm">
@@ -151,8 +151,8 @@ export default function GameCard({ game, compact = false }) {
           </div>
           <div className="text-xs text-gray-400 mt-1">{formatTimeCT(gameDate)} CT</div>
         </div>
-      </motion.div>
-    );
+      </motion.div>);
+
   }
 
   return (
@@ -161,22 +161,22 @@ export default function GameCard({ game, compact = false }) {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
       className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300"
-      style={teamColor ? borderStyle : { border: '1px solid #e5e7eb' }}
-    >
+      style={teamColor ? borderStyle : { border: '1px solid #e5e7eb' }}>
+
       {/* League indicator strip removed */}
 
-      {game.isPreseason && (
-                <div className="absolute right-5 z-10" style={{ top: '2px' }}>
+      {game.isPreseason &&
+      <div className="absolute right-5 z-10" style={{ top: '2px' }}>
                   <span className="bg-gray-400 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Preseason</span>
                 </div>
-              )}
+      }
       <div className="p-5 pt-4">
         {/* Header */}
         <div className="mb-4" />
 
         {/* Teams */}
-        {game.isF1Race ? (
-            <div className="flex flex-col items-center justify-center gap-2 mb-4 h-[100px]">
+        {game.isF1Race ?
+        <div className="flex flex-col items-center justify-center gap-2 mb-4 h-[100px]">
               <div className="flex items-center gap-2">
                 <FlagImage country={game.f1Country} />
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{game.f1Session}</span>
@@ -184,26 +184,26 @@ export default function GameCard({ game, compact = false }) {
               </div>
               <div className="text-lg font-bold text-gray-900">{game.f1Country || 'Grand Prix'}</div>
               <div className="text-sm text-gray-500 truncate max-w-full text-center">{game.venue}</div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between gap-4 mb-4 h-[100px]">
+            </div> :
+
+        <div className="flex items-center justify-between gap-4 mb-4 h-[100px]">
             {/* Away Team */}
             <div className={cn(
-              "flex-1 text-center p-2 rounded-xl transition-colors",
-              isFavoriteAway ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-gray-50"
-            )}>
+            "flex-1 text-center p-2 rounded-xl transition-colors",
+            isFavoriteAway ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-gray-50"
+          )}>
               <div className="flex justify-center mb-1.5">
                 <TeamLogo logo={game.awayTeam.logo} name={game.awayTeam.name} size="sm" />
               </div>
               <div className={cn(
-                "text-sm font-medium truncate",
-                isFavoriteAway ? "text-gray-900 font-semibold" : "text-gray-600"
-              )}>
+              "text-sm font-medium truncate",
+              isFavoriteAway ? "text-gray-900 font-semibold" : "text-gray-600"
+            )}>
                 {game.awayTeam.name}
               </div>
-              {game.awayTeam.record && (
-                <div className="text-xs text-gray-400 mt-0.5">{game.awayTeam.record}</div>
-              )}
+              {game.awayTeam.record &&
+            <div className="text-xs text-gray-400 mt-0.5">{game.awayTeam.record}</div>
+            }
             </div>
 
             {/* VS */}
@@ -213,24 +213,24 @@ export default function GameCard({ game, compact = false }) {
 
             {/* Home Team */}
             <div className={cn(
-              "flex-1 text-center p-2 rounded-xl transition-colors",
-              isFavoriteHome ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-gray-50"
-            )}>
+            "flex-1 text-center p-2 rounded-xl transition-colors",
+            isFavoriteHome ? "bg-emerald-50 ring-1 ring-emerald-200" : "bg-gray-50"
+          )}>
               <div className="flex justify-center mb-1.5">
                 <TeamLogo logo={game.homeTeam.logo} name={game.homeTeam.name} size="sm" />
               </div>
               <div className={cn(
-                "text-sm font-medium truncate",
-                isFavoriteHome ? "text-gray-900 font-semibold" : "text-gray-600"
-              )}>
+              "text-sm font-medium truncate",
+              isFavoriteHome ? "text-gray-900 font-semibold" : "text-gray-600"
+            )}>
                 {game.homeTeam.name}
               </div>
-              {game.homeTeam.record && (
-                <div className="text-xs text-gray-400 mt-0.5">{game.homeTeam.record}</div>
-              )}
+              {game.homeTeam.record &&
+            <div className="text-xs text-gray-400 mt-0.5">{game.homeTeam.record}</div>
+            }
             </div>
           </div>
-        )}
+        }
 
         {/* Footer */}
         <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
@@ -239,7 +239,7 @@ export default function GameCard({ game, compact = false }) {
             <span className="text-xs">{formatTimeCT(gameDate)} CT</span>
           </div>
           <div className="flex items-center gap-1.5 text-gray-500 flex-1 justify-center">
-            <span className="text-base">{game.isF1Race ? (game.isMainRace ? '🏁' : '⏱️') : game.leagueIcon}</span>
+            <span className="text-base">{game.isF1Race ? game.isMainRace ? '🏁' : '⏱️' : game.leagueIcon}</span>
             <span className="text-xs font-medium">{game.isF1Race ? game.f1Session : game.league}</span>
           </div>
           <div className="flex items-center gap-1.5 text-gray-400 flex-1 justify-end">
@@ -247,19 +247,19 @@ export default function GameCard({ game, compact = false }) {
             <span className="text-xs truncate max-w-[100px]">{game.venue}</span>
           </div>
         </div>
-        {game.broadcasts && game.broadcasts.length > 0 && (
-          <div className="pt-2 flex items-center gap-1.5 flex-wrap">
+        {game.broadcasts && game.broadcasts.length > 0 &&
+        <div className="pt-2 flex items-center gap-1.5 flex-wrap">
             <Tv className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-            {game.broadcasts.map((channel, i) => (
-              <span key={i} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium">{channel}</span>
-            ))}
+            {game.broadcasts.map((channel, i) =>
+          <span key={i} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium">{channel}</span>
+          )}
           </div>
-        )}
-        {odds && ODDS_SUPPORTED.has(game.league) && (
-          <div className="pt-2 border-t border-gray-100 mt-2">
+        }
+        {odds && ODDS_SUPPORTED.has(game.league) &&
+        <div className="pt-2 border-t border-gray-100 mt-2">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <span className="text-xs text-gray-400 font-medium">{odds.provider}</span>
+              
+              
             </div>
             <div className="grid grid-cols-3 gap-2 text-center">
               <div className="bg-gray-50 rounded-lg px-2 py-1.5">
@@ -278,8 +278,8 @@ export default function GameCard({ game, compact = false }) {
               </div>
             </div>
           </div>
-        )}
+        }
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
