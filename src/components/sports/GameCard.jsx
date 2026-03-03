@@ -89,7 +89,10 @@ const formatCT = (date, fmt) => {
 const formatTimeCT = (date) =>
   formatCT(date, { hour: 'numeric', minute: '2-digit', hour12: true });
 
+const ODDS_SUPPORTED = new Set(['NBA', 'NFL', 'MLB', 'NHL']);
+
 export default function GameCard({ game, compact = false }) {
+  const odds = useGameOdds(game.id, game.league);
   const gameDate = new Date(game.date);
 
   // Get a Date object at noon of the CT calendar date for this game (avoids UTC midnight shifts)
