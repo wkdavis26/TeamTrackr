@@ -278,6 +278,7 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
   const otl = stats ? getStat(stats, 'otLosses', 'OTL') : null;
   const pct = stats ? getStat(stats, 'winPercent', 'PCT') : '—';
   const pts = stats ? getStat(stats, 'points', 'PTS') : '—';
+  const gb = stats ? getStat(stats, 'gamesBehind', 'GB') : '—';
 
   const teamUrl = createPageUrl(`TeamDetails?team_id=${team.team_id}&team_name=${encodeURIComponent(team.team_name)}&league=${encodeURIComponent(team.league)}`);
 
