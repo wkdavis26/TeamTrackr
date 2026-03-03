@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react';
 
 // Maps league name to ESPN core API sport/league path
 const SPORT_PATHS = {
-  NBA: 'basketball/nba',
-  NFL: 'football/nfl',
-  MLB: 'baseball/mlb',
-  NHL: 'hockey/nhl',
-  'Premier League': 'soccer/eng.1',
-  'La Liga': 'soccer/esp.1',
-  'Serie A': 'soccer/ita.1',
-  'Bundesliga': 'soccer/ger.1',
-  MLS: 'soccer/usa.1',
-  NCAAF: 'football/college-football',
-  NCAAB: 'basketball/mens-college-basketball',
+  NBA: 'basketball/leagues/nba',
+  NFL: 'football/leagues/nfl',
+  MLB: 'baseball/leagues/mlb',
+  NHL: 'hockey/leagues/nhl',
+  'Premier League': 'soccer/leagues/eng.1',
+  'La Liga': 'soccer/leagues/esp.1',
+  'Serie A': 'soccer/leagues/ita.1',
+  'Bundesliga': 'soccer/leagues/ger.1',
+  MLS: 'soccer/leagues/usa.1',
+  NCAAF: 'football/leagues/college-football',
+  NCAAB: 'basketball/leagues/mens-college-basketball',
 };
 
 const oddsCache = {};
