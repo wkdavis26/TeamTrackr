@@ -125,7 +125,7 @@ export default function GameCard({ game, compact = false }) {
   }
   const teamColor = borderColor;
   const borderStyle = borderColor ?
-  { borderColor, borderWidth: '6px', borderStyle: 'solid' } :
+  { borderColor, borderWidth: '4px', borderStyle: 'solid' } :
   {};
 
   if (compact) {
