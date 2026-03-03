@@ -406,6 +406,9 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
     return rec?.summary || null;
   };
 
+  const broadcasts = (competition.broadcasts || [])
+    .flatMap(b => b.names || [b.market || b.type].filter(Boolean));
+
   return {
     id: event.id,
     date: new Date(event.date),
@@ -429,6 +432,7 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
     venue: competition.venue?.fullName || 'TBD',
     status: event.status?.type?.description || 'Scheduled',
     isPreseason: event.season?.type === 1 || event.season?.slug === 'preseason' || event.seasonType?.type?.id === '1',
+    broadcasts: broadcasts.length > 0 ? broadcasts : null,
   };
 };
 
