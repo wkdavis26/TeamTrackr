@@ -3,8 +3,15 @@ import { useState, useEffect } from 'react';
 const SPORT_PATHS = {
   NBA: 'basketball/leagues/nba',
   NFL: 'football/leagues/nfl',
-  MLB: 'baseball/leagues/mlb',
-  NHL: 'hockey/leagues/nhl',
+  MLB: 'baseball/mlb',
+  NHL: 'hockey/nhl',
+  'Premier League': 'soccer/eng.1',
+  'La Liga': 'soccer/esp.1',
+  'Serie A': 'soccer/ita.1',
+  'Bundesliga': 'soccer/ger.1',
+  MLS: 'soccer/usa.1',
+  NCAAF: 'football/college-football',
+  NCAAB: 'basketball/mens-college-basketball',
 };
 
 const oddsCache = {};
