@@ -255,6 +255,30 @@ export default function GameCard({ game, compact = false }) {
             ))}
           </div>
         )}
+        {odds && ODDS_SUPPORTED.has(game.league) && (
+          <div className="pt-2 border-t border-gray-100 mt-2">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <TrendingUp className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+              <span className="text-xs text-gray-400 font-medium">{odds.provider}</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="bg-gray-50 rounded-lg px-2 py-1.5">
+                <div className="text-xs text-gray-400 mb-0.5">Spread</div>
+                <div className="text-xs font-bold text-gray-800">{odds.spread || '—'}</div>
+              </div>
+              <div className="bg-gray-50 rounded-lg px-2 py-1.5">
+                <div className="text-xs text-gray-400 mb-0.5">Moneyline</div>
+                <div className="text-xs font-bold text-gray-800">
+                  {odds.awayMoneyline || '—'} / {odds.homeMoneyline || '—'}
+                </div>
+              </div>
+              <div className="bg-gray-50 rounded-lg px-2 py-1.5">
+                <div className="text-xs text-gray-400 mb-0.5">O/U</div>
+                <div className="text-xs font-bold text-gray-800">{odds.overUnder ?? '—'}</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
