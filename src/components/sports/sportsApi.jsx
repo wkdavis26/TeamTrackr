@@ -509,6 +509,9 @@ const parseF1Event = (event, favoriteTeamIds) => {
       .replace(/^[^A-Z]*/, '') // strip sponsor prefix if any
       .trim();
 
+    const broadcasts = (session.broadcasts || [])
+      .flatMap(b => b.names || [b.market || b.type].filter(Boolean));
+
     f1TeamIds.forEach(teamId => {
         const f1TeamData = LEAGUES.F1.teams.find(t => t.id === teamId);
         results.push({
@@ -533,6 +536,7 @@ const parseF1Event = (event, favoriteTeamIds) => {
           f1Session: sessionLabel,
           isMainRace: abbr === 'Race',
           f1Country: event.circuit?.country || event.competitions?.[0]?.venue?.address?.country || extractF1Country(event.name || ''),
+          broadcasts: broadcasts.length > 0 ? broadcasts : null,
         });
     });
   });
