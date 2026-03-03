@@ -262,19 +262,19 @@ export default function GameCard({ game, compact = false }) {
               
             </div>
             <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="bg-gray-50 rounded-lg px-2 py-1.5">
-                <div className="text-xs text-gray-400 mb-0.5">Spread</div>
-                <div className="text-xs font-bold text-gray-800">{odds.spread || '—'}</div>
+              <div className="bg-gray-50 rounded-lg px-2 py-1">
+                <div className="text-[10px] text-gray-400 mb-0.5">Spread</div>
+                <div className="text-[10px] font-bold text-gray-800">{odds.spread || '—'}</div>
               </div>
-              <div className="bg-gray-50 rounded-lg px-2 py-1.5">
-                <div className="text-xs text-gray-400 mb-0.5">Moneyline</div>
-                <div className="text-xs font-bold text-gray-800">
+              <div className="bg-gray-50 rounded-lg px-2 py-1">
+                <div className="text-[10px] text-gray-400 mb-0.5">Moneyline</div>
+                <div className="text-[10px] font-bold text-gray-800">
                   {odds.awayMoneyline || '—'} / {odds.homeMoneyline || '—'}
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-lg px-2 py-1.5">
-                <div className="text-xs text-gray-400 mb-0.5">O/U</div>
-                <div className="text-xs font-bold text-gray-800">{odds.overUnder ?? '—'}</div>
+              <div className="bg-gray-50 rounded-lg px-2 py-1">
+                <div className="text-[10px] text-gray-400 mb-0.5">O/U</div>
+                <div className="text-[10px] font-bold text-gray-800">{odds.overUnder ?? '—'}</div>
               </div>
             </div>
           </div>
