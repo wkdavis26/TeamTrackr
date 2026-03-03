@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 
+// Maps league name to ESPN core API sport/league path
 const SPORT_PATHS = {
-  NBA: 'basketball/leagues/nba',
-  NFL: 'football/leagues/nfl',
+  NBA: 'basketball/nba',
+  NFL: 'football/nfl',
   MLB: 'baseball/mlb',
   NHL: 'hockey/nhl',
   'Premier League': 'soccer/eng.1',
@@ -23,8 +24,8 @@ export function useGameOdds(gameId, league) {
     const sportPath = SPORT_PATHS[league];
     if (!sportPath || !gameId) return;
 
-    // Strip non-numeric prefix (e.g. "nhl-" from NHL game IDs)
-    const numericId = String(gameId).replace(/^\D+-/, '');
+    // Strip non-numeric prefix (e.g. "nhl-401234" -> "401234")
+    const numericId = String(gameId).replace(/^[a-z]+-/i, '');
     const cacheKey = `${league}-${numericId}`;
 
     if (oddsCache[cacheKey] !== undefined) {
@@ -40,16 +41,15 @@ export function useGameOdds(gameId, league) {
         const item = data?.items?.[0];
         if (!item) { oddsCache[cacheKey] = null; setOdds(null); return; }
 
+        const homeML = item.homeTeamOdds?.moneyLine;
+        const awayML = item.awayTeamOdds?.moneyLine;
+
         const result = {
-          provider: item.provider?.name || 'DraftKings',
-          spread: item.details || null,           // e.g. "CHA -13.5"
+          provider: item.provider?.name || null,
+          spread: item.details || null,
           overUnder: item.overUnder ?? null,
-          overOdds: item.current?.over?.alternateDisplayValue || null,
-          underOdds: item.current?.under?.alternateDisplayValue || null,
-          homeMoneyline: item.homeTeamOdds?.current?.moneyLine?.alternateDisplayValue || (item.homeTeamOdds?.moneyLine != null ? (item.homeTeamOdds.moneyLine > 0 ? `+${item.homeTeamOdds.moneyLine}` : `${item.homeTeamOdds.moneyLine}`) : null),
-          awayMoneyline: item.awayTeamOdds?.current?.moneyLine?.alternateDisplayValue || (item.awayTeamOdds?.moneyLine != null ? (item.awayTeamOdds.moneyLine > 0 ? `+${item.awayTeamOdds.moneyLine}` : `${item.awayTeamOdds.moneyLine}`) : null),
-          homeSpread: item.homeTeamOdds?.current?.pointSpread?.alternateDisplayValue || null,
-          awaySpread: item.awayTeamOdds?.current?.pointSpread?.alternateDisplayValue || null,
+          homeMoneyline: homeML != null ? (homeML > 0 ? `+${homeML}` : `${homeML}`) : null,
+          awayMoneyline: awayML != null ? (awayML > 0 ? `+${awayML}` : `${awayML}`) : null,
         };
         oddsCache[cacheKey] = result;
         setOdds(result);
