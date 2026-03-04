@@ -93,7 +93,7 @@ formatCT(date, { hour: 'numeric', minute: '2-digit', hour12: true });
 const ODDS_SUPPORTED = new Set(['NBA', 'NFL', 'MLB', 'NHL', 'Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'MLS', 'NCAAF', 'NCAAB']);
 
 function BroadcastDisplay({ broadcasts }) {
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
   if (!broadcasts || broadcasts.length === 0) return null;
   return (
     <div className="flex items-center gap-1.5 justify-end">
