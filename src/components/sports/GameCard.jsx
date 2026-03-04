@@ -91,6 +91,36 @@ formatCT(date, { hour: 'numeric', minute: '2-digit', hour12: true });
 
 const ODDS_SUPPORTED = new Set(['NBA', 'NFL', 'MLB', 'NHL', 'Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'MLS', 'NCAAF', 'NCAAB']);
 
+function BroadcastDisplay({ broadcasts }) {
+  const [expanded, setExpanded] = React.useState(false);
+  if (!broadcasts || broadcasts.length === 0) return null;
+  return (
+    <div className="flex items-center gap-1.5 justify-end">
+      <Tv className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+      <button
+        onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
+        className="flex items-center gap-1 focus:outline-none"
+      >
+        <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">
+          {broadcasts[0]}
+        </span>
+        {broadcasts.length > 1 && (
+          <span className="text-xs text-gray-400 font-medium">
+            {expanded ? '▲' : `+${broadcasts.length - 1}`}
+          </span>
+        )}
+      </button>
+      {expanded && broadcasts.length > 1 && (
+        <div className="flex items-center gap-1 flex-wrap">
+          {broadcasts.slice(1).map((ch, i) => (
+            <span key={i} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">{ch}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function GameCard({ game, compact = false }) {
   const odds = useGameOdds(game.id, game.league);
   const gameDate = new Date(game.date);
