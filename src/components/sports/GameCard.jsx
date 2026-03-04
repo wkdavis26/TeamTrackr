@@ -99,7 +99,8 @@ function BroadcastDisplay({ broadcasts }) {
       <Tv className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
       <button
         onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
-        className="flex items-center gap-1 focus:outline-none"
+        onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setExpanded(v => !v); }}
+        className="flex items-center gap-1 focus:outline-none touch-manipulation"
       >
         <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">
           {broadcasts[0]}
