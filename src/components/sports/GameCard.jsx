@@ -243,20 +243,23 @@ export default function GameCard({ game, compact = false }) {
 
 
           <div className="flex items-center gap-1.5 text-gray-400 flex-1 justify-end">
-            <MapPin className="w-3.5 h-3.5" />
-            <span className="text-xs truncate max-w-[100px]">{game.venue}</span>
+            {game.broadcasts && game.broadcasts.length > 0 ? (
+              <>
+                <Tv className="w-3.5 h-3.5 flex-shrink-0" />
+                <div className="flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                  {game.broadcasts.map((channel, i) =>
+                    <span key={i} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">{channel}</span>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <MapPin className="w-3.5 h-3.5" />
+                <span className="text-xs truncate max-w-[100px]">{game.venue}</span>
+              </>
+            )}
           </div>
         </div>
-        {game.broadcasts && game.broadcasts.length > 0 &&
-        <div className="pt-2 flex items-center gap-1.5 overflow-hidden">
-            <Tv className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-            <div className="flex items-center gap-1.5 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {game.broadcasts.map((channel, i) =>
-            <span key={i} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">{channel}</span>
-            )}
-            </div>
-          </div>
-        }
         {odds && ODDS_SUPPORTED.has(game.league) &&
         <div className="pt-2 border-t border-gray-100 mt-2">
             <div className="flex items-center gap-1.5 mb-1.5">
