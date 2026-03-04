@@ -1,4 +1,5 @@
 import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { format, isToday, isTomorrow, differenceInDays } from 'date-fns';
 import { MapPin, Clock, Tv, TrendingUp } from 'lucide-react';
