@@ -139,6 +139,19 @@ export default function Home() {
             </Button>
             <Button
               variant="ghost"
+              onClick={() => setView('league')}
+              className={cn(
+                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
+                view === 'league'
+                  ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+              )}
+            >
+              <Tv2 className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="text-sm">All Games</span>
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => setView('teams')}
               className={cn(
                 "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
