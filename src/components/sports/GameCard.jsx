@@ -239,9 +239,26 @@ export default function GameCard({ game, compact = false }) {
             }
             </div>
 
-            {/* VS */}
-            <div className="flex flex-col items-center">
-              <div className="text-xs text-gray-400 uppercase tracking-wider font-bold">vs</div>
+            {/* VS / Score */}
+            <div className="flex flex-col items-center gap-1">
+              {liveScore ? (
+                <>
+                  <div className="text-xl font-bold text-gray-900 leading-none">
+                    {liveScore.awayScore} – {liveScore.homeScore}
+                  </div>
+                  {liveScore.isLive && (
+                    <div className="flex items-center gap-1">
+                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                      <span className="text-xs text-red-600 font-semibold">{liveScore.statusDetail}</span>
+                    </div>
+                  )}
+                  {liveScore.isFinal && (
+                    <span className="text-xs text-gray-500 font-semibold">Final</span>
+                  )}
+                </>
+              ) : (
+                <div className="text-xs text-gray-400 uppercase tracking-wider font-bold">vs</div>
+              )}
             </div>
 
             {/* Home Team */}
