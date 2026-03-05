@@ -17,6 +17,7 @@ const LEAGUE_SCOREBOARD_PATHS = {
   'Bundesliga': 'soccer/ger.1',
   MLS: 'soccer/usa.1',
   NCAAF: 'football/college-football',
+  WNBA: 'basketball/wnba',
   NCAAB: 'basketball/mens-college-basketball',
   'NCAAB-Baseball': 'baseball/college-baseball',
 };
