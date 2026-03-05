@@ -14,7 +14,7 @@ import { LEAGUES } from '@/components/sports/teamsData';
 import { fetchAllSchedules } from '@/components/sports/sportsApi';
 
 export default function Home() {
-  const [view, setView] = useState('overview'); // 'upcoming', 'overview', 'calendar', 'teams'
+  const [view, setView] = useState('overview'); // 'upcoming', 'overview', 'calendar', 'teams', 'league'
   const [hidePreseason, setHidePreseason] = useState(() => {
     return localStorage.getItem('hidePreseason') === 'true';
   });
