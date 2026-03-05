@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
-import { format, isToday, isTomorrow, differenceInDays } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, ChevronRight, ArrowLeft } from 'lucide-react';
+import { format, isToday, isTomorrow, differenceInDays, addMonths } from 'date-fns';
 import { LEAGUES } from './teamsData';
 import GameCard from './GameCard';
 
-// ESPN sport paths for scoreboard
 const LEAGUE_SCOREBOARD_PATHS = {
   NFL: 'football/nfl',
   NHL: 'hockey/nhl',
@@ -35,7 +34,7 @@ async function fetchLeagueAllGames(leagueKey) {
   const path = LEAGUE_SCOREBOARD_PATHS[leagueKey];
   if (!path) return [];
   const now = new Date();
-  const end = new Date(now.getFullYear(), 11, 31);
+  const end = addMonths(now, 1);
   const startStr = fmtDate(now);
   const endStr = fmtDate(end);
   try {
@@ -75,7 +74,7 @@ async function fetchLeagueAllGames(leagueKey) {
           color: awayTeam.team?.color,
           record: getRecord(awayTeam),
         },
-        favoriteTeamId: homeTeam.team?.abbreviation, // needed by GameCard
+        favoriteTeamId: homeTeam.team?.abbreviation,
         venue: competition.venue?.fullName || 'TBD',
         status: event.status?.type?.description || 'Scheduled',
         isPreseason: event.season?.type === 1 || event.seasonType?.type?.id === '1',
@@ -100,7 +99,8 @@ const getDateLabel = (dateStr) => {
   return format(date, "EEEE, MMMM d");
 };
 
-function LeagueSection({ leagueKey }) {
+function LeagueDetail({ leagueKey, onBack }) {
+  const league = LEAGUES[leagueKey];
   const { data: games = [], isLoading } = useQuery({
     queryKey: ['leagueAllGames', leagueKey],
     queryFn: () => fetchLeagueAllGames(leagueKey),
@@ -113,26 +113,36 @@ function LeagueSection({ leagueKey }) {
     acc[key].push(game);
     return acc;
   }, {});
-  const sortedDates = Object.keys(grouped).sort().slice(0, 7); // show next 7 days
-
-  const league = LEAGUES[leagueKey];
+  const sortedDates = Object.keys(grouped).sort();
 
   return (
-    <div className="mb-10">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-2xl">{league?.icon}</span>
-        <h2 className="text-xl font-bold text-gray-900">{league?.name || leagueKey}</h2>
-        {isLoading && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
-        {!isLoading && <span className="text-sm text-gray-400">({games.length} upcoming)</span>}
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+      <button
+        onClick={onBack}
+        className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span className="text-sm font-medium">All Leagues</span>
+      </button>
+
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-3xl">{league?.icon}</span>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">{league?.name || leagueKey}</h2>
+          {!isLoading && <p className="text-sm text-gray-500">{games.length} games in the next month</p>}
+        </div>
+        {isLoading && <Loader2 className="w-5 h-5 text-gray-400 animate-spin ml-2" />}
       </div>
 
       {isLoading ? (
-        <div className="flex items-center gap-2 text-gray-400 py-4">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span className="text-sm">Loading...</span>
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mr-2" />
+          <span className="text-gray-500">Loading games...</span>
         </div>
       ) : games.length === 0 ? (
-        <p className="text-sm text-gray-400 py-4">No upcoming games found.</p>
+        <div className="text-center py-16">
+          <p className="text-gray-400">No upcoming games in the next month.</p>
+        </div>
       ) : (
         <div className="space-y-6">
           {sortedDates.map(dateStr => (
@@ -149,17 +159,46 @@ function LeagueSection({ leagueKey }) {
               </div>
             </div>
           ))}
-          {Object.keys(grouped).length > 7 && (
-            <p className="text-xs text-gray-400 text-center">Showing next 7 days · {games.length} total upcoming games</p>
-          )}
         </div>
       )}
-    </div>
+    </motion.div>
+  );
+}
+
+function LeagueList({ leagues, onSelect }) {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-1">All Games</h2>
+        <p className="text-gray-500">Select a league to view all upcoming games</p>
+      </div>
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {leagues.map(leagueKey => {
+          const league = LEAGUES[leagueKey];
+          return (
+            <motion.button
+              key={leagueKey}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onSelect(leagueKey)}
+              className="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 text-left"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{league?.icon}</span>
+                <span className="font-semibold text-gray-900">{league?.name || leagueKey}</span>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </motion.button>
+          );
+        })}
+      </div>
+    </motion.div>
   );
 }
 
 export default function LeagueGames({ favoriteTeams }) {
-  // Get unique leagues from favorite teams, excluding F1 and International Football (no scoreboard)
+  const [selectedLeague, setSelectedLeague] = useState(null);
+
   const leagues = [...new Set(favoriteTeams.map(t => t.league))]
     .filter(l => LEAGUE_SCOREBOARD_PATHS[l]);
 
@@ -174,17 +213,20 @@ export default function LeagueGames({ favoriteTeams }) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">League Games</h2>
-        <p className="text-gray-500">All upcoming games for the leagues you follow · next 7 days per league</p>
-      </div>
-      {leagues.map(leagueKey => (
-        <LeagueSection key={leagueKey} leagueKey={leagueKey} />
-      ))}
-    </motion.div>
+    <AnimatePresence mode="wait">
+      {selectedLeague ? (
+        <LeagueDetail
+          key={selectedLeague}
+          leagueKey={selectedLeague}
+          onBack={() => setSelectedLeague(null)}
+        />
+      ) : (
+        <LeagueList
+          key="list"
+          leagues={leagues}
+          onSelect={setSelectedLeague}
+        />
+      )}
+    </AnimatePresence>
   );
 }
