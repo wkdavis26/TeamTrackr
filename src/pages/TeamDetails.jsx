@@ -55,7 +55,7 @@ export default function TeamDetails() {
     return icons[league] || '🏆';
   };
 
-  if (isLoadingTeam || (allFavoriteTeams.length > 0 && isLoadingGames)) {
+  if (isLoadingTeam || isLoadingFavorites || isLoadingGames) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
