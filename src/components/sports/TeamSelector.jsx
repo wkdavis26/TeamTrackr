@@ -143,6 +143,10 @@ export default function TeamSelector({ selectedTeams, onToggleTeam }) {
           </div>
         );
       })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
