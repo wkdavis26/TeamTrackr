@@ -9,6 +9,7 @@ import TeamSelector from '@/components/sports/TeamSelector';
 import UpcomingGames from '@/components/sports/UpcomingGames';
 import CalendarView from '@/components/sports/CalendarView';
 import TeamsOverview from '@/components/sports/TeamsOverview';
+import LeagueGames from '@/components/sports/LeagueGames';
 import { LEAGUES } from '@/components/sports/teamsData';
 import { fetchAllSchedules } from '@/components/sports/sportsApi';
 
