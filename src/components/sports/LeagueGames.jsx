@@ -30,7 +30,46 @@ const fmtDate = (d) => {
   return `${y}${m}${day}`;
 };
 
+async function fetchF1Games() {
+  const now = new Date();
+  const end = addMonths(now, 1);
+  const startStr = fmtDate(now);
+  const endStr = fmtDate(end);
+  try {
+    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=500&dates=${startStr}-${endStr}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.events || []).map(event => {
+      const gameDate = new Date(event.date);
+      if (gameDate <= now) return null;
+      const competition = event.competitions?.[0];
+      const venue = competition?.venue?.fullName || event.circuit?.fullName || 'TBD';
+      const location = event.circuit?.address?.city || event.name || '';
+      const countryName = event.circuit?.address?.country || location;
+      return {
+        id: event.id,
+        date: gameDate,
+        league: 'F1',
+        leagueIcon: '🏎️',
+        isF1Race: true,
+        f1Country: countryName,
+        f1Session: event.shortName || event.name || 'Race',
+        homeTeam: { id: 'f1', name: 'F1', logo: null, color: 'E10600' },
+        awayTeam: { id: 'f1', name: 'F1', logo: null, color: 'E10600' },
+        favoriteTeamId: null,
+        venue,
+        status: event.status?.type?.description || 'Scheduled',
+        isPreseason: false,
+        broadcasts: null,
+      };
+    }).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 async function fetchLeagueAllGames(leagueKey) {
+  if (leagueKey === 'F1') return fetchF1Games();
   const path = LEAGUE_SCOREBOARD_PATHS[leagueKey];
   if (!path) return [];
   const now = new Date();
