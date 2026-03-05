@@ -39,30 +39,42 @@ async function fetchF1Games() {
     const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=500&dates=${startStr}-${endStr}`);
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.events || []).map(event => {
-      const gameDate = new Date(event.date);
-      if (gameDate <= now) return null;
+    const results = [];
+    for (const event of (data.events || [])) {
       const competition = event.competitions?.[0];
       const venue = competition?.venue?.fullName || event.circuit?.fullName || 'TBD';
-      const location = event.circuit?.address?.city || event.name || '';
-      const countryName = event.circuit?.address?.country || location;
-      return {
-        id: event.id,
-        date: gameDate,
-        league: 'F1',
-        leagueIcon: '🏎️',
-        isF1Race: true,
-        f1Country: countryName,
-        f1Session: event.shortName || event.name || 'Race',
-        homeTeam: { id: 'f1', name: 'F1', logo: null, color: 'E10600' },
-        awayTeam: { id: 'f1', name: 'F1', logo: null, color: 'E10600' },
-        favoriteTeamId: null,
-        venue,
-        status: event.status?.type?.description || 'Scheduled',
-        isPreseason: false,
-        broadcasts: null,
-      };
-    }).filter(Boolean);
+      const countryName = event.circuit?.address?.country || event.circuit?.address?.city || event.name || '';
+      // Each event may have multiple competitions (sessions)
+      const competitions = event.competitions || [];
+      const sessions = competitions.length > 0 ? competitions : [competition].filter(Boolean);
+      for (const session of sessions) {
+        if (!session) continue;
+        const sessionDate = new Date(session.date || event.date);
+        if (sessionDate <= now) continue;
+        // Determine session type from session name/type
+        const sessionName = session.type?.text || session.name || event.shortName || 'Race';
+        const isQualifying = /qual/i.test(sessionName);
+        const isPractice = /practice|fp\d/i.test(sessionName);
+        if (isPractice) continue; // skip practice sessions
+        results.push({
+          id: `${event.id}-${session.id || sessionName}`,
+          date: sessionDate,
+          league: 'F1',
+          leagueIcon: '🏎️',
+          isF1Race: true,
+          f1Country: countryName,
+          f1Session: isQualifying ? 'Qualifying' : 'Race',
+          homeTeam: { id: 'f1', name: 'F1', logo: null, color: 'E10600' },
+          awayTeam: { id: 'f1', name: 'F1', logo: null, color: 'E10600' },
+          favoriteTeamId: null,
+          venue: session.venue?.fullName || venue,
+          status: session.status?.type?.description || 'Scheduled',
+          isPreseason: false,
+          broadcasts: null,
+        });
+      }
+    }
+    return results;
   } catch {
     return [];
   }
