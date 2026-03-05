@@ -107,6 +107,16 @@ export const fetchMLBSchedule = async () => {
   }
 };
 
+// Fetch WNBA schedule
+export const fetchWNBASchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('basketball/wnba');
+  } catch (error) {
+    console.error('Error fetching WNBA schedule:', error);
+    return [];
+  }
+};
+
 // Fetch NBA schedule
 export const fetchNBASchedule = async () => {
   try {
