@@ -5,6 +5,7 @@ import { MapPin, Clock, Tv, TrendingUp } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { getLeagueColor } from './teamsData';
 import { useGameOdds } from './useGameOdds';
+import { useLiveScore } from './useLiveScores';
 
 // Map F1 race country/location to a dominant flag color
 const F1_COUNTRY_COLORS = {
