@@ -284,9 +284,18 @@ export default function GameCard({ game, compact = false }) {
 
         {/* Footer */}
         <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-gray-400 flex-1">
-            <Clock className="w-3.5 h-3.5" />
-            <span className="text-xs">{formatTimeCT(gameDate)} CT</span>
+          <div className="flex items-center gap-1.5 flex-1">
+            {liveScore?.isLive ? (
+              <>
+                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0" />
+                <span className="text-xs text-red-600 font-semibold">LIVE</span>
+              </>
+            ) : (
+              <>
+                <Clock className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-xs text-gray-400">{liveScore?.isFinal ? 'Final' : `${formatTimeCT(gameDate)} CT`}</span>
+              </>
+            )}
           </div>
           
 
