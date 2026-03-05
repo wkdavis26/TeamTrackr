@@ -219,30 +219,51 @@ function LeagueDetail({ leagueKey, onBack }) {
   );
 }
 
+const SPORT_GROUPS = [
+  { label: '🏈 Football', keys: ['NFL', 'NCAAF'] },
+  { label: '🏀 Basketball', keys: ['NBA', 'NCAAB'] },
+  { label: '⚾ Baseball', keys: ['MLB', 'NCAAB-Baseball'] },
+  { label: '🏒 Hockey', keys: ['NHL'] },
+  { label: '⚽ Soccer', keys: ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'MLS', 'International Football'] },
+  { label: '🏎️ Motorsport', keys: ['F1'] },
+];
+
 function LeagueList({ leagues, onSelect }) {
+  const leagueSet = new Set(leagues);
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-1">All Games</h2>
         <p className="text-gray-500">Select a league to view all upcoming games</p>
       </div>
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {leagues.map(leagueKey => {
-          const league = LEAGUES[leagueKey];
+      <div className="space-y-6">
+        {SPORT_GROUPS.map(group => {
+          const groupLeagues = group.keys.filter(k => leagueSet.has(k));
+          if (groupLeagues.length === 0) return null;
           return (
-            <motion.button
-              key={leagueKey}
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onSelect(leagueKey)}
-              className="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 text-left"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{league?.icon}</span>
-                <span className="font-semibold text-gray-900">{league?.name || leagueKey}</span>
+            <div key={group.label}>
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">{group.label}</h3>
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {groupLeagues.map(leagueKey => {
+                  const league = LEAGUES[leagueKey];
+                  return (
+                    <motion.button
+                      key={leagueKey}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => onSelect(leagueKey)}
+                      className="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{league?.icon}</span>
+                        <span className="font-semibold text-gray-900">{league?.name || leagueKey}</span>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400" />
+                    </motion.button>
+                  );
+                })}
               </div>
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            </motion.button>
+            </div>
           );
         })}
       </div>
