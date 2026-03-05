@@ -6,7 +6,7 @@ import { LEAGUES, fetchLeagueTeams } from './teamsData';
 
 const SPORT_GROUPS = [
   { label: '🏈 Football', keys: ['NFL', 'NCAAF'] },
-  { label: '🏀 Basketball', keys: ['NBA', 'NCAAB'] },
+  { label: '🏀 Basketball', keys: ['NBA', 'WNBA', 'NCAAB'] },
   { label: '⚾ Baseball', keys: ['MLB', 'NCAAB-Baseball'] },
   { label: '🏒 Hockey', keys: ['NHL'] },
   { label: '⚽ Soccer', keys: ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'MLS', 'International Football'] },
