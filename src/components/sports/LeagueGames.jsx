@@ -55,7 +55,7 @@ async function fetchF1Games() {
         const sessionName = session.type?.text || session.name || event.shortName || 'Race';
         const isQualifying = /qual/i.test(sessionName);
         const isPractice = /practice|fp\d/i.test(sessionName);
-        if (isPractice) continue; // skip practice sessions
+        const sessionLabel = isPractice ? 'Practice' : isQualifying ? 'Qualifying' : 'Race';
         results.push({
           id: `${event.id}-${session.id || sessionName}`,
           date: sessionDate,
@@ -63,7 +63,7 @@ async function fetchF1Games() {
           leagueIcon: '🏎️',
           isF1Race: true,
           f1Country: countryName,
-          f1Session: isQualifying ? 'Qualifying' : 'Race',
+          f1Session: sessionLabel,
           homeTeam: { id: 'f1', name: 'F1', logo: null, color: 'E10600' },
           awayTeam: { id: 'f1', name: 'F1', logo: null, color: 'E10600' },
           favoriteTeamId: null,
