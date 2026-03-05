@@ -4,6 +4,15 @@ import { Check, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { LEAGUES, fetchLeagueTeams } from './teamsData';
 
+const SPORT_GROUPS = [
+  { label: '🏈 Football', keys: ['NFL', 'NCAAF'] },
+  { label: '🏀 Basketball', keys: ['NBA', 'NCAAB'] },
+  { label: '⚾ Baseball', keys: ['MLB', 'NCAAB-Baseball'] },
+  { label: '🏒 Hockey', keys: ['NHL'] },
+  { label: '⚽ Soccer', keys: ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'MLS', 'International Football'] },
+  { label: '🏎️ Motorsport', keys: ['F1'] },
+];
+
 export default function TeamSelector({ selectedTeams, onToggleTeam }) {
   const [expandedLeague, setExpandedLeague] = useState(null);
   const [leagueTeams, setLeagueTeams] = useState({});
@@ -30,8 +39,16 @@ export default function TeamSelector({ selectedTeams, onToggleTeam }) {
   };
 
   return (
-    <div className="space-y-3">
-      {Object.entries(LEAGUES).map(([leagueKey, league]) => {
+    <div className="space-y-6">
+      {SPORT_GROUPS.map(group => {
+        const groupLeagues = group.keys.filter(k => LEAGUES[k]);
+        if (groupLeagues.length === 0) return null;
+        return (
+          <div key={group.label}>
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">{group.label}</h3>
+            <div className="space-y-3">
+      {groupLeagues.map((leagueKey) => {
+        const league = LEAGUES[leagueKey];
         const isExpanded = expandedLeague === leagueKey;
         const selectedCount = getSelectedCountForLeague(leagueKey);
         const teams = leagueTeams[leagueKey] || [];
