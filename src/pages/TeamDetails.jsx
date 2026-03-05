@@ -25,7 +25,7 @@ export default function TeamDetails() {
   });
 
   // Fetch all favorite teams to get schedules
-  const { data: allFavoriteTeams = [] } = useQuery({
+  const { data: allFavoriteTeams = [], isLoading: isLoadingFavorites } = useQuery({
     queryKey: ['favoriteTeams'],
     queryFn: () => base44.entities.FavoriteTeam.list(),
   });
