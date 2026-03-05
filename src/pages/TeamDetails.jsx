@@ -15,12 +15,13 @@ export default function TeamDetails() {
   const league = urlParams.get('league');
 
   // Fetch this specific team's data
-  const { data: favoriteTeam } = useQuery({
+  const { data: favoriteTeam, isLoading: isLoadingTeam } = useQuery({
     queryKey: ['favoriteTeam', teamId],
     queryFn: async () => {
       const teams = await base44.entities.FavoriteTeam.list();
       return teams.find(t => t.team_id === teamId);
     },
+    enabled: !!teamId,
   });
 
   // Fetch all favorite teams to get schedules
