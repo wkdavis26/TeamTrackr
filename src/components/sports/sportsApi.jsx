@@ -733,6 +733,37 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
+  // Parse WNBA games
+  if (teamIdsByLeague['WNBA']) {
+    wnbaGames.forEach(event => {
+      const competition = event.competitions?.[0];
+      if (!competition) return;
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      if (!homeTeam || !awayTeam) return;
+      const homeId = `wnba-${homeTeam.team?.abbreviation?.toLowerCase()}`;
+      const awayId = `wnba-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+      const favoriteTeamId = teamIdsByLeague['WNBA'].find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(event.date);
+      if (gameDate <= now) return;
+      const broadcasts = (competition.broadcasts || []).flatMap(b => b.names || [b.market || b.type].filter(Boolean));
+      allGames.push({
+        id: event.id,
+        date: gameDate,
+        league: 'WNBA',
+        leagueIcon: '🏀',
+        homeTeam: { id: homeId, name: homeTeam.team?.displayName, logo: homeTeam.team?.logo, color: homeTeam.team?.color },
+        awayTeam: { id: awayId, name: awayTeam.team?.displayName, logo: awayTeam.team?.logo, color: awayTeam.team?.color },
+        favoriteTeamId,
+        venue: competition.venue?.fullName || 'TBD',
+        status: event.status?.type?.description || 'Scheduled',
+        isPreseason: event.season?.type === 1 || event.seasonType?.type?.id === '1',
+        broadcasts: broadcasts.length > 0 ? broadcasts : null,
+      });
+    });
+  }
+
   // Parse Premier League games
   if (teamIdsByLeague['Premier League']) {
     plGames.forEach(event => {
