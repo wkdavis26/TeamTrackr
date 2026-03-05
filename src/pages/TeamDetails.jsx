@@ -55,7 +55,15 @@ export default function TeamDetails() {
     return icons[league] || '🏆';
   };
 
-  if (!favoriteTeam && !isLoadingGames) {
+  if (isLoadingTeam || (allFavoriteTeams.length > 0 && isLoadingGames)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!favoriteTeam && !isLoadingTeam) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
