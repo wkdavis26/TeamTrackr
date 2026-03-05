@@ -249,6 +249,17 @@ export default function Home() {
             </motion.div>
           )}
 
+          {view === 'league' && (
+            <motion.div
+              key="league"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+              <LeagueGames favoriteTeams={favoriteTeams} />
+            </motion.div>
+          )}
+
           {view === 'teams' && (
             <motion.div
               key="teams"
