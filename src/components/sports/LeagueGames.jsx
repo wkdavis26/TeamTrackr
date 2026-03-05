@@ -51,11 +51,14 @@ async function fetchF1Games() {
         if (!session) continue;
         const sessionDate = new Date(session.date || event.date);
         if (sessionDate <= now) continue;
-        // Determine session type from session name/type
-        const sessionName = session.type?.text || session.name || event.shortName || 'Race';
-        const isQualifying = /qual/i.test(sessionName);
-        const isPractice = /practice|fp\d/i.test(sessionName);
-        const sessionLabel = isPractice ? 'Practice' : isQualifying ? 'Qualifying' : 'Race';
+        // Determine session type from session type abbreviation
+        const abbr = session.type?.abbreviation || 'Race';
+        const SESSION_LABELS = {
+          'FP1': 'Practice 1', 'FP2': 'Practice 2', 'FP3': 'Practice 3',
+          'Qual': 'Qualifying', 'SQ': 'Sprint Qualifying', 'Sprint': 'Sprint Qualifying',
+          'SR': 'Sprint Race', 'Race': 'Race',
+        };
+        const sessionLabel = SESSION_LABELS[abbr] || abbr;
         results.push({
           id: `${event.id}-${session.id || sessionName}`,
           date: sessionDate,
