@@ -14,21 +14,13 @@ export default function TeamDetails() {
   const teamName = urlParams.get('team_name');
   const league = urlParams.get('league');
 
-  // Fetch this specific team's data
-  const { data: favoriteTeam, isLoading: isLoadingTeam } = useQuery({
-    queryKey: ['favoriteTeam', teamId],
-    queryFn: async () => {
-      const teams = await base44.entities.FavoriteTeam.list();
-      return teams.find(t => t.team_id === teamId);
-    },
-    enabled: !!teamId,
-  });
-
-  // Fetch all favorite teams to get schedules
+  // Single query for all favorite teams (used both for team lookup and schedules)
   const { data: allFavoriteTeams = [], isLoading: isLoadingFavorites } = useQuery({
     queryKey: ['favoriteTeams'],
     queryFn: () => base44.entities.FavoriteTeam.list(),
   });
+
+  const favoriteTeam = allFavoriteTeams.find(t => t.team_id === teamId);
 
   // Fetch schedules for all teams
   const { data: allGames = [], isLoading: isLoadingGames } = useQuery({
