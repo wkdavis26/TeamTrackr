@@ -88,6 +88,12 @@ export const LEAGUES = {
     espnPath: "soccer/ger.1",
     color: "#D3010C",
   },
+  WNBA: {
+    name: "WNBA",
+    icon: "🏀",
+    espnPath: "basketball/wnba",
+    color: "#FF6900",
+  },
   "NCAAB": {
     name: "NCAA Basketball",
     icon: "🏀",
