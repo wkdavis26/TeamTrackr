@@ -176,53 +176,57 @@ export const fetchNCAAFSchedule = async () => {
   }
 };
 
-// Fetch NCAA Basketball schedule - must fetch day by day since range queries are unsupported
+// Fetch NCAA Basketball schedule - fetches regular season + postseason calendars day by day
 export const fetchNCAABSchedule = async () => {
   try {
     const now = new Date();
     const todayStr = fmtDate(now);
-    // Fetch today's scoreboard to get the calendar of game days
-    const calRes = await fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=1&dates=${todayStr}`);
-    let gameDays = [];
-    if (calRes.ok) {
-      const calData = await calRes.json();
-      // calendar entries may be YYYYMMDD strings or ISO strings
-      const calendar = calData.leagues?.[0]?.calendar || [];
-      const cutoff = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000);
-      gameDays = calendar
-        .map(d => {
-          // Handle both "20260306" and "2026-03-06T..." formats
-          if (/^\d{8}$/.test(d)) {
-            return d; // already YYYYMMDD
-          }
-          const parsed = new Date(d);
-          return isNaN(parsed.getTime()) ? null : fmtDate(parsed);
-        })
-        .filter(d => {
-          if (!d) return false;
-          // Compare as YYYYMMDD strings (today through cutoff)
-          return d >= todayStr && d <= fmtDate(cutoff);
-        });
-    }
-    // Fallback: fetch next 14 days if calendar is empty
-    if (gameDays.length === 0) {
+    const cutoff = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000); // 60 days out
+    const cutoffStr = fmtDate(cutoff);
+
+    // Fetch both regular season (type=2) and postseason (type=3) calendars
+    const [regRes, postRes] = await Promise.all([
+      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=1&dates=${todayStr}&seasontype=2`),
+      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=1&dates=${todayStr}&seasontype=3`),
+    ]);
+
+    const gameDaySet = new Set();
+
+    const extractDays = async (res) => {
+      if (!res.ok) return;
+      const data = await res.json();
+      const calendar = data.leagues?.[0]?.calendar || [];
+      calendar.forEach(d => {
+        // ESPN returns ISO strings like "2026-03-06T08:00Z"
+        const parsed = new Date(d);
+        if (isNaN(parsed.getTime())) return;
+        const dayStr = fmtDate(parsed);
+        if (dayStr >= todayStr && dayStr <= cutoffStr) {
+          gameDaySet.add(dayStr);
+        }
+      });
+    };
+
+    await Promise.all([extractDays(regRes), extractDays(postRes)]);
+
+    // Fallback: next 14 days if nothing found
+    if (gameDaySet.size === 0) {
       for (let i = 0; i <= 14; i++) {
         const day = new Date(now);
         day.setDate(now.getDate() + i);
-        gameDays.push(fmtDate(day));
+        gameDaySet.add(fmtDate(day));
       }
     }
-    // Fetch all game days in parallel
+
+    // Fetch all game days in parallel (try both season types per day)
     const allEvents = [];
-    await Promise.all(gameDays.map(async (dateStr) => {
-      try {
-        const res = await fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}`);
-        if (res.ok) {
-          const data = await res.json();
-          allEvents.push(...(data.events || []));
-        }
-      } catch (_) {}
-    }));
+    await Promise.all([...gameDaySet].flatMap(dateStr => [
+      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}&seasontype=2`)
+        .then(r => r.ok ? r.json() : {}).then(d => allEvents.push(...(d.events || []))).catch(() => {}),
+      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}&seasontype=3`)
+        .then(r => r.ok ? r.json() : {}).then(d => allEvents.push(...(d.events || []))).catch(() => {}),
+    ]));
+
     return allEvents;
   } catch (error) {
     console.error('Error fetching NCAAB schedule:', error);
