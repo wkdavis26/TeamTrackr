@@ -731,7 +731,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     console.log('[NBA] sample matchups:', JSON.stringify(sampleAbbrs));
     nbaGames.forEach(event => {
       const game = parseESPNEvent(event, 'NBA', teamIdsByLeague['NBA']);
-      if (game && game.date > now) allGames.push(game);
+      if (game && game.date > liveWindowStart) allGames.push(game);
     });
   }
   
