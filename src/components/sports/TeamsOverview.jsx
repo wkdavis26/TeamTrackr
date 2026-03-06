@@ -334,7 +334,7 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                   </span>
                 </div>
               )}
-              {isNCAAF ? (
+              {(isNCAAF || isNCAAB) ? (
                 apRank ? (
                   <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
                     <span className="font-bold text-gray-900 text-sm">#{apRank}</span>
