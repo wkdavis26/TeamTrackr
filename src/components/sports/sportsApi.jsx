@@ -143,8 +143,8 @@ export const fetchMLSSchedule = async (teamAbbreviations = []) => {
     // First get all MLS teams to map abbreviation -> ESPN team ID
     const teamsRes = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/teams?limit=100');
     if (!teamsRes.ok) return [];
-    const teamsData = await teamsRes.json();
-    const allTeams = teamsData.sports?.[0]?.leagues?.[0]?.teams || [];
+    const mlsTeamsJson = await teamsRes.json();
+    const allTeams = mlsTeamsJson.sports?.[0]?.leagues?.[0]?.teams || [];
     
     // If specific abbreviations requested, filter; otherwise fetch all
     const teamsToFetch = teamAbbreviations.length > 0
