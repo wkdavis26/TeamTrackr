@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils";
 import GameCard from './GameCard';
 
 export default function CalendarView({ games, hidePreseason, onToggleHidePreseason }) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date()));
+  const firstGameDate = games.length > 0 ? new Date(games[0].date) : new Date();
+  const initialMonth = firstGameDate > new Date() ? firstGameDate : new Date();
+  const [currentMonth, setCurrentMonth] = useState(initialMonth);
+  const [currentWeek, setCurrentWeek] = useState(startOfWeek(initialMonth));
   const [selectedDate, setSelectedDate] = useState(null);
   const [viewMode, setViewMode] = useState('month'); // 'month' | 'week'
 
