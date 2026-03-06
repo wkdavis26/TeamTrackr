@@ -55,6 +55,8 @@ export default function TeamDetails() {
     return icons[league] || '🏆';
   };
 
+  if (!teamId) return null;
+
   if (isLoadingFavorites || isLoadingGames) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
