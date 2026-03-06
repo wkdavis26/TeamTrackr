@@ -70,11 +70,8 @@ export const LEAGUES = {
   "International Football": {
     name: "International Football",
     icon: "🌍",
-    espnPath: null,
+    espnPath: "soccer/fifa.world",
     color: "#003399",
-    teams: [
-      { id: "international-football-all", name: "All International", logo: "🌍" }
-    ]
   },
   "Serie A": {
     name: "Serie A",
