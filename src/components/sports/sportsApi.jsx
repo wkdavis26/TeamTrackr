@@ -796,44 +796,45 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   }
 
   // Parse International Football games (World Cup + Euro + International combined)
-    if (teamIdsByLeague['International Football']) {
-      // For international football, any game matches since user selected "All International"
-      const intlTeamIds = teamIdsByLeague['International Football'];
-      const parseIntlEvent = (event, leagueName) => {
-        if (!event.competitions?.[0]) return null;
-        const competition = event.competitions[0];
-        const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
-        const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
-        if (!homeTeam || !awayTeam) return null;
-        const homeId = mapInternationalTeamToId(homeTeam.team?.displayName || '');
-        const awayId = mapInternationalTeamToId(awayTeam.team?.displayName || '');
-        return {
-          id: `${leagueName}-${event.id}`,
-          date: new Date(event.date),
-          league: 'International Football',
-          leagueIcon: '🌍',
-          homeTeam: {
-            id: homeId,
-            name: homeTeam.team?.displayName || homeTeam.team?.name,
-            logo: homeTeam.team?.logo,
-            color: homeTeam.team?.color,
-          },
-          awayTeam: {
-            id: awayId,
-            name: awayTeam.team?.displayName || awayTeam.team?.name,
-            logo: awayTeam.team?.logo,
-            color: awayTeam.team?.color,
-          },
-          favoriteTeamId: intlTeamIds[0],
-          venue: competition.venue?.fullName || 'TBD',
-          status: event.status?.type?.description || 'Scheduled',
-        };
+  if (teamIdsByLeague['International Football']) {
+    const intlTeamIds = teamIdsByLeague['International Football'];
+    const parseIntlEvent = (event) => {
+      if (!event.competitions?.[0]) return null;
+      const competition = event.competitions[0];
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      if (!homeTeam || !awayTeam) return null;
+      const homeId = `international-football-${(homeTeam.team?.abbreviation || '').toLowerCase()}`;
+      const awayId = `international-football-${(awayTeam.team?.abbreviation || '').toLowerCase()}`;
+      const favoriteTeamId = intlTeamIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return null;
+      return {
+        id: `intl-${event.id}`,
+        date: new Date(event.date),
+        league: 'International Football',
+        leagueIcon: '🌍',
+        homeTeam: {
+          id: homeId,
+          name: homeTeam.team?.displayName || homeTeam.team?.name,
+          logo: homeTeam.team?.logo,
+          color: homeTeam.team?.color,
+        },
+        awayTeam: {
+          id: awayId,
+          name: awayTeam.team?.displayName || awayTeam.team?.name,
+          logo: awayTeam.team?.logo,
+          color: awayTeam.team?.color,
+        },
+        favoriteTeamId,
+        venue: competition.venue?.fullName || 'TBD',
+        status: event.status?.type?.description || 'Scheduled',
       };
-      [...worldCupGames, ...euroGames, ...intlGames].forEach(event => {
-        const game = parseIntlEvent(event, event.id);
-        if (game && game.date > now) allGames.push(game);
-      });
-    }
+    };
+    [...worldCupGames, ...euroGames, ...intlGames].forEach(event => {
+      const game = parseIntlEvent(event);
+      if (game && game.date > now) allGames.push(game);
+    });
+  }
 
   // Parse Serie A games
   if (teamIdsByLeague['Serie A']) {
