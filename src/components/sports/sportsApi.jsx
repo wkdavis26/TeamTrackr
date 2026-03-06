@@ -137,10 +137,57 @@ export const fetchPremierLeagueSchedule = async () => {
   }
 };
 
-// Fetch MLS schedule
-export const fetchMLSSchedule = async () => {
+// Fetch MLS schedule — uses per-team schedule endpoint since the scoreboard only shows today's games
+export const fetchMLSSchedule = async (teamAbbreviations = []) => {
   try {
-    return await fetchESPNScheduleRange('soccer/usa.1');
+    // First get all MLS teams to map abbreviation -> ESPN team ID
+    const teamsRes = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/teams?limit=100');
+    if (!teamsRes.ok) return [];
+    const teamsData = await teamsRes.json();
+    const allTeams = teamsData.sports?.[0]?.leagues?.[0]?.teams || [];
+    
+    // If specific abbreviations requested, filter; otherwise fetch all
+    const teamsToFetch = teamAbbreviations.length > 0
+      ? allTeams.filter(({ team }) => teamAbbreviations.includes(team.abbreviation))
+      : allTeams;
+
+    if (teamsToFetch.length === 0) return [];
+
+    // Fetch each team's schedule in parallel
+    const schedules = await Promise.all(
+      teamsToFetch.map(({ team }) =>
+        fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/teams/${team.id}/schedule`)
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+      )
+    );
+
+    // Normalize events to the same shape as scoreboard events
+    const events = [];
+    schedules.forEach(data => {
+      if (!data?.events) return;
+      data.events.forEach(event => {
+        const comp = event.competitions?.[0];
+        if (!comp) return;
+        // Convert team schedule format to scoreboard-compatible format
+        comp.competitors = comp.competitors?.map(c => ({
+          ...c,
+          team: {
+            ...c.team,
+            displayName: c.team?.displayName || c.team?.location,
+            logo: c.team?.logos?.[0]?.href || c.team?.logo,
+          }
+        }));
+        events.push(event);
+      });
+    });
+    // Deduplicate by event ID
+    const seen = new Set();
+    return events.filter(e => {
+      if (seen.has(e.id)) return false;
+      seen.add(e.id);
+      return true;
+    });
   } catch (error) {
     console.error('Error fetching MLS schedule:', error);
     return [];
