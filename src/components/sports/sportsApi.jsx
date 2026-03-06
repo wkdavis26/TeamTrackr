@@ -320,22 +320,10 @@ const mapBundesligaTeamToId = (abbr) => {
   return `bundesliga-${abbr.toLowerCase()}`;
 };
 
-// Map La Liga team names
-const mapLaLigaTeamToId = (name) => {
-  const lowerName = name.toLowerCase();
-  if (lowerName.includes('real madrid')) return 'll-real-madrid';
-  if (lowerName.includes('barcelona')) return 'll-barcelona';
-  if (lowerName.includes('atlético') || lowerName.includes('atletico')) return 'll-atletico';
-  if (lowerName.includes('sevilla')) return 'll-sevilla';
-  if (lowerName.includes('real sociedad')) return 'll-real-sociedad';
-  if (lowerName.includes('villarreal')) return 'll-villarreal';
-  if (lowerName.includes('athletic')) return 'll-athletic';
-  if (lowerName.includes('betis')) return 'll-betis';
-  if (lowerName.includes('valencia')) return 'll-valencia';
-  if (lowerName.includes('celta')) return 'll-celta';
-  if (lowerName.includes('getafe')) return 'll-getafe';
-  if (lowerName.includes('osasuna')) return 'll-osasuna';
-  return null;
+// Map La Liga team abbreviation to ID (matches what fetchLeagueTeams stores)
+const mapLaLigaTeamToId = (abbr) => {
+  if (!abbr) return null;
+  return `la-liga-${abbr.toLowerCase()}`;
 };
 
 // Map international team names
