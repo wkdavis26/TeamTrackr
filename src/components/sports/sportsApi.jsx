@@ -304,12 +304,10 @@ const mapPLTeamToId = (name) => {
   return null;
 };
 
-// Map MLS team names
-const mapMLSTeamToId = (name) => {
-if (!name) return null;
-const lowerName = name.toLowerCase();
-const slug = lowerName.replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-return `mls-${slug}`;
+// Map MLS team abbreviation to ID (matches what TeamSelector stores via fetchLeagueTeams)
+const mapMLSTeamToId = (abbr) => {
+  if (!abbr) return null;
+  return `mls-${abbr.toLowerCase()}`;
 };
 
 // Map Serie A team names (ESPN uses abbreviation for matching)
