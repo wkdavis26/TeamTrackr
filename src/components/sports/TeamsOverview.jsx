@@ -16,6 +16,8 @@ const STANDINGS_PATHS = {
   'La Liga':        'soccer/esp.1',
   MLS:              'soccer/usa.1',
   NCAAF:            'football/college-football',
+  NCAAB:            'basketball/mens-college-basketball',
+  'NCAAB-Baseball': 'baseball/college-baseball',
   'FIFA World Cup': 'soccer/fifa.wc',
   'UEFA Euro':      'soccer/uefa.euro',
   'International':  'soccer/international',
