@@ -180,12 +180,31 @@ export const fetchNCAAFSchedule = async () => {
 export const fetchNCAABSchedule = async () => {
   try {
     const now = new Date();
+    // First, fetch today to get the calendar of upcoming game days
+    const todayStr = fmtDate(now);
+    const calRes = await fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=1&dates=${todayStr}`);
+    let gameDays = [];
+    if (calRes.ok) {
+      const calData = await calRes.json();
+      const calendar = calData.leagues?.[0]?.calendar || [];
+      // Filter to upcoming game days only (next 45 days)
+      const cutoff = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000);
+      gameDays = calendar
+        .map(d => new Date(d))
+        .filter(d => d >= now && d <= cutoff)
+        .map(d => fmtDate(d));
+    }
+    // Fallback: fetch next 10 days if calendar is empty
+    if (gameDays.length === 0) {
+      for (let i = 0; i <= 10; i++) {
+        const day = new Date(now);
+        day.setDate(now.getDate() + i);
+        gameDays.push(fmtDate(day));
+      }
+    }
+    // Fetch all game days in parallel
     const allEvents = [];
-    // Fetch next 45 days one week at a time
-    for (let weekOffset = 0; weekOffset < 7; weekOffset++) {
-      const day = new Date(now);
-      day.setDate(now.getDate() + weekOffset * 7);
-      const dateStr = fmtDate(day);
+    await Promise.all(gameDays.map(async (dateStr) => {
       try {
         const res = await fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}`);
         if (res.ok) {
@@ -193,7 +212,7 @@ export const fetchNCAABSchedule = async () => {
           allEvents.push(...(data.events || []));
         }
       } catch (_) {}
-    }
+    }));
     return allEvents;
   } catch (error) {
     console.error('Error fetching NCAAB schedule:', error);
