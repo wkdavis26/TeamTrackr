@@ -65,19 +65,13 @@ export default function TeamDetails() {
     );
   }
 
-  if (!isLoadingFavorites && !favoriteTeam) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-6xl mb-4">😕</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Team not found</h1>
-          <Link to={createPageUrl('Home')} className="text-emerald-600 hover:underline">
-            Back to home
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isLoadingFavorites && !favoriteTeam && teamId) {
+      navigate(createPageUrl('Home'), { replace: true });
+    }
+  }, [isLoadingFavorites, favoriteTeam, teamId]);
+
+  if (!isLoadingFavorites && !favoriteTeam) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
