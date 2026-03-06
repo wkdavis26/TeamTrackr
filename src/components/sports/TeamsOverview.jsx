@@ -11,6 +11,7 @@ const STANDINGS_PATHS = {
   NHL:              'hockey/nhl',
   MLB:              'baseball/mlb',
   NBA:              'basketball/nba',
+  WNBA:             'basketball/wnba',
   'Premier League': 'soccer/eng.1',
   'La Liga':        'soccer/esp.1',
   MLS:              'soccer/usa.1',
