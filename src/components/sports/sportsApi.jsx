@@ -190,7 +190,7 @@ export const fetchNCAABSchedule = async () => {
     const allEvents = [];
     // Fetch without seasontype so ESPN picks the active season automatically
     await Promise.all(days.map(dateStr =>
-      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&groups=50&dates=${dateStr}`)
+      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}`)
         .then(r => r.ok ? r.json() : {})
         .then(d => { if (d.events?.length) allEvents.push(...d.events); })
         .catch(() => {})
