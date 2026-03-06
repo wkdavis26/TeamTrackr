@@ -411,7 +411,7 @@ export default function TeamsOverview({ favoriteTeams }) {
       const [standingsList, colorsList, apMap] = await Promise.all([
         Promise.all(leagues.map(async l => ({ league: l, entries: await fetchLeagueStandings(l) }))),
         Promise.all(leagues.map(async l => ({ league: l, colors: await fetchLeagueTeamColors(l) }))),
-        leagues.includes('NCAAF') ? fetchNCAAFApRankings() : Promise.resolve({}),
+        (leagues.includes('NCAAF') || leagues.includes('NCAAB')) ? fetchNCAAFApRankings() : Promise.resolve({}),
       ]);
 
       const entriesByLeague = {};
