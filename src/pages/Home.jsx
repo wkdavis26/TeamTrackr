@@ -28,10 +28,10 @@ export default function Home() {
 
   // Fetch real schedule data from APIs
   const { data: upcomingGames = [], isLoading: isLoadingGames } = useQuery({
-    queryKey: ['schedules', favoriteTeams.map(t => t.team_id).join(',')],
+    queryKey: ['schedules-v2', favoriteTeams.map(t => t.team_id).join(',')],
     queryFn: () => fetchAllSchedules(favoriteTeams),
     enabled: favoriteTeams.length > 0,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 0,
   });
 
   // Create team mutation
