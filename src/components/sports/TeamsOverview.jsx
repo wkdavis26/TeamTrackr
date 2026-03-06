@@ -30,14 +30,25 @@ let ncaafApRankingsCache = null;
 const fetchNCAAFApRankings = async () => {
   if (ncaafApRankingsCache) return ncaafApRankingsCache;
   try {
-    const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings');
-    if (!res.ok) return {};
-    const data = await res.json();
-    const apPoll = data.rankings?.find(r => r.type === 'ap');
+    const [footballRes, basketballRes] = await Promise.all([
+      fetch('https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings'),
+      fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/rankings'),
+    ]);
     const map = {};
-    apPoll?.ranks?.forEach(r => {
-      if (r.team?.abbreviation) map[r.team.abbreviation.toUpperCase()] = r.current;
-    });
+    if (footballRes.ok) {
+      const data = await footballRes.json();
+      const apPoll = data.rankings?.find(r => r.type === 'ap');
+      apPoll?.ranks?.forEach(r => {
+        if (r.team?.abbreviation) map[r.team.abbreviation.toUpperCase()] = r.current;
+      });
+    }
+    if (basketballRes.ok) {
+      const data = await basketballRes.json();
+      const apPoll = data.rankings?.find(r => r.type === 'ap');
+      apPoll?.ranks?.forEach(r => {
+        if (r.team?.abbreviation) map[r.team.abbreviation.toUpperCase()] = r.current;
+      });
+    }
     ncaafApRankingsCache = map;
     return map;
   } catch (e) {
