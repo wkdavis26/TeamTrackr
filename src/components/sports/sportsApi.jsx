@@ -916,7 +916,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = ncaabIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(event.date);
-      if (gameDate <= now) return;
+      if (gameDate <= liveWindowStart) return;
       allGames.push({
         id: event.id,
         date: gameDate,
