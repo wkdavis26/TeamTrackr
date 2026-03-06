@@ -15,11 +15,12 @@ export default function TeamDetails() {
   const teamName = urlParams.get('team_name');
   const league = urlParams.get('league');
 
-  // Redirect to Home if no team is selected
-  if (!teamId) {
-    navigate(createPageUrl('Home'), { replace: true });
-    return null;
-  }
+  // Redirect to Home if no team is selected (must be in useEffect to avoid calling hooks conditionally)
+  useEffect(() => {
+    if (!teamId) {
+      navigate(createPageUrl('Home'), { replace: true });
+    }
+  }, [teamId]);
 
   // Single query for all favorite teams (used both for team lookup and schedules)
   const { data: allFavoriteTeams = [], isLoading: isLoadingFavorites } = useQuery({
