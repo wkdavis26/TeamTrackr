@@ -613,6 +613,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   
   const allGames = [];
   const now = new Date();
+  // Allow games that started up to 4 hours ago (to show live/in-progress games)
+  const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
   // Fetch all schedules in parallel
   const [nflGames, nhlGames, mlbGames, nbaGames, wnbaGames, plGames, laligaGames, mlsGames, f1Games, ncaafGames, worldCupGames, euroGames, intlGames, serieAGames, bundesligaGames, ncaabGames, ncaaBaseballGames] = await Promise.all([
