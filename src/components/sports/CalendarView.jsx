@@ -7,8 +7,20 @@ import { cn } from "@/lib/utils";
 import GameCard from './GameCard';
 
 export default function CalendarView({ games, hidePreseason, onToggleHidePreseason }) {
-  const firstGameDate = games.length > 0 ? new Date(games[0].date) : new Date();
-  const initialMonth = firstGameDate > new Date() ? firstGameDate : new Date();
+  const getInitialMonth = () => {
+    const now = new Date();
+    const nowMonthStart = startOfMonth(now);
+    const nowMonthEnd = endOfMonth(now);
+    const hasCurrentMonthGames = games.some(g => {
+      const d = new Date(g.date);
+      return d >= nowMonthStart && d <= nowMonthEnd;
+    });
+    if (!hasCurrentMonthGames && games.length > 0) {
+      return new Date(games[0].date);
+    }
+    return now;
+  };
+  const initialMonth = getInitialMonth();
   const [currentMonth, setCurrentMonth] = useState(initialMonth);
   const [currentWeek, setCurrentWeek] = useState(startOfWeek(initialMonth));
   const [selectedDate, setSelectedDate] = useState(null);
