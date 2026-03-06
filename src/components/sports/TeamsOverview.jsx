@@ -222,7 +222,7 @@ const findEntryForTeam = (entries, teamId) => {
 
   // Soccer teams (both old pl-/ll- prefix style and new premier-league-/la-liga- style)
   // Extract the ESPN abbreviation from the end of the team_id
-  const soccerPrefixes = ['premier-league-', 'la-liga-', 'pl-', 'll-', 'mls-'];
+  const soccerPrefixes = ['premier-league-', 'la-liga-', 'serie-a-', 'bundesliga-', 'mls-', 'pl-', 'll-'];
   const isSoccer = soccerPrefixes.some(p => teamId.startsWith(p));
   if (isSoccer) {
     // The abbreviation is the last segment after the prefix
