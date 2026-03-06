@@ -296,22 +296,10 @@ const mapESPNTeamToId = (abbr, league) => {
   return mapping[league]?.[abbr] || null;
 };
 
-// Map Premier League team names
-const mapPLTeamToId = (name) => {
-  const lowerName = name.toLowerCase();
-  if (lowerName.includes('arsenal')) return 'pl-arsenal';
-  if (lowerName.includes('chelsea')) return 'pl-chelsea';
-  if (lowerName.includes('liverpool')) return 'pl-liverpool';
-  if (lowerName.includes('manchester city') || lowerName.includes('man city')) return 'pl-man-city';
-  if (lowerName.includes('manchester united') || lowerName.includes('man utd') || lowerName.includes('man united')) return 'pl-man-utd';
-  if (lowerName.includes('tottenham') || lowerName.includes('spurs')) return 'pl-tottenham';
-  if (lowerName.includes('newcastle')) return 'pl-newcastle';
-  if (lowerName.includes('aston villa')) return 'pl-aston-villa';
-  if (lowerName.includes('brighton')) return 'pl-brighton';
-  if (lowerName.includes('west ham')) return 'pl-west-ham';
-  if (lowerName.includes('everton')) return 'pl-everton';
-  if (lowerName.includes('wolves') || lowerName.includes('wolverhampton')) return 'pl-wolves';
-  return null;
+// Map Premier League team abbreviation to ID (matches what fetchLeagueTeams stores)
+const mapPLTeamToId = (abbr) => {
+  if (!abbr) return null;
+  return `premier-league-${abbr.toLowerCase()}`;
 };
 
 // Map MLS team abbreviation to ID (matches what TeamSelector stores via fetchLeagueTeams)
