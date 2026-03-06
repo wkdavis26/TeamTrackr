@@ -176,56 +176,25 @@ export const fetchNCAAFSchedule = async () => {
   }
 };
 
-// Fetch NCAA Basketball schedule - fetches regular season + postseason calendars day by day
+// Fetch NCAA Basketball schedule - fetches next 45 days one day at a time (ESPN doesn't support ranges for NCAAB)
 export const fetchNCAABSchedule = async () => {
   try {
     const now = new Date();
-    const todayStr = fmtDate(now);
-    const cutoff = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000); // 60 days out
-    const cutoffStr = fmtDate(cutoff);
-
-    // Fetch both regular season (type=2) and postseason (type=3) calendars
-    const [regRes, postRes] = await Promise.all([
-      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=1&dates=${todayStr}&seasontype=2`),
-      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=1&dates=${todayStr}&seasontype=3`),
-    ]);
-
-    const gameDaySet = new Set();
-
-    const extractDays = async (res) => {
-      if (!res.ok) return;
-      const data = await res.json();
-      const calendar = data.leagues?.[0]?.calendar || [];
-      calendar.forEach(d => {
-        // ESPN returns ISO strings like "2026-03-06T08:00Z"
-        const parsed = new Date(d);
-        if (isNaN(parsed.getTime())) return;
-        const dayStr = fmtDate(parsed);
-        if (dayStr >= todayStr && dayStr <= cutoffStr) {
-          gameDaySet.add(dayStr);
-        }
-      });
-    };
-
-    await Promise.all([extractDays(regRes), extractDays(postRes)]);
-
-    // Fallback: next 14 days if nothing found
-    if (gameDaySet.size === 0) {
-      for (let i = 0; i <= 14; i++) {
-        const day = new Date(now);
-        day.setDate(now.getDate() + i);
-        gameDaySet.add(fmtDate(day));
-      }
+    const days = [];
+    for (let i = 0; i <= 45; i++) {
+      const d = new Date(now);
+      d.setDate(now.getDate() + i);
+      days.push(fmtDate(d));
     }
 
-    // Fetch all game days in parallel (try both season types per day)
     const allEvents = [];
-    await Promise.all([...gameDaySet].flatMap(dateStr => [
-      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}&seasontype=2`)
-        .then(r => r.ok ? r.json() : {}).then(d => allEvents.push(...(d.events || []))).catch(() => {}),
-      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}&seasontype=3`)
-        .then(r => r.ok ? r.json() : {}).then(d => allEvents.push(...(d.events || []))).catch(() => {}),
-    ]));
+    // Fetch without seasontype so ESPN picks the active season automatically
+    await Promise.all(days.map(dateStr =>
+      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}`)
+        .then(r => r.ok ? r.json() : {})
+        .then(d => { if (d.events?.length) allEvents.push(...d.events); })
+        .catch(() => {})
+    ));
 
     return allEvents;
   } catch (error) {
