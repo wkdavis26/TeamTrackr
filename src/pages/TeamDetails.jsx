@@ -32,10 +32,10 @@ export default function TeamDetails() {
 
   // Fetch schedules for all teams
   const { data: allGames = [], isLoading: isLoadingGames } = useQuery({
-    queryKey: ['schedules', allFavoriteTeams.map(t => t.team_id).join(',')],
+    queryKey: ['schedules-v2', allFavoriteTeams.map(t => t.team_id).join(',')],
     queryFn: () => fetchAllSchedules(allFavoriteTeams),
     enabled: allFavoriteTeams.length > 0,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
   });
 
   // Filter games for this team only
