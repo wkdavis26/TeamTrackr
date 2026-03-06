@@ -180,23 +180,33 @@ export const fetchNCAAFSchedule = async () => {
 export const fetchNCAABSchedule = async () => {
   try {
     const now = new Date();
-    // First, fetch today to get the calendar of upcoming game days
     const todayStr = fmtDate(now);
+    // Fetch today's scoreboard to get the calendar of game days
     const calRes = await fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=1&dates=${todayStr}`);
     let gameDays = [];
     if (calRes.ok) {
       const calData = await calRes.json();
+      // calendar entries may be YYYYMMDD strings or ISO strings
       const calendar = calData.leagues?.[0]?.calendar || [];
-      // Filter to upcoming game days only (next 45 days)
       const cutoff = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000);
       gameDays = calendar
-        .map(d => new Date(d))
-        .filter(d => d >= now && d <= cutoff)
-        .map(d => fmtDate(d));
+        .map(d => {
+          // Handle both "20260306" and "2026-03-06T..." formats
+          if (/^\d{8}$/.test(d)) {
+            return d; // already YYYYMMDD
+          }
+          const parsed = new Date(d);
+          return isNaN(parsed.getTime()) ? null : fmtDate(parsed);
+        })
+        .filter(d => {
+          if (!d) return false;
+          // Compare as YYYYMMDD strings (today through cutoff)
+          return d >= todayStr && d <= fmtDate(cutoff);
+        });
     }
-    // Fallback: fetch next 10 days if calendar is empty
+    // Fallback: fetch next 14 days if calendar is empty
     if (gameDays.length === 0) {
-      for (let i = 0; i <= 10; i++) {
+      for (let i = 0; i <= 14; i++) {
         const day = new Date(now);
         day.setDate(now.getDate() + i);
         gameDays.push(fmtDate(day));
