@@ -55,6 +55,12 @@ export default function TeamDetails() {
     return icons[league] || '🏆';
   };
 
+  useEffect(() => {
+    if (!isLoadingFavorites && !favoriteTeam && teamId) {
+      navigate(createPageUrl('Home'), { replace: true });
+    }
+  }, [isLoadingFavorites, favoriteTeam, teamId]);
+
   if (!teamId) return null;
 
   if (isLoadingFavorites || isLoadingGames) {
@@ -65,13 +71,7 @@ export default function TeamDetails() {
     );
   }
 
-  useEffect(() => {
-    if (!isLoadingFavorites && !favoriteTeam && teamId) {
-      navigate(createPageUrl('Home'), { replace: true });
-    }
-  }, [isLoadingFavorites, favoriteTeam, teamId]);
-
-  if (!isLoadingFavorites && !favoriteTeam) return null;
+  if (!favoriteTeam) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
