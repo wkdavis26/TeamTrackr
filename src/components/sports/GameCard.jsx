@@ -263,7 +263,7 @@ export default function GameCard({ game, compact = false }) {
               {isRaceDay && f1Grid && f1Grid.length > 0 &&
           <div className="w-full mt-1 border-t border-gray-100 pt-2">
                   
-                  <div className="flex justify-center gap-3">
+                  <div className="flex justify-center gap-6 w-full">
                     {f1Grid.map((driver, i) =>
               <div key={i} className="flex flex-col items-center gap-1">
                         <span className={cn(
