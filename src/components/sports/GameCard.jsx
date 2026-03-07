@@ -160,10 +160,7 @@ function BroadcastDisplay({ broadcasts }) {
 export default function GameCard({ game, compact = false }) {
   const odds = useGameOdds(game?.id, game?.league);
   const liveScore = useLiveScore(game);
-  const isRaceDay = game?.isF1Race && game?.f1Session === 'Race' && isToday(getCTNoonDate(gameDate));
-  const f1Grid = useF1Grid(isRaceDay);
   const gameDate = new Date(game?.date);
-  if (!game || !game.homeTeam || !game.awayTeam) return null;
 
   // Get a Date object at noon of the CT calendar date for this game (avoids UTC midnight shifts)
   const getCTNoonDate = (d) => {
@@ -172,6 +169,10 @@ export default function GameCard({ game, compact = false }) {
   };
 
   const gameDateCT = getCTNoonDate(gameDate);
+  const isRaceDay = game?.isF1Race && game?.f1Session === 'Race' && isToday(gameDateCT);
+  const f1Grid = useF1Grid(isRaceDay);
+
+  if (!game || !game.homeTeam || !game.awayTeam) return null;
 
   const getDateLabel = () => {
     if (isToday(gameDateCT)) return "Today";
