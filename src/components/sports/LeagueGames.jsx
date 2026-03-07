@@ -256,11 +256,22 @@ async function fetchLeagueAllGames(leagueKey) {
     const uclEvents = uclData
       ? parseESPNEvents(uclData.events || [], leagueKey, now).map(g => ({ ...g, isChampionsLeague: true, competitionLabel: 'UEFA Champions League' }))
       : [];
+    
+    const cupLabels = {
+      'Premier League': 'FA Cup',
+      'La Liga': 'Copa del Rey',
+      'Serie A': 'Coppa Italia',
+      'Bundesliga': 'DFB-Pokal',
+    };
+    
+    const cupEvents = cupData
+      ? parseESPNEvents(cupData.events || [], leagueKey, now).map(g => ({ ...g, isDomesticCup: true, competitionLabel: cupLabels[leagueKey] || 'Cup' }))
+      : [];
 
     // Merge and deduplicate by id
     const seenIds = new Set();
     const merged = [];
-    for (const g of [...leagueEvents, ...uclEvents]) {
+    for (const g of [...leagueEvents, ...uclEvents, ...cupEvents]) {
       if (!seenIds.has(g.id)) {
         seenIds.add(g.id);
         merged.push(g);
