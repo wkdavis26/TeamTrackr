@@ -126,7 +126,7 @@ export const fetchLeagueTeams = async (leagueKey) => {
     const data = await response.json();
     const teams = data.sports?.[0]?.leagues?.[0]?.teams || [];
     return teams.map(({ team }) => ({
-      id: `${leagueKey.toLowerCase().replace(/\s+/g, '-')}-${team.abbreviation.toLowerCase()}`,
+      id: `${leagueKey.toLowerCase().replace(/'/g, '').replace(/\s+/g, '-')}-${team.abbreviation.toLowerCase()}`,
       name: team.displayName,
       abbreviation: team.abbreviation,
       logo: team.logos?.[0]?.href || null,
