@@ -115,6 +115,12 @@ export const LEAGUES = {
     espnPath: "baseball/college-baseball",
     color: "#003087",
   },
+  PGA: {
+    name: "PGA Tour",
+    icon: "⛳",
+    espnPath: null,
+    color: "#1a4731",
+  },
   };
 
 // Fetch all teams for a given league from ESPN
