@@ -378,7 +378,7 @@ export default function GameCard({ game, compact = false }) {
             }
           </div>
         </div>
-        {!game.isF1Race &&
+        {!game.isF1Race && !game.isPGA &&
         <div className="pt-2 border-t border-gray-100 mt-2">
             <div className="grid grid-cols-3 gap-2 text-center">
               <div className="bg-gray-50 rounded-lg px-2 py-1.5">
