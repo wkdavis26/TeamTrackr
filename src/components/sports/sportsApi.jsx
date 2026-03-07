@@ -117,10 +117,18 @@ export const fetchWNBASchedule = async () => {
   }
 };
 
-// Fetch NBA schedule
-export const fetchNBASchedule = async () => {
+// Fetch NBA schedule — uses team-specific schedule endpoint to get full season
+export const fetchNBASchedule = async (teamAbbreviations = []) => {
+  if (teamAbbreviations.length === 0) return [];
   try {
-    return await fetchESPNScheduleRange('basketball/nba');
+    const allEvents = [];
+    await Promise.all(teamAbbreviations.map(abbr =>
+      fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${abbr.toLowerCase()}/schedule`)
+        .then(r => r.ok ? r.json() : {})
+        .then(d => { if (d.events?.length) allEvents.push(...d.events); })
+        .catch(() => {})
+    ));
+    return allEvents;
   } catch (error) {
     console.error('Error fetching NBA schedule:', error);
     return [];
