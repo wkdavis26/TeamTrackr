@@ -286,12 +286,7 @@ const mapESPNTeamToId = (abbr, league) => {
       BUF: 'nfl-bills', BAL: 'nfl-ravens', DET: 'nfl-lions', MIA: 'nfl-dolphins',
       GB: 'nfl-packers', NYJ: 'nfl-jets', NYG: 'nfl-giants', NE: 'nfl-patriots',
     },
-    NBA: {
-      LAL: 'nba-lal', BOS: 'nba-bos', GSW: 'nba-gsw', GS: 'nba-gsw', 
-      CHI: 'nba-chi', MIA: 'nba-mia', NYK: 'nba-nyk', NY: 'nba-nyk',
-      BKN: 'nba-bkn', BRK: 'nba-bkn', PHI: 'nba-phi', MIL: 'nba-mil',
-      DEN: 'nba-den', PHX: 'nba-phx', DAL: 'nba-dal',
-    },
+    NBA: {}, // handled by direct abbreviation mapping below
   };
   return mapping[league]?.[abbr] || null;
 };
