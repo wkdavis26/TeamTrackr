@@ -841,8 +841,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
       const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
       if (!homeTeam || !awayTeam) return;
-      const homeId = `women's-international-football-${(homeTeam.team?.abbreviation || '').toLowerCase()}`;
-      const awayId = `women's-international-football-${(awayTeam.team?.abbreviation || '').toLowerCase()}`;
+      const homeId = `womens-international-football-${(homeTeam.team?.abbreviation || '').toLowerCase()}`;
+      const awayId = `womens-international-football-${(awayTeam.team?.abbreviation || '').toLowerCase()}`;
       const favoriteTeamId = wIntlTeamIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(event.date);
