@@ -291,12 +291,12 @@ function LeagueDetail({ leagueKey, onBack }) {
 }
 
 const SPORT_GROUPS = [
-  { label: '🏈 Football', keys: ['NFL', 'NCAAF'] },
-  { label: '🏀 Basketball', keys: ['NBA', 'WNBA', 'NCAAB'] },
-  { label: '⚾ Baseball', keys: ['MLB', 'NCAAB-Baseball'] },
-  { label: '🏒 Hockey', keys: ['NHL'] },
-  { label: '⚽ Soccer', keys: ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Champions League', 'MLS', 'International Football'] },
-  { label: '🏎️ Motorsport', keys: ['F1'] },
+  { label: 'Football', keys: ['NFL', 'NCAAF'] },
+  { label: 'Basketball', keys: ['NBA', 'WNBA', 'NCAAB'] },
+  { label: 'Baseball', keys: ['MLB', 'NCAAB-Baseball'] },
+  { label: 'Hockey', keys: ['NHL'] },
+  { label: 'Soccer', keys: ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Champions League', 'MLS', 'International Football'] },
+  { label: 'Motorsport', keys: ['F1'] },
 ];
 
 function LeagueList({ leagues, onSelect }) {
