@@ -121,6 +121,12 @@ export const LEAGUES = {
     espnPath: null,
     color: "#1a4731",
   },
+  PWHL: {
+    name: "PWHL",
+    icon: "🏒",
+    espnPath: "hockey/pwhl",
+    color: "#000000",
+  },
   };
 
 // Fetch all teams for a given league from ESPN
