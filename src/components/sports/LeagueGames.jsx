@@ -335,6 +335,7 @@ const SPORT_GROUPS = [
   { label: 'Hockey', keys: ['NHL'] },
   { label: 'Soccer', keys: ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Champions League', 'MLS', 'International Football'] },
   { label: 'Motorsport', keys: ['F1'] },
+  { label: 'Golf', keys: ['PGA'] },
 ];
 
 function LeagueList({ leagues, onSelect }) {
