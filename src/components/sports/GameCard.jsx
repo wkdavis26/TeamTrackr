@@ -251,7 +251,13 @@ export default function GameCard({ game, compact = false }) {
         <div className="mb-4" />
 
         {/* Teams */}
-        {game.isF1Race ?
+        {game.isPGA ?
+        <div className="flex flex-col items-center justify-center gap-2 mb-4 h-[100px]">
+              <div className="text-4xl">⛳</div>
+              <div className="text-base font-bold text-gray-900 text-center leading-tight">{game.pgaEventName}</div>
+              <div className="text-sm text-gray-500 text-center truncate max-w-full">{game.venue}</div>
+            </div> :
+        game.isF1Race ?
         <div className="flex flex-col items-center justify-center gap-2 mb-4 min-h-[100px]">
               <div className="flex items-center gap-2">
                 <FlagImage country={game.f1Country} />
