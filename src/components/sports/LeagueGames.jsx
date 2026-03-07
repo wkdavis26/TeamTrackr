@@ -84,6 +84,52 @@ async function fetchF1Games() {
   }
 }
 
+// European leagues that should also show Champions League games
+const EUROPEAN_LEAGUES = new Set(['Premier League', 'La Liga', 'Serie A', 'Bundesliga']);
+
+const parseESPNEvents = (events, leagueKey, now) => {
+  return events.map(event => {
+    const competition = event.competitions?.[0];
+    if (!competition) return null;
+    const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+    const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+    if (!homeTeam || !awayTeam) return null;
+    const gameDate = new Date(event.date);
+    if (gameDate <= now) return null;
+    const broadcasts = (competition.broadcasts || [])
+      .flatMap(b => b.names || [b.market || b.type].filter(Boolean));
+    const getRecord = (competitor) => {
+      const rec = competitor.records?.find(r => r.type === 'total' || !r.type);
+      return rec?.summary || null;
+    };
+    return {
+      id: event.id,
+      date: gameDate,
+      league: leagueKey,
+      leagueIcon: LEAGUES[leagueKey]?.icon || '🏆',
+      homeTeam: {
+        id: homeTeam.team?.abbreviation,
+        name: homeTeam.team?.displayName || homeTeam.team?.name,
+        logo: homeTeam.team?.logo,
+        color: homeTeam.team?.color,
+        record: getRecord(homeTeam),
+      },
+      awayTeam: {
+        id: awayTeam.team?.abbreviation,
+        name: awayTeam.team?.displayName || awayTeam.team?.name,
+        logo: awayTeam.team?.logo,
+        color: awayTeam.team?.color,
+        record: getRecord(awayTeam),
+      },
+      favoriteTeamId: homeTeam.team?.abbreviation,
+      venue: competition.venue?.fullName || 'TBD',
+      status: event.status?.type?.description || 'Scheduled',
+      isPreseason: event.season?.type === 1 || event.seasonType?.type?.id === '1',
+      broadcasts: broadcasts.length > 0 ? broadcasts : null,
+    };
+  }).filter(Boolean);
+};
+
 async function fetchLeagueAllGames(leagueKey) {
   if (leagueKey === 'F1') return fetchF1Games();
   const path = LEAGUE_SCOREBOARD_PATHS[leagueKey];
@@ -92,50 +138,34 @@ async function fetchLeagueAllGames(leagueKey) {
   const end = addMonths(now, 1);
   const startStr = fmtDate(now);
   const endStr = fmtDate(end);
+
   try {
-    const res = await fetch(`${ESPN_BASE}/${path}/scoreboard?limit=500&dates=${startStr}-${endStr}`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    return (data.events || []).map(event => {
-      const competition = event.competitions?.[0];
-      if (!competition) return null;
-      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
-      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
-      if (!homeTeam || !awayTeam) return null;
-      const gameDate = new Date(event.date);
-      if (gameDate <= now) return null;
-      const broadcasts = (competition.broadcasts || [])
-        .flatMap(b => b.names || [b.market || b.type].filter(Boolean));
-      const getRecord = (competitor) => {
-        const rec = competitor.records?.find(r => r.type === 'total' || !r.type);
-        return rec?.summary || null;
-      };
-      return {
-        id: event.id,
-        date: gameDate,
-        league: leagueKey,
-        leagueIcon: LEAGUES[leagueKey]?.icon || '🏆',
-        homeTeam: {
-          id: homeTeam.team?.abbreviation,
-          name: homeTeam.team?.displayName || homeTeam.team?.name,
-          logo: homeTeam.team?.logo,
-          color: homeTeam.team?.color,
-          record: getRecord(homeTeam),
-        },
-        awayTeam: {
-          id: awayTeam.team?.abbreviation,
-          name: awayTeam.team?.displayName || awayTeam.team?.name,
-          logo: awayTeam.team?.logo,
-          color: awayTeam.team?.color,
-          record: getRecord(awayTeam),
-        },
-        favoriteTeamId: homeTeam.team?.abbreviation,
-        venue: competition.venue?.fullName || 'TBD',
-        status: event.status?.type?.description || 'Scheduled',
-        isPreseason: event.season?.type === 1 || event.seasonType?.type?.id === '1',
-        broadcasts: broadcasts.length > 0 ? broadcasts : null,
-      };
-    }).filter(Boolean);
+    const fetches = [fetch(`${ESPN_BASE}/${path}/scoreboard?limit=500&dates=${startStr}-${endStr}`)];
+
+    // Also fetch Champions League for European domestic leagues
+    if (EUROPEAN_LEAGUES.has(leagueKey)) {
+      fetches.push(fetch(`${ESPN_BASE}/soccer/uefa.champions/scoreboard?limit=500&dates=${startStr}-${endStr}`));
+    }
+
+    const responses = await Promise.all(fetches);
+    const [leagueData, uclData] = await Promise.all(responses.map(r => r.ok ? r.json() : {}));
+
+    const leagueEvents = parseESPNEvents(leagueData.events || [], leagueKey, now);
+    const uclEvents = uclData
+      ? parseESPNEvents(uclData.events || [], leagueKey, now).map(g => ({ ...g, isChampionsLeague: true, competitionLabel: 'UEFA Champions League' }))
+      : [];
+
+    // Merge and deduplicate by id
+    const seenIds = new Set();
+    const merged = [];
+    for (const g of [...leagueEvents, ...uclEvents]) {
+      if (!seenIds.has(g.id)) {
+        seenIds.add(g.id);
+        merged.push(g);
+      }
+    }
+
+    return merged.sort((a, b) => a.date - b.date);
   } catch {
     return [];
   }
