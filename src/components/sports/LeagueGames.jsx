@@ -326,7 +326,7 @@ function LeagueList({ leagues, onSelect }) {
                       className="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 text-left"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl">{league?.icon}</span>
+                        <LeagueLogo leagueKey={leagueKey} />
                         <span className="font-semibold text-gray-900">{league?.name || leagueKey}</span>
                       </div>
                       <ChevronRight className="w-5 h-5 text-gray-400" />
