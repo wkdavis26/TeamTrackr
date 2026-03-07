@@ -711,19 +711,10 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   
   // Parse NBA games
   if (teamIdsByLeague['NBA']) {
-    console.log('[NBA] favorite team IDs:', JSON.stringify(teamIdsByLeague['NBA']));
-    console.log('[NBA] total ESPN events fetched:', nbaGames.length);
-    // Log ALL unique abbreviations ESPN returned so we can find the right one
-    const allAbbrs = new Set();
-    nbaGames.forEach(e => {
-      e.competitions?.[0]?.competitors?.forEach(c => { if (c.team?.abbreviation) allAbbrs.add(c.team.abbreviation); });
-    });
-    console.log('[NBA] all team abbreviations in ESPN data:', JSON.stringify([...allAbbrs].sort()));
     nbaGames.forEach(event => {
       const game = parseESPNEvent(event, 'NBA', teamIdsByLeague['NBA']);
       if (game && game.date > liveWindowStart) allGames.push(game);
     });
-    console.log('[NBA] matched games:', allGames.filter(g => g.league === 'NBA').length);
   }
   
   // Parse WNBA games
