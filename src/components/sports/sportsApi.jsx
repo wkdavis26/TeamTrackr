@@ -408,6 +408,8 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
   const broadcasts = (competition.broadcasts || [])
     .flatMap(b => b.names || [b.market || b.type].filter(Boolean));
 
+  if (!homeId && !awayId) return null;
+
   return {
     id: event.id,
     date: new Date(event.date),
