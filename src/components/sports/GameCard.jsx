@@ -251,7 +251,7 @@ export default function GameCard({ game, compact = false }) {
 
         {/* Teams */}
         {game.isF1Race ?
-        <div className="flex flex-col items-center justify-center gap-2 mb-4 h-[100px]">
+        <div className="flex flex-col items-center justify-center gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <FlagImage country={game.f1Country} />
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{game.f1Session}</span>
@@ -259,6 +259,23 @@ export default function GameCard({ game, compact = false }) {
               </div>
               <div className="text-lg font-bold text-gray-900">{game.f1Country || 'Grand Prix'}</div>
               <div className="text-sm text-gray-500 truncate max-w-full text-center">{game.venue}</div>
+              {isRaceDay && f1Grid && f1Grid.length > 0 && (
+                <div className="w-full mt-1 border-t border-gray-100 pt-2">
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5 text-center">Starting Grid</div>
+                  <div className="flex justify-center gap-3">
+                    {f1Grid.map((driver, i) => (
+                      <div key={i} className="flex flex-col items-center gap-1">
+                        <span className={cn(
+                          "text-xs font-black w-6 h-6 flex items-center justify-center rounded-full",
+                          i === 0 ? "bg-yellow-400 text-yellow-900" : i === 1 ? "bg-gray-300 text-gray-700" : "bg-amber-700 text-white"
+                        )}>P{i + 1}</span>
+                        {driver.flag && <img src={driver.flag} alt="" className="w-5 h-3.5 object-cover rounded-sm" />}
+                        <span className="text-xs font-medium text-gray-700 text-center leading-tight max-w-[60px] truncate">{driver.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div> :
 
         <div className="flex items-center justify-between gap-4 mb-4 h-[100px]">
