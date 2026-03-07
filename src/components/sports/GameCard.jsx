@@ -14,29 +14,29 @@ const useF1Grid = (isRaceDay) => {
   useEffect(() => {
     if (!isRaceDay) return;
     const cacheKey = 'today';
-    if (f1GridCache[cacheKey]) { setGrid(f1GridCache[cacheKey]); return; }
+    if (f1GridCache[cacheKey]) {setGrid(f1GridCache[cacheKey]);return;}
     // Fetch today's scoreboard to get the current event's qualifying results
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()).replace(/-/g, '');
-    fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=10&dates=${today}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!data) return;
-        const event = data.events?.[0];
-        if (!event) return;
-        // Find Qual competition
-        const qualComp = event.competitions?.find(c => c.type?.abbreviation === 'Qual');
-        if (!qualComp) return;
-        const sorted = [...(qualComp.competitors || [])].sort((a, b) => (a.order || 999) - (b.order || 999));
-        const top3 = sorted.slice(0, 3).map(c => ({
-          name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
-          flag: c.athlete?.flag?.href || null,
-        }));
-        if (top3.length > 0) {
-          f1GridCache[cacheKey] = top3;
-          setGrid(top3);
-        }
-      })
-      .catch(() => {});
+    fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=10&dates=${today}`).
+    then((r) => r.ok ? r.json() : null).
+    then((data) => {
+      if (!data) return;
+      const event = data.events?.[0];
+      if (!event) return;
+      // Find Qual competition
+      const qualComp = event.competitions?.find((c) => c.type?.abbreviation === 'Qual');
+      if (!qualComp) return;
+      const sorted = [...(qualComp.competitors || [])].sort((a, b) => (a.order || 999) - (b.order || 999));
+      const top3 = sorted.slice(0, 3).map((c) => ({
+        name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
+        flag: c.athlete?.flag?.href || null
+      }));
+      if (top3.length > 0) {
+        f1GridCache[cacheKey] = top3;
+        setGrid(top3);
+      }
+    }).
+    catch(() => {});
   }, [isRaceDay]);
   return grid;
 };
@@ -133,28 +133,28 @@ function BroadcastDisplay({ broadcasts }) {
     <div className="flex items-center gap-1.5 justify-end">
       <Tv className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
       <button
-        onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
-        onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setExpanded(v => !v); }}
-        className="flex items-center gap-1 focus:outline-none touch-manipulation"
-      >
+        onClick={(e) => {e.stopPropagation();setExpanded((v) => !v);}}
+        onTouchEnd={(e) => {e.stopPropagation();e.preventDefault();setExpanded((v) => !v);}}
+        className="flex items-center gap-1 focus:outline-none touch-manipulation">
+
         <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">
           {broadcasts[0]}
         </span>
-        {broadcasts.length > 1 && (
-          <span className="text-xs text-gray-400 font-medium">
+        {broadcasts.length > 1 &&
+        <span className="text-xs text-gray-400 font-medium">
             {expanded ? '▲' : `+${broadcasts.length - 1}`}
           </span>
-        )}
+        }
       </button>
-      {expanded && broadcasts.length > 1 && (
-        <div className="flex items-center gap-1 flex-wrap">
-          {broadcasts.slice(1).map((ch, i) => (
-            <span key={i} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">{ch}</span>
-          ))}
+      {expanded && broadcasts.length > 1 &&
+      <div className="flex items-center gap-1 flex-wrap">
+          {broadcasts.slice(1).map((ch, i) =>
+        <span key={i} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-medium whitespace-nowrap">{ch}</span>
+        )}
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
 
 export default function GameCard({ game, compact = false }) {
@@ -260,23 +260,23 @@ export default function GameCard({ game, compact = false }) {
               </div>
               <div className="text-lg font-bold text-gray-900">{game.f1Country || 'Grand Prix'}</div>
               <div className="text-sm text-gray-500 truncate max-w-full text-center">{game.venue}</div>
-              {isRaceDay && f1Grid && f1Grid.length > 0 && (
-                <div className="w-full mt-1 border-t border-gray-100 pt-2">
-                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5 text-center">Starting Grid</div>
+              {isRaceDay && f1Grid && f1Grid.length > 0 &&
+          <div className="w-full mt-1 border-t border-gray-100 pt-2">
+                  
                   <div className="flex justify-center gap-3">
-                    {f1Grid.map((driver, i) => (
-                      <div key={i} className="flex flex-col items-center gap-1">
+                    {f1Grid.map((driver, i) =>
+              <div key={i} className="flex flex-col items-center gap-1">
                         <span className={cn(
-                          "text-xs font-black w-6 h-6 flex items-center justify-center rounded-full",
-                          i === 0 ? "bg-yellow-400 text-yellow-900" : i === 1 ? "bg-gray-300 text-gray-700" : "bg-amber-700 text-white"
-                        )}>P{i + 1}</span>
+                  "text-xs font-black w-6 h-6 flex items-center justify-center rounded-full",
+                  i === 0 ? "bg-yellow-400 text-yellow-900" : i === 1 ? "bg-gray-300 text-gray-700" : "bg-amber-700 text-white"
+                )}>P{i + 1}</span>
                         {driver.flag && <img src={driver.flag} alt="" className="w-5 h-3.5 object-cover rounded-sm" />}
                         <span className="text-xs font-medium text-gray-700 text-center leading-tight max-w-[60px] truncate">{driver.name}</span>
                       </div>
-                    ))}
+              )}
                   </div>
                 </div>
-              )}
+          }
             </div> :
 
         <div className="flex items-center justify-between gap-4 mb-4 h-[100px]">
@@ -301,24 +301,24 @@ export default function GameCard({ game, compact = false }) {
 
             {/* VS / Score */}
             <div className="flex flex-col items-center gap-1">
-              {liveScore ? (
-                <>
+              {liveScore ?
+            <>
                   <div className="text-xl font-bold text-gray-900 leading-none">
                     {liveScore.awayScore} – {liveScore.homeScore}
                   </div>
-                  {liveScore.isLive && (
-                    <div className="flex items-center gap-1">
+                  {liveScore.isLive &&
+              <div className="flex items-center gap-1">
                       <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                       <span className="text-xs text-red-600 font-semibold">{liveScore.statusDetail}</span>
                     </div>
-                  )}
-                  {liveScore.isFinal && (
-                    <span className="text-xs text-gray-500 font-semibold">Final</span>
-                  )}
-                </>
-              ) : (
-                <div className="text-xs text-gray-400 uppercase tracking-wider font-bold">vs</div>
-              )}
+              }
+                  {liveScore.isFinal &&
+              <span className="text-xs text-gray-500 font-semibold">Final</span>
+              }
+                </> :
+
+            <div className="text-xs text-gray-400 uppercase tracking-wider font-bold">vs</div>
+            }
             </div>
 
             {/* Home Team */}
@@ -345,31 +345,31 @@ export default function GameCard({ game, compact = false }) {
         {/* Footer */}
         <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-1.5 flex-1">
-            {liveScore?.isLive ? (
-              <>
+            {liveScore?.isLive ?
+            <>
                 <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0" />
                 <span className="text-xs text-red-600 font-semibold">LIVE</span>
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Clock className="w-3.5 h-3.5 text-gray-400" />
                 <span className="text-xs text-gray-400">{liveScore?.isFinal ? 'Final' : `${formatTimeCT(gameDate)} CT`}</span>
               </>
-            )}
+            }
           </div>
           
 
 
 
           <div className="flex items-center gap-1.5 text-gray-400 flex-1 justify-end">
-            {game.broadcasts && game.broadcasts.length > 0 ? (
-              <BroadcastDisplay broadcasts={game.broadcasts} />
-            ) : (
-              <>
+            {game.broadcasts && game.broadcasts.length > 0 ?
+            <BroadcastDisplay broadcasts={game.broadcasts} /> :
+
+            <>
                 <MapPin className="w-3.5 h-3.5" />
                 <span className="text-xs truncate max-w-[100px]">{game.venue}</span>
               </>
-            )}
+            }
           </div>
         </div>
         {odds && ODDS_SUPPORTED.has(game.league) &&
