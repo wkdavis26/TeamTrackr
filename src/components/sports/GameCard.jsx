@@ -246,7 +246,7 @@ export default function GameCard({ game, compact = false }) {
                   <span className="bg-blue-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">⭐ UCL</span>
                 </div>
       }
-      <div className="p-5 pt-4">
+      <div className="p-5 pt-4 h-full flex flex-col overflow-hidden">
         {/* Header */}
         <div className="mb-4" />
 
