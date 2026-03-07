@@ -255,8 +255,11 @@ export default function GameCard({ game, compact = false }) {
         <div className="flex flex-col items-center justify-center gap-2 mb-4 h-[100px]">
               <div className="text-4xl">⛳</div>
               <div className="text-base font-bold text-gray-900 text-center leading-tight">{game.pgaEventName}</div>
+              {game.pgaRound && (
+                <div className="text-xs font-semibold text-emerald-600 uppercase tracking-widest">{game.pgaRound}</div>
+              )}
               {game.venue && game.venue !== 'TBD' && (
-                <div className="text-sm text-gray-500 text-center truncate max-w-full">{game.venue}</div>
+                <div className="text-xs text-gray-500 text-center truncate max-w-full">{game.venue}</div>
               )}
             </div> :
         game.isF1Race ?
