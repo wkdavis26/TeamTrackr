@@ -696,9 +696,14 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   // Parse NBA games
   if (teamIdsByLeague['NBA']) {
     nbaGames.forEach(event => {
-      const game = parseESPNEvent(event, 'NBA', teamIdsByLeague['NBA']);
-      if (game && game.date > liveWindowStart) allGames.push(game);
+      try {
+        const game = parseESPNEvent(event, 'NBA', teamIdsByLeague['NBA']);
+        if (game && game.date > liveWindowStart) allGames.push(game);
+      } catch(e) {
+        console.error('[NBA] parse error for event', event?.id, e);
+      }
     });
+    console.log('[NBA] matched games:', allGames.filter(g => g.league === 'NBA').length);
   }
   
   // Parse WNBA games
