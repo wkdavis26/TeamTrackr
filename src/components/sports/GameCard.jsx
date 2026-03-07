@@ -366,6 +366,22 @@ export default function GameCard({ game, compact = false }) {
             }
           </div>
         </div>
+        {game.isF1Race && isRaceDay && f1Grid && f1Grid.length > 0 &&
+        <div className="pt-2 border-t border-gray-100 mt-2">
+          <div className="flex justify-center gap-6 w-full">
+            {f1Grid.map((driver, i) =>
+              <div key={i} className="flex flex-col items-center gap-1">
+                <span className={cn(
+                  "text-xs font-black w-6 h-6 flex items-center justify-center rounded-full",
+                  i === 0 ? "bg-yellow-400 text-yellow-900" : i === 1 ? "bg-gray-300 text-gray-700" : "bg-amber-700 text-white"
+                )}>P{i + 1}</span>
+                {driver.flag && <img src={driver.flag} alt="" className="w-5 h-3.5 object-cover rounded-sm" />}
+                <span className="text-xs font-medium text-gray-700 text-center leading-tight w-20">{driver.name}</span>
+              </div>
+            )}
+          </div>
+        </div>
+        }
         {!game.isF1Race && !game.isPGA &&
         <div className="pt-2 border-t border-gray-100 mt-2">
             <div className="grid grid-cols-3 gap-2 text-center">
