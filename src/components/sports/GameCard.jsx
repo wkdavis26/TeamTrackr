@@ -242,10 +242,13 @@ export default function GameCard({ game, compact = false }) {
                 </div>
       }
       {game.isChampionsLeague &&
-      <div className="absolute left-5 z-10" style={{ top: '2px' }}>
-                  <span className="bg-blue-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">⭐ UCL</span>
+       <div className="absolute left-5 z-10" style={{ top: '2px' }}>
+                  <div className="flex items-center gap-1.5 bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                    <img src="https://a.espncdn.com/media/motion/2021/0609/dm_210609_uel_champions_logo.png" alt="Champions League" className="w-4 h-4" />
+                    <span>Champions League</span>
+                  </div>
                 </div>
-      }
+       }
       <div className="p-5 pt-4">
         {/* Header */}
         <div className="mb-4" />
