@@ -67,6 +67,12 @@ export const LEAGUES = {
       { id: "f1-haas", name: "Haas F1 Team", color: "B6BABD", logo: "https://media.formula1.com/content/dam/fom-website/teams/2025/haas-logo.png" },
     ]
   },
+  "Champions League": {
+    name: "Champions League",
+    icon: "⭐",
+    espnPath: "soccer/uefa.champions",
+    color: "#003087",
+  },
   "International Football": {
     name: "International Football",
     icon: "🌍",
