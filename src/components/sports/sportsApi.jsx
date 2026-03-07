@@ -776,6 +776,57 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
+  // Parse Champions League games for European league teams
+  if (hasEuropeanLeague && uclGames.length > 0) {
+    const europeanLeagues = ['Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
+    uclGames.forEach(event => {
+      if (!event.competitions?.[0]) return;
+      const competition = event.competitions[0];
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      if (!homeTeam || !awayTeam) return;
+      const gameDate = new Date(event.date);
+      if (gameDate <= now) return;
+      // Try to match each team's abbreviation against favorite teams in any European league
+      for (const league of europeanLeagues) {
+        if (!teamIdsByLeague[league]) continue;
+        const homeId = `${league.toLowerCase().replace(/\s+/g, '-')}-${(homeTeam.team?.abbreviation || '').toLowerCase()}`;
+        const awayId = `${league.toLowerCase().replace(/\s+/g, '-')}-${(awayTeam.team?.abbreviation || '').toLowerCase()}`;
+        const favoriteTeamId = teamIdsByLeague[league].find(id => id === homeId || id === awayId);
+        if (!favoriteTeamId) continue;
+        // Avoid duplicate if the same event was already added from a league fetch
+        if (allGames.find(g => g.id === event.id)) break;
+        const broadcasts = (competition.broadcasts || [])
+          .flatMap(b => b.names || [typeof b.market === 'string' ? b.market : null, typeof b.type === 'string' ? b.type : null].filter(Boolean));
+        allGames.push({
+          id: event.id,
+          date: gameDate,
+          league,
+          leagueIcon: '⭐',
+          isChampionsLeague: true,
+          competitionLabel: 'UEFA Champions League',
+          homeTeam: {
+            id: homeId,
+            name: homeTeam.team?.displayName || homeTeam.team?.name,
+            logo: homeTeam.team?.logo,
+            color: homeTeam.team?.color,
+          },
+          awayTeam: {
+            id: awayId,
+            name: awayTeam.team?.displayName || awayTeam.team?.name,
+            logo: awayTeam.team?.logo,
+            color: awayTeam.team?.color,
+          },
+          favoriteTeamId,
+          venue: competition.venue?.fullName || 'TBD',
+          status: event.status?.type?.description || 'Scheduled',
+          broadcasts: broadcasts.length > 0 ? broadcasts : null,
+        });
+        break; // only add once per event
+      }
+    });
+  }
+
   // Parse MLS games
   if (teamIdsByLeague['MLS']) {
     mlsGames.forEach(event => {
