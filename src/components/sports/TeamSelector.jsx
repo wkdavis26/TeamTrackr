@@ -96,7 +96,7 @@ export default function TeamSelector({ selectedTeams, onToggleTeam }) {
                       className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl">{league.icon}</span>
+                        <LeagueLogo leagueKey={leagueKey} league={league} />
                         <span className="font-semibold text-gray-900">{league.name}</span>
                         {selectedCount > 0 && (
                           <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
