@@ -639,6 +639,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     teamIdsByLeague['International Football'] ? fetchWorldCupSchedule() : Promise.resolve([]),
     teamIdsByLeague['International Football'] ? fetchEuroSchedule() : Promise.resolve([]),
     teamIdsByLeague['International Football'] ? fetchInternationalSchedule() : Promise.resolve([]),
+    teamIdsByLeague["Women's International Football"] ? fetchWomensInternationalSchedule() : Promise.resolve([]),
     teamIdsByLeague['Serie A'] ? fetchSerieASchedule() : Promise.resolve([]),
     teamIdsByLeague['Bundesliga'] ? fetchBundesligaSchedule() : Promise.resolve([]),
     teamIdsByLeague['NCAAB'] ? fetchNCAABSchedule() : Promise.resolve([]),
