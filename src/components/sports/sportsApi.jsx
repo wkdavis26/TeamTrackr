@@ -742,19 +742,10 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   
   // Parse MLS games
   if (teamIdsByLeague['MLS']) {
-    console.log('[MLS] favoriteIds:', JSON.stringify(teamIdsByLeague['MLS']));
-    console.log('[MLS] total events fetched:', mlsGames.length);
-    if (mlsGames.length > 0) {
-      const e0 = mlsGames[0];
-      const comp = e0.competitions?.[0];
-      console.log('[MLS] event[0] date:', e0.date);
-      console.log('[MLS] event[0] competitors:', JSON.stringify(comp?.competitors?.map(c => ({ homeAway: c.homeAway, abbr: c.team?.abbreviation }))));
-    }
     mlsGames.forEach(event => {
       const game = parseESPNEvent(event, 'MLS', teamIdsByLeague['MLS']);
       if (game && game.date > now) allGames.push(game);
     });
-    console.log('[MLS] games matched:', allGames.filter(g => g.league === 'MLS').length);
   }
 
   // Parse La Liga games
