@@ -182,26 +182,36 @@ async function fetchPGAGames() {
     const data = await res.json();
     const results = [];
     for (const event of (data.events || [])) {
-      const eventDate = new Date(event.date);
-      if (eventDate <= now) continue;
-      const comp = event.competitions?.[0];
-      const venueName = comp?.venue?.fullName || event.venue?.fullName;
-      const venueCity = comp?.venue?.address?.city || comp?.venue?.address?.summary;
-      const venue = venueName || venueCity || event.location || event.name?.replace(/\d{4}\s*/, '') || 'TBD';
-      results.push({
-        id: event.id,
-        date: eventDate,
-        league: 'PGA',
-        leagueIcon: '⛳',
-        isPGA: true,
-        homeTeam: { id: 'pga', name: event.name || 'PGA Tour', logo: null, color: '1a4731' },
-        awayTeam: { id: 'pga', name: event.name || 'PGA Tour', logo: null, color: '1a4731' },
-        favoriteTeamId: null,
-        venue,
-        pgaEventName: event.shortName || event.name || 'PGA Tour Event',
-        status: event.status?.type?.description || 'Scheduled',
-        isPreseason: false,
-        broadcasts: null,
+      const comps = event.competitions || [];
+      if (comps.length === 0) continue;
+      
+      // Create separate entry for each round
+      comps.forEach((comp, idx) => {
+        const compDate = new Date(comp.date);
+        if (compDate <= now) return;
+        
+        const venueName = comp?.venue?.fullName || event.venue?.fullName;
+        const venueCity = comp?.venue?.address?.city || comp?.venue?.address?.summary;
+        const venue = venueName || venueCity || event.location || event.name?.replace(/\d{4}\s*/, '') || 'TBD';
+        
+        const roundType = comp.type?.text || comp.type?.abbreviation || `Round ${idx + 1}`;
+        
+        results.push({
+          id: `${event.id}-round-${idx}`,
+          date: compDate,
+          league: 'PGA',
+          leagueIcon: '⛳',
+          isPGA: true,
+          pgaRound: roundType,
+          homeTeam: { id: 'pga', name: event.name || 'PGA Tour', logo: null, color: '1a4731' },
+          awayTeam: { id: 'pga', name: event.name || 'PGA Tour', logo: null, color: '1a4731' },
+          favoriteTeamId: null,
+          venue,
+          pgaEventName: event.shortName || event.name || 'PGA Tour Event',
+          status: comp.status?.type?.description || 'Scheduled',
+          isPreseason: false,
+          broadcasts: null,
+        });
       });
     }
     return results;
