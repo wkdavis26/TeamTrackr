@@ -185,7 +185,9 @@ async function fetchPGAGames() {
       const eventDate = new Date(event.date);
       if (eventDate <= now) continue;
       const comp = event.competitions?.[0];
-      const venue = comp?.venue?.fullName || comp?.venue?.address?.summary || event.venue?.fullName || event.location || 'TBD';
+      const venueName = comp?.venue?.fullName || event.venue?.fullName;
+      const venueCity = comp?.venue?.address?.city || comp?.venue?.address?.summary;
+      const venue = venueName || venueCity || event.location || event.name?.replace(/\d{4}\s*/, '') || 'TBD';
       results.push({
         id: event.id,
         date: eventDate,
