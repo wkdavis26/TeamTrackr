@@ -242,7 +242,7 @@ export default function GameCard({ game, compact = false }) {
                 </div>
       }
       {game.isChampionsLeague &&
-       <div className="absolute left-5 z-10" style={{ top: '2px' }}>
+       <div className="absolute left-5 z-10" style={{ top: '5px' }}>
                   <span className="bg-blue-700 text-white text-xs font-semibold px-2.5 py-1 rounded-full">🏆 Champions League</span>
                 </div>
        }
