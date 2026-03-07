@@ -95,6 +95,13 @@ export default function Home() {
           <p className="text-gray-500">
             Track all your favorite teams so you never miss a play
           </p>
+          <button
+            onClick={() => base44.auth.logout()}
+            className="mt-3 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Logout
+          </button>
         </motion.header>
 
         {/* Navigation Tabs */}
