@@ -252,7 +252,7 @@ export default function GameCard({ game, compact = false }) {
 
         {/* Teams */}
         {game.isF1Race ?
-        <div className="flex flex-col items-center justify-center gap-2 mb-4">
+        <div className="flex flex-col items-center justify-center gap-2 mb-4 min-h-[100px]">
               <div className="flex items-center gap-2">
                 <FlagImage country={game.f1Country} />
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{game.f1Session}</span>
