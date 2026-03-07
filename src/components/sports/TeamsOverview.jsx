@@ -331,7 +331,7 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                       .replace('American Football Conference', 'AFC')
                       .replace('Eastern Conference', 'East')
                       .replace('Western Conference', 'West')
-                      .replace('Conference', 'Conf')}
+                      .replace('Conference', 'Conf.')}
                   </span>
                 </div>
               )}
