@@ -171,8 +171,45 @@ const parseESPNEvents = (events, leagueKey, now) => {
   }).filter(Boolean);
 };
 
+async function fetchPGAGames() {
+  const now = new Date();
+  const end = addMonths(now, 1);
+  const startStr = fmtDate(now);
+  const endStr = fmtDate(end);
+  try {
+    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/golf/pga/scoreboard?limit=50&dates=${startStr}-${endStr}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const results = [];
+    for (const event of (data.events || [])) {
+      const eventDate = new Date(event.date);
+      if (eventDate <= now) continue;
+      const venue = event.competitions?.[0]?.venue?.fullName || event.venue?.fullName || 'TBD';
+      results.push({
+        id: event.id,
+        date: eventDate,
+        league: 'PGA',
+        leagueIcon: '⛳',
+        isPGA: true,
+        homeTeam: { id: 'pga', name: event.name || 'PGA Tour', logo: null, color: '1a4731' },
+        awayTeam: { id: 'pga', name: event.name || 'PGA Tour', logo: null, color: '1a4731' },
+        favoriteTeamId: null,
+        venue,
+        pgaEventName: event.shortName || event.name || 'PGA Tour Event',
+        status: event.status?.type?.description || 'Scheduled',
+        isPreseason: false,
+        broadcasts: null,
+      });
+    }
+    return results;
+  } catch {
+    return [];
+  }
+}
+
 async function fetchLeagueAllGames(leagueKey) {
   if (leagueKey === 'F1') return fetchF1Games();
+  if (leagueKey === 'PGA') return fetchPGAGames();
   const path = LEAGUE_SCOREBOARD_PATHS[leagueKey];
   if (!path) return [];
   const now = new Date();
