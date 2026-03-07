@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { format, isToday, isTomorrow, differenceInDays } from 'date-fns';
 import { MapPin, Clock, Tv, TrendingUp } from 'lucide-react';
@@ -6,6 +6,40 @@ import { cn } from "@/lib/utils";
 import { getLeagueColor } from './teamsData';
 import { useGameOdds } from './useGameOdds';
 import { useLiveScore } from './useLiveScores';
+
+// Fetch F1 qualifying/grid results to show top 3 starters on race day
+const f1GridCache = {};
+const useF1Grid = (eventId, isRaceDay) => {
+  const [grid, setGrid] = useState(null);
+  useEffect(() => {
+    if (!isRaceDay || !eventId) return;
+    // eventId may be like "601234567-Race-f1-ferrari", extract base event id
+    const baseId = String(eventId).split('-')[0];
+    if (f1GridCache[baseId]) { setGrid(f1GridCache[baseId]); return; }
+    fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/summary?event=${baseId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data) return;
+        // Look for qualifying competition results
+        const qualComp = data.competitions?.find(c =>
+          c.type?.abbreviation === 'Qual' || c.type?.text?.toLowerCase().includes('qualify')
+        );
+        const comp = qualComp || data.competitions?.[0];
+        if (!comp) return;
+        const competitors = comp.competitors || [];
+        const sorted = [...competitors].sort((a, b) => (a.order || a.rank || 999) - (b.order || b.rank || 999));
+        const top3 = sorted.slice(0, 3).map(c => ({
+          pos: c.order || c.rank,
+          name: c.athlete?.shortName || c.athlete?.displayName || c.displayName || 'Unknown',
+          flag: c.athlete?.flag?.href || null,
+        }));
+        f1GridCache[baseId] = top3;
+        setGrid(top3);
+      })
+      .catch(() => {});
+  }, [eventId, isRaceDay]);
+  return grid;
+};
 
 // Map F1 race country/location to a dominant flag color
 const F1_COUNTRY_COLORS = {
