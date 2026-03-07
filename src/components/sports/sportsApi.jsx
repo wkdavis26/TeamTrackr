@@ -832,6 +832,35 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
+  // Parse Women's International Football games
+  if (teamIdsByLeague["Women's International Football"]) {
+    const wIntlTeamIds = teamIdsByLeague["Women's International Football"];
+    womensIntlGames.forEach(event => {
+      if (!event.competitions?.[0]) return;
+      const competition = event.competitions[0];
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      if (!homeTeam || !awayTeam) return;
+      const homeId = `women's-international-football-${(homeTeam.team?.abbreviation || '').toLowerCase()}`;
+      const awayId = `women's-international-football-${(awayTeam.team?.abbreviation || '').toLowerCase()}`;
+      const favoriteTeamId = wIntlTeamIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(event.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: `wintl-${event.id}`,
+        date: gameDate,
+        league: "Women's International Football",
+        leagueIcon: '🌍',
+        homeTeam: { id: homeId, name: homeTeam.team?.displayName || homeTeam.team?.name, logo: homeTeam.team?.logo, color: homeTeam.team?.color },
+        awayTeam: { id: awayId, name: awayTeam.team?.displayName || awayTeam.team?.name, logo: awayTeam.team?.logo, color: awayTeam.team?.color },
+        favoriteTeamId,
+        venue: competition.venue?.fullName || 'TBD',
+        status: event.status?.type?.description || 'Scheduled',
+      });
+    });
+  }
+
   // Parse Serie A games
   if (teamIdsByLeague['Serie A']) {
     serieAGames.forEach(event => {
