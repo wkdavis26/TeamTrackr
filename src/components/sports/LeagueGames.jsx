@@ -6,6 +6,45 @@ import { format, isToday, isTomorrow, differenceInDays, addMonths } from 'date-f
 import { LEAGUES } from './teamsData';
 import GameCard from './GameCard';
 
+// ESPN league logo URLs
+const LEAGUE_LOGOS = {
+  NFL: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/nfl.png&w=80&h=80',
+  NHL: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/nhl.png&w=80&h=80',
+  MLB: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/mlb.png&w=80&h=80',
+  NBA: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/nba.png&w=80&h=80',
+  WNBA: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/wnba.png&w=80&h=80',
+  'Premier League': 'https://a.espncdn.com/combiner/i?img=/i/leaguelogos/soccer/500/23.png&w=80&h=80',
+  'La Liga': 'https://a.espncdn.com/combiner/i?img=/i/leaguelogos/soccer/500/15.png&w=80&h=80',
+  'Serie A': 'https://a.espncdn.com/combiner/i?img=/i/leaguelogos/soccer/500/12.png&w=80&h=80',
+  'Bundesliga': 'https://a.espncdn.com/combiner/i?img=/i/leaguelogos/soccer/500/10.png&w=80&h=80',
+  'Champions League': 'https://a.espncdn.com/combiner/i?img=/i/leaguelogos/soccer/500/2.png&w=80&h=80',
+  MLS: 'https://a.espncdn.com/combiner/i?img=/i/leaguelogos/soccer/500/19.png&w=80&h=80',
+  'International Football': 'https://a.espncdn.com/combiner/i?img=/i/leaguelogos/soccer/500/4.png&w=80&h=80',
+  NCAAF: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/ncf.png&w=80&h=80',
+  NCAAB: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/mens-college-basketball.png&w=80&h=80',
+  'NCAAB-Baseball': 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/college-baseball.png&w=80&h=80',
+  F1: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/f1.png&w=80&h=80',
+};
+
+const LeagueLogo = ({ leagueKey, size = 'md' }) => {
+  const [imgError, setImgError] = React.useState(false);
+  const logo = LEAGUE_LOGOS[leagueKey];
+  const league = LEAGUES[leagueKey];
+  const sizeClass = size === 'md' ? 'w-10 h-10' : 'w-8 h-8';
+
+  if (logo && !imgError) {
+    return (
+      <img
+        src={logo}
+        alt={league?.name || leagueKey}
+        className={`${sizeClass} object-contain`}
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+  return <span className="text-2xl">{league?.icon || '🏆'}</span>;
+};
+
 const LEAGUE_SCOREBOARD_PATHS = {
   NFL: 'football/nfl',
   NHL: 'hockey/nhl',
