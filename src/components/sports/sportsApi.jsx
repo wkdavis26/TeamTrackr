@@ -277,9 +277,11 @@ export const fetchInternationalSchedule = async () => {
 // Map ESPN team abbreviation to our team ID
 const mapESPNTeamToId = (abbr, league) => {
   if (!abbr) return null;
-  // For NHL and MLB, derive id directly from ESPN abbreviation (matches what TeamSelector stores)
+  // Derive id directly from ESPN abbreviation (matches what TeamSelector stores)
   if (league === 'NHL') return `nhl-${abbr.toLowerCase()}`;
   if (league === 'MLB') return `mlb-${abbr.toLowerCase()}`;
+  if (league === 'NBA') return `nba-${abbr.toLowerCase()}`;
+  if (league === 'WNBA') return `wnba-${abbr.toLowerCase()}`;
   const mapping = {
     NFL: {
       KC: 'nfl-chiefs', SF: 'nfl-49ers', PHI: 'nfl-eagles', DAL: 'nfl-cowboys',
