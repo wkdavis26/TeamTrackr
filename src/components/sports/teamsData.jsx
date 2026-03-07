@@ -73,6 +73,12 @@ export const LEAGUES = {
     espnPath: "soccer/fifa.world",
     color: "#003399",
   },
+  "Women's International Football": {
+    name: "Women's International Football",
+    icon: "🌍",
+    espnPath: "soccer/fifa.wwc",
+    color: "#8B0000",
+  },
   "Serie A": {
     name: "Serie A",
     icon: "⚽",
