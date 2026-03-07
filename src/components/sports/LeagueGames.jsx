@@ -233,13 +233,24 @@ async function fetchLeagueAllGames(leagueKey) {
   try {
     const fetches = [fetch(`${ESPN_BASE}/${path}/scoreboard?limit=500&dates=${startStr}-${endStr}`)];
 
-    // Also fetch Champions League for European domestic leagues
+    // Also fetch Champions League and domestic cups for European domestic leagues
     if (EUROPEAN_LEAGUES.has(leagueKey)) {
       fetches.push(fetch(`${ESPN_BASE}/soccer/uefa.champions/scoreboard?limit=500&dates=${startStr}-${endStr}`));
+      
+      // Add domestic cup fetches
+      const cupPaths = {
+        'Premier League': 'soccer/eng.fa',
+        'La Liga': 'soccer/esp.copa',
+        'Serie A': 'soccer/ita.coppa',
+        'Bundesliga': 'soccer/ger.dfb',
+      };
+      if (cupPaths[leagueKey]) {
+        fetches.push(fetch(`${ESPN_BASE}/${cupPaths[leagueKey]}/scoreboard?limit=500&dates=${startStr}-${endStr}`));
+      }
     }
 
     const responses = await Promise.all(fetches);
-    const [leagueData, uclData] = await Promise.all(responses.map(r => r.ok ? r.json() : {}));
+    const [leagueData, uclData, cupData] = await Promise.all(responses.map(r => r.ok ? r.json() : {}));
 
     const leagueEvents = parseESPNEvents(leagueData.events || [], leagueKey, now);
     const uclEvents = uclData
