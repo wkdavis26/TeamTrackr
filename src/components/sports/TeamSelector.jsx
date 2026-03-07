@@ -8,7 +8,7 @@ const SPORT_GROUPS = [
   { label: 'Football', keys: ['NFL', 'NCAAF'] },
   { label: 'Basketball', keys: ['NBA', 'WNBA', 'NCAAB'] },
   { label: 'Baseball', keys: ['MLB', 'NCAAB-Baseball'] },
-  { label: 'Hockey', keys: ['NHL'] },
+  { label: 'Hockey', keys: ['NHL', 'PWHL'] },
   { label: 'Soccer', keys: ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'MLS', 'International Football', "Women's International Football"] },
   { label: 'Motorsport', keys: ['F1'] },
 ];
@@ -30,7 +30,8 @@ const LEAGUE_LOGOS = {
   NCAAB: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/mens-college-basketball.png&w=80&h=80',
   'NCAAB-Baseball': 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/college-baseball.png&w=80&h=80',
   F1: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/f1.png&w=80&h=80',
-};
+  PWHL: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/pwhl.png&w=80&h=80',
+  };
 
 const LeagueLogo = ({ leagueKey, league }) => {
   const [imgError, setImgError] = React.useState(false);
