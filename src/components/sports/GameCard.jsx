@@ -7,37 +7,37 @@ import { getLeagueColor } from './teamsData';
 import { useGameOdds } from './useGameOdds';
 import { useLiveScore } from './useLiveScores';
 
-// Fetch F1 qualifying/grid results to show top 3 starters on race day
+// Fetch F1 qualifying grid to show top 3 starters on race day
 const f1GridCache = {};
-const useF1Grid = (eventId, isRaceDay) => {
+const useF1Grid = (isRaceDay) => {
   const [grid, setGrid] = useState(null);
   useEffect(() => {
-    if (!isRaceDay || !eventId) return;
-    // eventId may be like "601234567-Race-f1-ferrari", extract base event id
-    const baseId = String(eventId).split('-')[0];
-    if (f1GridCache[baseId]) { setGrid(f1GridCache[baseId]); return; }
-    fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/summary?event=${baseId}`)
+    if (!isRaceDay) return;
+    const cacheKey = 'today';
+    if (f1GridCache[cacheKey]) { setGrid(f1GridCache[cacheKey]); return; }
+    // Fetch today's scoreboard to get the current event's qualifying results
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()).replace(/-/g, '');
+    fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=10&dates=${today}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!data) return;
-        // Look for qualifying competition results
-        const qualComp = data.competitions?.find(c =>
-          c.type?.abbreviation === 'Qual' || c.type?.text?.toLowerCase().includes('qualify')
-        );
-        const comp = qualComp || data.competitions?.[0];
-        if (!comp) return;
-        const competitors = comp.competitors || [];
-        const sorted = [...competitors].sort((a, b) => (a.order || a.rank || 999) - (b.order || b.rank || 999));
+        const event = data.events?.[0];
+        if (!event) return;
+        // Find Qual competition
+        const qualComp = event.competitions?.find(c => c.type?.abbreviation === 'Qual');
+        if (!qualComp) return;
+        const sorted = [...(qualComp.competitors || [])].sort((a, b) => (a.order || 999) - (b.order || 999));
         const top3 = sorted.slice(0, 3).map(c => ({
-          pos: c.order || c.rank,
-          name: c.athlete?.shortName || c.athlete?.displayName || c.displayName || 'Unknown',
+          name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
           flag: c.athlete?.flag?.href || null,
         }));
-        f1GridCache[baseId] = top3;
-        setGrid(top3);
+        if (top3.length > 0) {
+          f1GridCache[cacheKey] = top3;
+          setGrid(top3);
+        }
       })
       .catch(() => {});
-  }, [eventId, isRaceDay]);
+  }, [isRaceDay]);
   return grid;
 };
 
