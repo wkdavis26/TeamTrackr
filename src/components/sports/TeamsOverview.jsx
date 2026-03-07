@@ -365,6 +365,9 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                       .replace('Western Conference', 'West Conf.')
                       .replace('Conference', 'Conf.')}
                   </span>
+                  {isHockey && standing._confPtsBack != null && (
+                    <span className="text-gray-400 text-xs">{standing._confPtsBack === 0 ? 'Leader' : `-${standing._confPtsBack} pts`}</span>
+                  )}
                 </div>
               )}
               {(isNCAAF || isNCAAB) ? (
