@@ -94,6 +94,33 @@ const fetchNBAStandings = async () => {
   Object.values(confMap).forEach(list => {
     list.sort((a, b) => parseFloat(b.stats?.find(s => s.name === 'wins')?.value ?? 0) - parseFloat(a.stats?.find(s => s.name === 'wins')?.value ?? 0));
     list.forEach((e, i) => { e._confRank = i + 1; });
+    // Compute conf games back
+    const leaderWins = parseFloat(list[0]?.stats?.find(s => s.name === 'wins')?.value ?? 0);
+    const leaderLosses = parseFloat(list[0]?.stats?.find(s => s.name === 'losses')?.value ?? 0);
+    list.forEach(e => {
+      const w = parseFloat(e.stats?.find(s => s.name === 'wins')?.value ?? 0);
+      const l = parseFloat(e.stats?.find(s => s.name === 'losses')?.value ?? 0);
+      e._confGamesBack = ((leaderWins - w) + (l - leaderLosses)) / 2;
+    });
+  });
+  // Compute division games back
+  const divMap = {};
+  allEntries.forEach(e => {
+    if (!divMap[e._divName]) divMap[e._divName] = [];
+    divMap[e._divName].push(e);
+  });
+  Object.values(divMap).forEach(list => {
+    list.sort((a, b) =>
+      parseFloat(b.stats?.find(s => s.name === 'winPercent')?.value ?? 0) -
+      parseFloat(a.stats?.find(s => s.name === 'winPercent')?.value ?? 0)
+    );
+    const leaderWins = parseFloat(list[0]?.stats?.find(s => s.name === 'wins')?.value ?? 0);
+    const leaderLosses = parseFloat(list[0]?.stats?.find(s => s.name === 'losses')?.value ?? 0);
+    list.forEach(e => {
+      const w = parseFloat(e.stats?.find(s => s.name === 'wins')?.value ?? 0);
+      const l = parseFloat(e.stats?.find(s => s.name === 'losses')?.value ?? 0);
+      e._divGamesBack = ((leaderWins - w) + (l - leaderLosses)) / 2;
+    });
   });
   return allEntries;
 };
