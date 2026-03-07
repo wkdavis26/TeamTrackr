@@ -231,7 +231,7 @@ export default function GameCard({ game, compact = false }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 w-full"
+      className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 w-full h-[220px]"
       style={teamColor ? borderStyle : { border: '1px solid #e5e7eb' }}>
 
       {/* League indicator strip removed */}
