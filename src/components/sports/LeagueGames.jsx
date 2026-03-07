@@ -15,6 +15,7 @@ const LEAGUE_SCOREBOARD_PATHS = {
   'La Liga': 'soccer/esp.1',
   'Serie A': 'soccer/ita.1',
   'Bundesliga': 'soccer/ger.1',
+  'Champions League': 'soccer/uefa.champions',
   MLS: 'soccer/usa.1',
   NCAAF: 'football/college-football',
   WNBA: 'basketball/wnba',
