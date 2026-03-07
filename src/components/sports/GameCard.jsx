@@ -231,7 +231,7 @@ export default function GameCard({ game, compact = false }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 w-full h-[220px]"
+      className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 w-full"
       style={teamColor ? borderStyle : { border: '1px solid #e5e7eb' }}>
 
       {/* League indicator strip removed */}
@@ -246,13 +246,13 @@ export default function GameCard({ game, compact = false }) {
                   <span className="bg-blue-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">⭐ UCL</span>
                 </div>
       }
-      <div className="p-5 pt-4 h-full flex flex-col overflow-hidden">
+      <div className="p-5 pt-4">
         {/* Header */}
         <div className="mb-4" />
 
         {/* Teams */}
         {game.isF1Race ?
-        <div className="flex flex-col items-center justify-center gap-2 mb-2 flex-1 overflow-hidden">
+        <div className="flex flex-col items-center justify-center gap-2 mb-4 min-h-[100px]">
               <div className="flex items-center gap-2">
                 <FlagImage country={game.f1Country} />
                 <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{game.f1Session}</span>
