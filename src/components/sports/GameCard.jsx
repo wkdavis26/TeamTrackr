@@ -271,7 +271,7 @@ export default function GameCard({ game, compact = false }) {
                   i === 0 ? "bg-yellow-400 text-yellow-900" : i === 1 ? "bg-gray-300 text-gray-700" : "bg-amber-700 text-white"
                 )}>P{i + 1}</span>
                         {driver.flag && <img src={driver.flag} alt="" className="w-5 h-3.5 object-cover rounded-sm" />}
-                        <span className="text-xs font-medium text-gray-700 text-center leading-tight max-w-[60px] truncate">{driver.name}</span>
+                        <span className="text-xs font-medium text-gray-700 text-center leading-tight w-20">{driver.name}</span>
                       </div>
               )}
                   </div>
