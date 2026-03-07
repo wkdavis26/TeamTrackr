@@ -417,6 +417,9 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                 {isHockey && standing._divPtsBack != null && (
                   <span className="text-gray-400 text-xs">{standing._divPtsBack === 0 ? 'Leader' : `-${standing._divPtsBack} pts`}</span>
                 )}
+                {isNBA && standing._divGamesBack != null && (
+                  <span className="text-gray-400 text-xs">{standing._divGamesBack === 0 ? 'Leader' : `${standing._divGamesBack % 1 === 0 ? standing._divGamesBack : standing._divGamesBack.toFixed(1)} GB`}</span>
+                )}
               </div>
               )
               )}
