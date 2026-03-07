@@ -160,6 +160,8 @@ function BroadcastDisplay({ broadcasts }) {
 export default function GameCard({ game, compact = false }) {
   const odds = useGameOdds(game?.id, game?.league);
   const liveScore = useLiveScore(game);
+  const isRaceDay = game?.isF1Race && game?.f1Session === 'Race' && isToday(new Date(game?.date));
+  const f1Grid = useF1Grid(game?.id, isRaceDay);
   const gameDate = new Date(game?.date);
   if (!game || !game.homeTeam || !game.awayTeam) return null;
 
