@@ -204,6 +204,11 @@ export default function GameCard({ game, compact = false }) {
                   <span className="bg-gray-400 text-white text-xs font-semibold px-2 py-0.5 rounded-full">Preseason</span>
                 </div>
       }
+      {game.isChampionsLeague &&
+      <div className="absolute left-5 z-10" style={{ top: '2px' }}>
+                  <span className="bg-blue-700 text-white text-xs font-semibold px-2 py-0.5 rounded-full">⭐ UCL</span>
+                </div>
+      }
       <div className="p-5 pt-4">
         {/* Header */}
         <div className="mb-4" />
