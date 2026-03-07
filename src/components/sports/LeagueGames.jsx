@@ -24,6 +24,7 @@ const LEAGUE_LOGOS = {
   NCAAB: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/mens-college-basketball.png&w=80&h=80',
   'NCAAB-Baseball': 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/college-baseball.png&w=80&h=80',
   F1: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/f1.png&w=80&h=80',
+  PGA: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/pga.png&w=80&h=80',
 };
 
 const LeagueLogo = ({ leagueKey, size = 'md' }) => {
