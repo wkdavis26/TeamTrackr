@@ -20,10 +20,17 @@ export default function Home() {
   });
   const queryClient = useQueryClient();
 
-  // Fetch favorite teams
+  // Fetch current user
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me()
+  });
+
+  // Fetch favorite teams - filtered to current user only
   const { data: favoriteTeams = [], isLoading } = useQuery({
-    queryKey: ['favoriteTeams'],
-    queryFn: () => base44.entities.FavoriteTeam.list()
+    queryKey: ['favoriteTeams', currentUser?.email],
+    queryFn: () => base44.entities.FavoriteTeam.filter({ created_by: currentUser.email }),
+    enabled: !!currentUser
   });
 
   // Fetch real schedule data from APIs
