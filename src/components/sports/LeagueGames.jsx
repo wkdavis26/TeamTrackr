@@ -251,7 +251,7 @@ function LeagueDetail({ leagueKey, onBack }) {
       </button>
 
       <div className="flex items-center gap-3 mb-6">
-        <span className="text-3xl">{league?.icon}</span>
+        <LeagueLogo leagueKey={leagueKey} />
         <div>
           <h2 className="text-2xl font-bold text-gray-900">{league?.name || leagueKey}</h2>
           {!isLoading && <p className="text-sm text-gray-500">{games.length} games in the next month</p>}
