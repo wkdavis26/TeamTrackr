@@ -35,7 +35,7 @@ export default function Home() {
 
   // Fetch real schedule data from APIs
   const { data: upcomingGames = [], isLoading: isLoadingGames } = useQuery({
-    queryKey: ['schedules-v2', favoriteTeams.map((t) => t.team_id).join(',')],
+    queryKey: ['schedules-v3', favoriteTeams.map((t) => t.team_id).join(',')],
     queryFn: () => fetchAllSchedules(favoriteTeams),
     enabled: favoriteTeams.length > 0,
     staleTime: 0
