@@ -166,6 +166,38 @@ const fetchLeagueStandings = async (league) => {
       confEntries.forEach((e, i) => { e._confRank = i + 1; });
     });
 
+    // For NHL: compute points-back from division and conference leaders
+    if (league === 'NHL') {
+      // Division points back
+      const divGroups = {};
+      entries.forEach(e => {
+        const key = e._divName || '_';
+        if (!divGroups[key]) divGroups[key] = [];
+        divGroups[key].push(e);
+      });
+      Object.values(divGroups).forEach(group => {
+        const leaderPts = Math.max(...group.map(e => parseFloat(e.stats?.find(s => s.name === 'points')?.value ?? 0)));
+        group.forEach(e => {
+          const myPts = parseFloat(e.stats?.find(s => s.name === 'points')?.value ?? 0);
+          e._divPtsBack = leaderPts - myPts;
+        });
+      });
+      // Conference points back
+      const confGroups = {};
+      entries.forEach(e => {
+        const key = e._confName || '_';
+        if (!confGroups[key]) confGroups[key] = [];
+        confGroups[key].push(e);
+      });
+      Object.values(confGroups).forEach(group => {
+        const leaderPts = Math.max(...group.map(e => parseFloat(e.stats?.find(s => s.name === 'points')?.value ?? 0)));
+        group.forEach(e => {
+          const myPts = parseFloat(e.stats?.find(s => s.name === 'points')?.value ?? 0);
+          e._confPtsBack = leaderPts - myPts;
+        });
+      });
+    }
+
     standingsCache[league] = entries;
     return entries;
   } catch (e) {
