@@ -262,6 +262,22 @@ export const fetchWorldCupSchedule = async () => {
   }
 };
 
+// Fetch Women's International Football schedules (WWC, W friendlies, UEFA Women's, CONCACAF W)
+export const fetchWomensInternationalSchedule = async () => {
+  try {
+    const [wwc, wFriendly, uefaW, concacafW] = await Promise.all([
+      fetchESPNScheduleRange('soccer/fifa.wwc'),
+      fetchESPNScheduleRange('soccer/fifa.w.friendly'),
+      fetchESPNScheduleRange('soccer/uefa.wchampions'),
+      fetchESPNScheduleRange('soccer/concacaf.womens.championship'),
+    ]);
+    return [...wwc, ...wFriendly, ...uefaW, ...concacafW];
+  } catch (error) {
+    console.error('Error fetching Women\'s International schedule:', error);
+    return [];
+  }
+};
+
 // Fetch UEFA Euro schedule
 export const fetchEuroSchedule = async () => {
   try {
