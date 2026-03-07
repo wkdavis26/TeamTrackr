@@ -135,6 +135,16 @@ export const fetchNBASchedule = async (teamAbbreviations = []) => {
   }
 };
 
+// Fetch Champions League schedule
+export const fetchChampionsLeagueSchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('soccer/uefa.champions');
+  } catch (error) {
+    console.error('Error fetching Champions League schedule:', error);
+    return [];
+  }
+};
+
 // Fetch Premier League schedule
 export const fetchPremierLeagueSchedule = async () => {
   try {
