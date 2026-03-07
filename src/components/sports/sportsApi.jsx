@@ -406,7 +406,7 @@ const parseESPNEvent = (event, league, favoriteTeamIds) => {
   };
 
   const broadcasts = (competition.broadcasts || [])
-    .flatMap(b => b.names || [b.market || b.type].filter(Boolean));
+    .flatMap(b => b.names || [b.market, typeof b.type === 'string' ? b.type : null].filter(Boolean));
 
   if (!homeId && !awayId) return null;
 
