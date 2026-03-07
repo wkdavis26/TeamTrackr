@@ -180,23 +180,14 @@ export const fetchNCAAFSchedule = async () => {
 export const fetchNCAABSchedule = async () => {
   try {
     const now = new Date();
-    const days = [];
-    for (let i = 0; i <= 45; i++) {
-      const d = new Date(now);
-      d.setDate(now.getDate() + i);
-      days.push(fmtDate(d));
-    }
-
-    const allEvents = [];
-    // Fetch without seasontype so ESPN picks the active season automatically
-    await Promise.all(days.map(dateStr =>
-      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}`)
-        .then(r => r.ok ? r.json() : {})
-        .then(d => { if (d.events?.length) allEvents.push(...d.events); })
-        .catch(() => {})
-    ));
-
-    return allEvents;
+    // Use a date range like other leagues — much more reliable
+    const endOfSeason = new Date(now.getFullYear(), 5, 30); // through June 30
+    const startStr = fmtDate(now);
+    const endStr = fmtDate(endOfSeason);
+    const res = await fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${startStr}-${endStr}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.events || [];
   } catch (error) {
     console.error('Error fetching NCAAB schedule:', error);
     return [];
