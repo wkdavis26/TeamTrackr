@@ -126,8 +126,8 @@ function BroadcastDisplay({ broadcasts }) {
 export default function GameCard({ game, compact = false }) {
   const odds = useGameOdds(game?.id, game?.league);
   const liveScore = useLiveScore(game);
+  const gameDate = new Date(game?.date);
   if (!game || !game.homeTeam || !game.awayTeam) return null;
-  const gameDate = new Date(game.date);
 
   // Get a Date object at noon of the CT calendar date for this game (avoids UTC midnight shifts)
   const getCTNoonDate = (d) => {
