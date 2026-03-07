@@ -689,7 +689,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     console.log('[NHL] DAL games found in raw ESPN data:', dalGames.length, dalGames.map(e => e.date));
     nhlGames.forEach(event => {
       const game = parseESPNEvent(event, 'NHL', teamIdsByLeague['NHL']);
-      if (game && game.date > now) allGames.push(game);
+      if (game && game.date > liveWindowStart) allGames.push(game);
     });
   }
   
