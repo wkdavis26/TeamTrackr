@@ -515,9 +515,6 @@ export default function TeamsOverview({ favoriteTeams }) {
         const abbrKey = entry?.team?.abbreviation?.toUpperCase()
           || getTeamAbbr(team.team_id).toUpperCase().replace(/-/g, '');
         const resolvedColor = leagueColorMap[abbrKey] || null;
-        if (['Premier League', 'La Liga'].includes(team.league)) {
-          console.log(`[COLOR] ${team.team_id} | entryAbbr=${entry?.team?.abbreviation} | abbrKey=${abbrKey} | colorMapKeys=${JSON.stringify(Object.keys(leagueColorMap))} | resolved=${resolvedColor}`);
-        }
         colors[team.team_id] = resolvedColor;
       });
 
