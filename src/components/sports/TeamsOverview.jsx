@@ -384,6 +384,9 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                 <span className="text-gray-400 truncate max-w-full text-center" title={standing._divName}>
                   {standing._divName.replace(' Division', ' Div.').replace(/^(\w+)$/, '$1 Div.')}
                 </span>
+                {isHockey && standing._divPtsBack != null && (
+                  <span className="text-gray-400 text-xs">{standing._divPtsBack === 0 ? 'Leader' : `-${standing._divPtsBack} pts`}</span>
+                )}
               </div>
               )
               )}
