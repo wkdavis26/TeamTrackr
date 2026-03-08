@@ -254,7 +254,7 @@ export const fetchNWSLSchedule = async () => {
   }
 };
 
-// Fetch PWHL schedule from leaguestat public API
+// Fetch PWHL schedule from leaguestat public API (via backend to avoid CORS)
 export const fetchPWHLSchedule = async () => {
   try {
     // PWHL team ID map: our id -> leaguestat numeric id
