@@ -244,6 +244,16 @@ export const fetchBundesligaSchedule = async () => {
   }
 };
 
+// Fetch NWSL schedule
+export const fetchNWSLSchedule = async () => {
+  try {
+    return await fetchESPNScheduleRange('soccer/usa.nwsl');
+  } catch (error) {
+    console.error('Error fetching NWSL schedule:', error);
+    return [];
+  }
+};
+
 // Fetch PWHL schedule from leaguestat public API
 export const fetchPWHLSchedule = async () => {
   try {
