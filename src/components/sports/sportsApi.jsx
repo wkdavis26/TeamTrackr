@@ -1086,8 +1086,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       if (!homeId || !awayId) return;
       const favoriteTeamId = pwhlIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
-      // Parse date — leaguestat format: "2026-03-08 12:00:00"
-      const gameDate = new Date(game.date_with_timezone || (game.date_played + ' ' + (game.game_time || '12:00:00')));
+      // Parse date using ISO8601 field from leaguestat
+      const gameDate = new Date(game.GameDateISO8601 || game.date_with_timezone || (game.date_played + 'T12:00:00'));
       if (isNaN(gameDate.getTime()) || gameDate <= liveWindowStart) return;
       const homeTeamData = PWHL_TEAMS[homeId];
       const awayTeamData = PWHL_TEAMS[awayId];
