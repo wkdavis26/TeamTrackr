@@ -464,7 +464,7 @@ function LeagueList({ leagues, onSelect }) {
 export default function LeagueGames({ favoriteTeams }) {
   const [selectedLeague, setSelectedLeague] = useState(null);
 
-  const leagues = [...Object.keys(LEAGUE_SCOREBOARD_PATHS), 'F1', 'PGA'];
+  const leagues = [...Object.keys(LEAGUE_SCOREBOARD_PATHS), 'F1', 'PGA', 'PWHL'];
 
   if (leagues.length === 0) {
     return (
