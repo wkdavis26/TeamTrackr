@@ -208,32 +208,24 @@ function BroadcastDisplay({ broadcasts }) {
 
 }
 
+// Get a Date object at noon of the CT calendar date (avoids UTC midnight shifts)
+const getCTNoonDate = (d) => {
+  const ctDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(d);
+  return new Date(ctDateStr + 'T12:00:00');
+};
+
 export default function GameCard({ game, compact = false }) {
   const odds = useGameOdds(game?.id, game?.league);
   const liveScore = useLiveScore(game);
-  const gameDate = new Date(game?.date);
-
-  // Get a Date object at noon of the CT calendar date for this game (avoids UTC midnight shifts)
-  const getCTNoonDate = (d) => {
-    const ctDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(d);
-    return new Date(ctDateStr + 'T12:00:00');
-  };
-
-  const gameDateCT = getCTNoonDate(gameDate);
-  const isRaceDay = game?.isF1Race && game?.f1Session === 'Race' && isToday(gameDateCT);
-  const isRaceStarted = isRaceDay && new Date() >= gameDate;
-  const f1Qualifying = useF1Qualifying(isRaceDay && !isRaceStarted);
-  const f1RaceResults = useF1RaceResults(isRaceStarted, game?.favoriteTeamId);
 
   if (!game || !game.homeTeam || !game.awayTeam) return null;
 
-  const getDateLabel = () => {
-    if (isToday(gameDateCT)) return "Today";
-    if (isTomorrow(gameDateCT)) return "Tomorrow";
-    const days = differenceInDays(gameDateCT, getCTNoonDate(new Date()));
-    if (days < 7) return format(gameDateCT, "EEEE");
-    return format(gameDateCT, "MMM d");
-  };
+  const gameDate = new Date(game.date);
+  const gameDateCT = getCTNoonDate(gameDate);
+  const isRaceDay = game.isF1Race && game.f1Session === 'Race' && isToday(gameDateCT);
+  const isRaceStarted = isRaceDay && new Date() >= gameDate;
+  const f1Qualifying = useF1Qualifying(isRaceDay && !isRaceStarted);
+  const f1RaceResults = useF1RaceResults(isRaceStarted, game.favoriteTeamId);
 
   const isFavoriteHome = game.homeTeam.id === game.favoriteTeamId;
   const isFavoriteAway = game.awayTeam.id === game.favoriteTeamId;
