@@ -1045,6 +1045,37 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
+  // Parse NWSL games
+  if (teamIdsByLeague['NWSL']) {
+    nwslGames.forEach(event => {
+      if (!event.competitions?.[0]) return;
+      const competition = event.competitions[0];
+      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
+      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
+      if (!homeTeam || !awayTeam) return;
+      const homeId = `nwsl-${(homeTeam.team?.abbreviation || '').toLowerCase()}`;
+      const awayId = `nwsl-${(awayTeam.team?.abbreviation || '').toLowerCase()}`;
+      const favoriteTeamId = teamIdsByLeague['NWSL'].find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(event.date);
+      if (gameDate <= now) return;
+      const broadcasts = (competition.broadcasts || []).flatMap(b => b.names || [b.market || b.type].filter(Boolean));
+      allGames.push({
+        id: event.id,
+        date: gameDate,
+        league: 'NWSL',
+        leagueIcon: '⚽',
+        homeTeam: { id: homeId, name: homeTeam.team?.displayName, logo: homeTeam.team?.logo, color: homeTeam.team?.color },
+        awayTeam: { id: awayId, name: awayTeam.team?.displayName, logo: awayTeam.team?.logo, color: awayTeam.team?.color },
+        favoriteTeamId,
+        venue: competition.venue?.fullName || 'TBD',
+        status: event.status?.type?.description || 'Scheduled',
+        isPreseason: event.season?.type === 1 || event.seasonType?.type?.id === '1',
+        broadcasts: broadcasts.length > 0 ? broadcasts : null,
+      });
+    });
+  }
+
   // Parse PWHL games
   if (teamIdsByLeague['PWHL'] && pwhlResult?.games?.length) {
     const { games: pwhlGames, PWHL_TEAMS, LSID_TO_PWHL } = pwhlResult;
