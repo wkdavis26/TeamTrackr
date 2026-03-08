@@ -234,9 +234,40 @@ async function fetchPGAGames() {
   }
 }
 
+async function fetchPWHLGames() {
+  try {
+    const res = await fetch('https://lscluster.hockeytech.com/feed/index.php?feed=modulekit&view=schedule&key=694fc793a5798f7a&fmt=json&client_code=pwhl&lang_id=1&season_id=8&team_id=0&league_id=1');
+    const data = res.ok ? await res.json() : null;
+    const games = data?.SiteKit?.Schedule || [];
+    const now = new Date();
+    return games.map(game => {
+      const homeId = PWHL_LSID[String(game.home_team)];
+      const awayId = PWHL_LSID[String(game.visiting_team)];
+      if (!homeId || !awayId) return null;
+      const gameDate = new Date(game.date_with_timezone || (game.date_played + ' ' + (game.game_time || '12:00:00')));
+      if (isNaN(gameDate.getTime()) || gameDate <= now) return null;
+      return {
+        id: `pwhl-${game.game_id}`,
+        date: gameDate,
+        league: 'PWHL',
+        leagueIcon: '🏒',
+        homeTeam: { id: homeId, name: PWHL_TEAMS_DATA[homeId]?.name || homeId, logo: PWHL_TEAMS_DATA[homeId]?.logo, color: PWHL_TEAMS_DATA[homeId]?.color },
+        awayTeam: { id: awayId, name: PWHL_TEAMS_DATA[awayId]?.name || awayId, logo: PWHL_TEAMS_DATA[awayId]?.logo, color: PWHL_TEAMS_DATA[awayId]?.color },
+        favoriteTeamId: homeId,
+        venue: game.venue_name || game.venue || 'TBD',
+        status: game.game_status || 'Scheduled',
+        isPreseason: false,
+      };
+    }).filter(Boolean).sort((a, b) => a.date - b.date);
+  } catch {
+    return [];
+  }
+}
+
 async function fetchLeagueAllGames(leagueKey) {
   if (leagueKey === 'F1') return fetchF1Games();
   if (leagueKey === 'PGA') return fetchPGAGames();
+  if (leagueKey === 'PWHL') return fetchPWHLGames();
   const path = LEAGUE_SCOREBOARD_PATHS[leagueKey];
   if (!path) return [];
   const now = new Date();
