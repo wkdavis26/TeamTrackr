@@ -247,7 +247,7 @@ async function fetchPWHLGames() {
       const homeId = PWHL_LSID[String(game.home_team)];
       const awayId = PWHL_LSID[String(game.visiting_team)];
       if (!homeId || !awayId) return null;
-      const gameDate = new Date(game.date_with_timezone || (game.date_played + 'T12:00:00'));
+      const gameDate = new Date(game.GameDateISO8601 || game.date_with_timezone || (game.date_played + 'T12:00:00'));
       if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return null;
       return {
         id: `pwhl-${game.game_id}`,
