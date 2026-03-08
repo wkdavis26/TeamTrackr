@@ -125,8 +125,18 @@ export const LEAGUES = {
     name: "PWHL",
     icon: "🏒",
     logo: "https://1000logos.net/wp-content/uploads/2024/10/PWHL-Logo-500x281.png",
-    espnPath: "hockey/pwhl",
+    espnPath: null,
     color: "#4B2E83",
+    teams: [
+      { id: "pwhl-1", name: "Boston Fleet", abbreviation: "BOS", logo: "https://assets.leaguestat.com/pwhl/logos/50x50/1.png", color: "0B2D6E" },
+      { id: "pwhl-2", name: "Minnesota Frost", abbreviation: "MIN", logo: "https://assets.leaguestat.com/pwhl/logos/50x50/2.png", color: "154734" },
+      { id: "pwhl-3", name: "Montréal Victoire", abbreviation: "MTL", logo: "https://assets.leaguestat.com/pwhl/logos/50x50/3.png", color: "A6192E" },
+      { id: "pwhl-4", name: "New York Sirens", abbreviation: "NY", logo: "https://assets.leaguestat.com/pwhl/logos/50x50/4.png", color: "00539B" },
+      { id: "pwhl-5", name: "Ottawa Charge", abbreviation: "OTT", logo: "https://assets.leaguestat.com/pwhl/logos/50x50/5.png", color: "000000" },
+      { id: "pwhl-6", name: "Toronto Sceptres", abbreviation: "TOR", logo: "https://assets.leaguestat.com/pwhl/logos/50x50/6.png", color: "702F8A" },
+      { id: "pwhl-8", name: "Seattle Torrent", abbreviation: "SEA", logo: "https://assets.leaguestat.com/pwhl/logos/50x50/8.png", color: "005C8A" },
+      { id: "pwhl-9", name: "Vancouver Goldeneyes", abbreviation: "VAN", logo: "https://assets.leaguestat.com/pwhl/logos/50x50/9.png", color: "005C2E" },
+    ]
   },
   };
 
