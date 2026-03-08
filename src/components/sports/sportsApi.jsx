@@ -275,26 +275,7 @@ export const fetchPWHLSchedule = async () => {
     const response = await base44.functions.invoke('pwhlSchedule', {});
     return { games: response.data?.games || [], PWHL_TEAMS, LSID_TO_PWHL };
   } catch {
-    // Fallback: try alternate endpoint
-    try {
-      const res = await fetch('https://lscluster.hockeytech.com/feed/?feed=modulekit&view=schedule&key=446521baf8c38984&fmt=json&client_code=pwhl&lang_id=1&season_id=8');
-      if (!res.ok) return { games: [], PWHL_TEAMS: {}, LSID_TO_PWHL: {} };
-      const data = await res.json();
-      const PWHL_TEAMS = {
-        'pwhl-1': { name: 'Boston Fleet', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/1.png', color: '0B2D6E' },
-        'pwhl-2': { name: 'Minnesota Frost', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/2.png', color: '154734' },
-        'pwhl-3': { name: 'Montréal Victoire', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/3.png', color: 'A6192E' },
-        'pwhl-4': { name: 'New York Sirens', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/4.png', color: '00539B' },
-        'pwhl-5': { name: 'Ottawa Charge', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/5.png', color: '000000' },
-        'pwhl-6': { name: 'Toronto Sceptres', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/6.png', color: '702F8A' },
-        'pwhl-8': { name: 'Seattle Torrent', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/8.png', color: '005C8A' },
-        'pwhl-9': { name: 'Vancouver Goldeneyes', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/9.png', color: '005C2E' },
-      };
-      const LSID_TO_PWHL = { '1': 'pwhl-1', '2': 'pwhl-2', '3': 'pwhl-3', '4': 'pwhl-4', '5': 'pwhl-5', '6': 'pwhl-6', '8': 'pwhl-8', '9': 'pwhl-9' };
-      return { games: data?.SiteKit?.Schedule || [], PWHL_TEAMS, LSID_TO_PWHL };
-    } catch {
-      return { games: [], PWHL_TEAMS: {}, LSID_TO_PWHL: {} };
-    }
+    return { games: [], PWHL_TEAMS: {}, LSID_TO_PWHL: {} };
   }
 };
 
