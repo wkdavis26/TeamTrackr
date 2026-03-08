@@ -705,6 +705,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     teamIdsByLeague['NCAAB-Baseball'] ? fetchNCAABaseballSchedule() : Promise.resolve([]),
     hasEuropeanLeague ? fetchChampionsLeagueSchedule() : Promise.resolve([]),
     teamIdsByLeague['PWHL'] ? fetchPWHLSchedule() : Promise.resolve({ games: [], PWHL_TEAMS: {}, LSID_TO_PWHL: {} }),
+    teamIdsByLeague['NWSL'] ? fetchNWSLSchedule() : Promise.resolve([]),
   ]);
 
       // Parse NCAAF games
