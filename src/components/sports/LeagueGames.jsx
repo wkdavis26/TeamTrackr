@@ -28,6 +28,19 @@ const LEAGUE_LOGOS = {
   PWHL: 'https://1000logos.net/wp-content/uploads/2024/10/PWHL-Logo-500x281.png',
 };
 
+// PWHL team data (static, since ESPN doesn't support PWHL)
+const PWHL_TEAMS_DATA = {
+  'pwhl-1': { name: 'Boston Fleet', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/1.png', color: '0B2D6E' },
+  'pwhl-2': { name: 'Minnesota Frost', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/2.png', color: '154734' },
+  'pwhl-3': { name: 'Montréal Victoire', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/3.png', color: 'A6192E' },
+  'pwhl-4': { name: 'New York Sirens', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/4.png', color: '00539B' },
+  'pwhl-5': { name: 'Ottawa Charge', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/5.png', color: '000000' },
+  'pwhl-6': { name: 'Toronto Sceptres', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/6.png', color: '702F8A' },
+  'pwhl-8': { name: 'Seattle Torrent', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/8.png', color: '005C8A' },
+  'pwhl-9': { name: 'Vancouver Goldeneyes', logo: 'https://assets.leaguestat.com/pwhl/logos/50x50/9.png', color: '005C2E' },
+};
+const PWHL_LSID = { '1': 'pwhl-1', '2': 'pwhl-2', '3': 'pwhl-3', '4': 'pwhl-4', '5': 'pwhl-5', '6': 'pwhl-6', '8': 'pwhl-8', '9': 'pwhl-9' };
+
 const LeagueLogo = ({ leagueKey, size = 'md' }) => {
   const [imgError, setImgError] = React.useState(false);
   const logo = LEAGUE_LOGOS[leagueKey];
@@ -368,7 +381,7 @@ const SPORT_GROUPS = [
   { label: 'Football', keys: ['NFL', 'NCAAF'] },
   { label: 'Basketball', keys: ['NBA', 'WNBA', 'NCAAB'] },
   { label: 'Baseball', keys: ['MLB', 'NCAAB-Baseball'] },
-  { label: 'Hockey', keys: ['NHL'] },
+  { label: 'Hockey', keys: ['NHL', 'PWHL'] },
   { label: 'Soccer', keys: ['Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Champions League', 'MLS', 'International Football'] },
   { label: 'Motorsport', keys: ['F1'] },
   { label: 'Golf', keys: ['PGA'] },
