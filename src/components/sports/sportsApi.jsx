@@ -271,10 +271,9 @@ export const fetchPWHLSchedule = async () => {
     // leaguestat numeric -> our id
     const LSID_TO_PWHL = { '1': 'pwhl-1', '2': 'pwhl-2', '3': 'pwhl-3', '4': 'pwhl-4', '5': 'pwhl-5', '6': 'pwhl-6', '8': 'pwhl-8', '9': 'pwhl-9' };
 
-    const res = await fetch('https://lscluster.hockeytech.com/feed/index.php?feed=modulekit&view=schedule&key=446521baf8c38984&fmt=json&client_code=pwhl&lang_id=1&season_id=8&team_id=0&league_id=1');
-    if (!res.ok) throw new Error('PWHL API failed');
-    const data = await res.json();
-    return { games: data?.SiteKit?.Schedule || [], PWHL_TEAMS, LSID_TO_PWHL };
+    const { base44 } = await import('@/api/base44Client');
+    const response = await base44.functions.invoke('pwhlSchedule', {});
+    return { games: response.data?.games || [], PWHL_TEAMS, LSID_TO_PWHL };
   } catch {
     // Fallback: try alternate endpoint
     try {
