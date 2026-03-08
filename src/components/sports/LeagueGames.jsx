@@ -347,8 +347,9 @@ const getDateLabel = (dateStr) => {
 
 function LeagueDetail({ leagueKey, onBack }) {
   const league = LEAGUES[leagueKey];
+  const todayStr = new Intl.DateTimeFormat('en-CA').format(new Date());
   const { data: games = [], isLoading } = useQuery({
-    queryKey: ['leagueAllGames', leagueKey],
+    queryKey: ['leagueAllGames', leagueKey, todayStr],
     queryFn: () => fetchLeagueAllGames(leagueKey),
     staleTime: 1000 * 60 * 5,
   });
