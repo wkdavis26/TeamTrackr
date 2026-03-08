@@ -85,7 +85,7 @@ export function useLiveScore(game) {
       cancelled = true;
       clearInterval(interval);
     };
-  }, [game?.id, game?.league]);
+  }, [game?.id, game?.league, game?.date]);
 
   return liveScore;
 }
