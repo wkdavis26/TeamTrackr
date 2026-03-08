@@ -242,12 +242,13 @@ async function fetchPWHLGames() {
     const data = res.ok ? await res.json() : null;
     const games = data?.SiteKit?.Schedule || [];
     const now = new Date();
+    const todayMidnight = new Date(now); todayMidnight.setHours(0, 0, 0, 0);
     return games.map(game => {
       const homeId = PWHL_LSID[String(game.home_team)];
       const awayId = PWHL_LSID[String(game.visiting_team)];
       if (!homeId || !awayId) return null;
-      const gameDate = new Date(game.date_with_timezone || (game.date_played + ' ' + (game.game_time || '12:00:00')));
-      if (isNaN(gameDate.getTime()) || gameDate <= now) return null;
+      const gameDate = new Date(game.date_with_timezone || (game.date_played + 'T12:00:00'));
+      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return null;
       return {
         id: `pwhl-${game.game_id}`,
         date: gameDate,
