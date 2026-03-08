@@ -285,7 +285,7 @@ export default function GameCard({ game, compact = false }) {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
       className="group relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md transition-all duration-300 w-full"
-      style={{ ...(teamColor ? borderStyle : { border: '1px solid #e5e7eb' }), ...(game?.isF1Race ? {} : { height: '289px' }) }}>
+      style={{ ...(teamColor ? borderStyle : { border: '1px solid #e5e7eb' }), height: '289px' }}>
 
       {/* League indicator strip removed */}
 
