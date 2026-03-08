@@ -419,45 +419,59 @@ export default function GameCard({ game, compact = false }) {
             }
           </div>
         </div>
-        {game.isF1Race && isRaceStarted && f1Results && (f1Results.top3?.length > 0 || f1Results.teamDrivers?.length > 0) &&
-        <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
-          {/* Top 3 podium */}
-          {f1Results.top3?.length > 0 && (
-            <div>
-              {f1Results.isLive && (
-                <div className="flex items-center gap-1 mb-1 justify-center">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-red-600 font-semibold uppercase tracking-wide">Live</span>
-                </div>
-              )}
-              <div className="flex justify-center gap-4 w-full">
-                {f1Results.top3.map((driver, i) => (
-                  <div key={i} className="flex flex-col items-center gap-0.5">
-                    <span className={cn(
-                      "text-xs font-black w-6 h-6 flex items-center justify-center rounded-full",
-                      i === 0 ? "bg-yellow-400 text-yellow-900" : i === 1 ? "bg-gray-300 text-gray-700" : "bg-amber-700 text-white"
-                    )}>P{i + 1}</span>
-                    {driver.flag && <img src={driver.flag} alt="" className="w-5 h-3.5 object-cover rounded-sm" />}
-                    <span className="text-xs font-medium text-gray-700 text-center leading-tight w-16">{driver.name}</span>
-                  </div>
-                ))}
+        {/* Pre-race: qualifying top 3 centered */}
+        {game.isF1Race && isRaceDay && !isRaceStarted && f1Qualifying && f1Qualifying.length > 0 &&
+        <div className="pt-2 border-t border-gray-100 mt-2">
+          <div className="flex justify-center gap-6 w-full">
+            {f1Qualifying.map((driver, i) => (
+              <div key={i} className="flex flex-col items-center gap-0.5">
+                <span className={cn(
+                  "text-xs font-black w-6 h-6 flex items-center justify-center rounded-full",
+                  i === 0 ? "bg-yellow-400 text-yellow-900" : i === 1 ? "bg-gray-300 text-gray-700" : "bg-amber-700 text-white"
+                )}>P{i + 1}</span>
+                {driver.flag && <img src={driver.flag} alt="" className="w-5 h-3.5 object-cover rounded-sm" />}
+                <span className="text-xs font-medium text-gray-700 text-center leading-tight w-20">{driver.name}</span>
               </div>
-            </div>
-          )}
-          {/* Selected team drivers */}
-          {f1Results.teamDrivers?.length > 0 && (
-            <div className="bg-emerald-50 rounded-lg px-3 py-1.5">
-              <div className="flex items-center justify-center gap-4">
-                {f1Results.teamDrivers.map((driver, i) => (
-                  <div key={i} className="flex items-center gap-1.5">
-                    {driver.flag && <img src={driver.flag} alt="" className="w-4 h-3 object-cover rounded-sm" />}
-                    <span className="text-xs font-semibold text-emerald-800">{driver.name}</span>
-                    <span className="text-xs font-black text-emerald-600">P{driver.position}</span>
-                  </div>
-                ))}
+            ))}
+          </div>
+        </div>
+        }
+        {/* During/after race: top 3 left + divider + team drivers right */}
+        {game.isF1Race && isRaceStarted && f1RaceResults && f1RaceResults.top3?.length > 0 &&
+        <div className="pt-2 border-t border-gray-100 mt-2 flex items-center gap-0">
+          {/* Top 3 squished left */}
+          <div className="flex gap-2 flex-1 justify-around">
+            {f1RaceResults.top3.map((driver, i) => (
+              <div key={i} className="flex flex-col items-center gap-0.5">
+                <span className={cn(
+                  "text-xs font-black w-5 h-5 flex items-center justify-center rounded-full",
+                  i === 0 ? "bg-yellow-400 text-yellow-900" : i === 1 ? "bg-gray-300 text-gray-700" : "bg-amber-700 text-white"
+                )}>P{i + 1}</span>
+                {driver.flag && <img src={driver.flag} alt="" className="w-4 h-3 object-cover rounded-sm" />}
+                <span className="text-xs font-medium text-gray-700 text-center leading-tight w-12">{driver.name}</span>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
+          {/* Divider */}
+          <div className="w-px bg-gray-200 self-stretch mx-2" />
+          {/* Team drivers right */}
+          <div className="flex flex-col gap-1 justify-center">
+            {f1RaceResults.isLive && (
+              <div className="flex items-center gap-1 mb-0.5">
+                <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                <span className="text-xs text-red-600 font-semibold">Live</span>
+              </div>
+            )}
+            {f1RaceResults.teamDrivers?.length > 0 ? f1RaceResults.teamDrivers.map((driver, i) => (
+              <div key={i} className="flex items-center gap-1.5 bg-emerald-50 rounded-md px-2 py-0.5">
+                {driver.flag && <img src={driver.flag} alt="" className="w-4 h-3 object-cover rounded-sm" />}
+                <span className="text-xs font-semibold text-emerald-800 whitespace-nowrap">{driver.name}</span>
+                <span className="text-xs font-black text-emerald-600 ml-auto pl-1">P{driver.position}</span>
+              </div>
+            )) : (
+              <span className="text-xs text-gray-400 italic">No data</span>
+            )}
+          </div>
         </div>
         }
         {!game.isF1Race && !game.isPGA &&
