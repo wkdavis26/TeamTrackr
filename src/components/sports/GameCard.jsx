@@ -21,36 +21,53 @@ const F1_TEAM_KEYWORDS = {
   'f1-haas': ['haas'],
 };
 
-// Fetch F1 race/qualifying results — live or post
-const f1ResultsCache = {};
-const useF1Results = (isF1Race, favoriteTeamId) => {
+// Fetch qualifying grid (pre-race) — top 3 from Qual session
+const f1QualCache = {};
+const useF1Qualifying = (active) => {
+  const [grid, setGrid] = useState(null);
+  useEffect(() => {
+    if (!active) return;
+    if (f1QualCache['qual']) { setGrid(f1QualCache['qual']); return; }
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()).replace(/-/g, '');
+    fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=10&dates=${today}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        const event = data?.events?.[0];
+        if (!event) return;
+        const qualComp = event.competitions?.find((c) => c.type?.abbreviation === 'Qual');
+        if (!qualComp) return;
+        const sorted = [...(qualComp.competitors || [])].sort((a, b) => (a.order || 999) - (b.order || 999));
+        const top3 = sorted.slice(0, 3).map((c) => ({
+          name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
+          flag: c.athlete?.flag?.href || null,
+        }));
+        if (top3.length > 0) { f1QualCache['qual'] = top3; setGrid(top3); }
+      }).catch(() => {});
+  }, [active]);
+  return grid;
+};
+
+// Fetch live/final race results — top 3 + selected team drivers
+const f1RaceCache = {};
+const useF1RaceResults = (active, favoriteTeamId) => {
   const [results, setResults] = useState(null);
   useEffect(() => {
-    if (!isF1Race) return;
-    const cacheKey = 'f1-today';
+    if (!active) return;
     const fetchResults = () => {
       const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()).replace(/-/g, '');
       fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=10&dates=${today}`)
         .then((r) => r.ok ? r.json() : null)
         .then((data) => {
-          if (!data) return;
-          const event = data.events?.[0];
+          const event = data?.events?.[0];
           if (!event) return;
-          // Prefer live Race competition, fallback to Qual
           const raceComp = event.competitions?.find((c) => c.type?.abbreviation === 'Race' || c.type?.text === 'Race');
-          const qualComp = event.competitions?.find((c) => c.type?.abbreviation === 'Qual');
-          const comp = raceComp || qualComp;
-          if (!comp) return;
-          const isLive = comp.status?.type?.state === 'in' || comp.status?.type?.completed === false;
-          const isRaceSession = !!(raceComp);
-          const sorted = [...(comp.competitors || [])].sort((a, b) => (a.order || 999) - (b.order || 999));
+          if (!raceComp) return;
+          const isLive = raceComp.status?.type?.state === 'in';
+          const sorted = [...(raceComp.competitors || [])].sort((a, b) => (a.order || 999) - (b.order || 999));
           const top3 = sorted.slice(0, 3).map((c) => ({
-            position: c.order || null,
             name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
             flag: c.athlete?.flag?.href || null,
-            teamName: (c.athlete?.team?.name || c.team?.name || '').toLowerCase(),
           }));
-          // Find drivers from the selected team
           const keywords = F1_TEAM_KEYWORDS[favoriteTeamId] || [];
           const teamDrivers = sorted
             .filter((c) => {
@@ -62,24 +79,16 @@ const useF1Results = (isF1Race, favoriteTeamId) => {
               name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
               flag: c.athlete?.flag?.href || null,
             }));
-          const payload = { top3, teamDrivers, isLive, isRaceSession };
-          f1ResultsCache[cacheKey] = payload;
+          const payload = { top3, teamDrivers, isLive };
+          f1RaceCache['race'] = payload;
           setResults(payload);
-        })
-        .catch(() => {});
+        }).catch(() => {});
     };
-    if (f1ResultsCache[cacheKey]) {
-      setResults(f1ResultsCache[cacheKey]);
-    } else {
-      fetchResults();
-    }
-    // Poll every 30s if race is live
-    const interval = setInterval(() => {
-      delete f1ResultsCache[cacheKey];
-      fetchResults();
-    }, 30000);
+    if (f1RaceCache['race']) { setResults(f1RaceCache['race']); }
+    fetchResults();
+    const interval = setInterval(() => { delete f1RaceCache['race']; fetchResults(); }, 30000);
     return () => clearInterval(interval);
-  }, [isF1Race, favoriteTeamId]);
+  }, [active, favoriteTeamId]);
   return results;
 };
 
