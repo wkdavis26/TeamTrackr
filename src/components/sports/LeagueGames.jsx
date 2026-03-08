@@ -5,6 +5,7 @@ import { Loader2, ChevronRight, ArrowLeft } from 'lucide-react';
 import { format, isToday, isTomorrow, differenceInDays, addMonths } from 'date-fns';
 import { LEAGUES } from './teamsData';
 import GameCard from './GameCard';
+import { base44 } from '@/api/base44Client';
 
 // ESPN league logo URLs
 const LEAGUE_LOGOS = {
