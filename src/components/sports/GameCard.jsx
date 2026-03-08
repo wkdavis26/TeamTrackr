@@ -220,8 +220,10 @@ export default function GameCard({ game, compact = false }) {
   };
 
   const gameDateCT = getCTNoonDate(gameDate);
-  const isRaceStarted = game?.isF1Race && isToday(gameDateCT) && new Date() >= gameDate;
-  const f1Results = useF1Results(isRaceStarted, game?.favoriteTeamId);
+  const isRaceDay = game?.isF1Race && game?.f1Session === 'Race' && isToday(gameDateCT);
+  const isRaceStarted = isRaceDay && new Date() >= gameDate;
+  const f1Qualifying = useF1Qualifying(isRaceDay && !isRaceStarted);
+  const f1RaceResults = useF1RaceResults(isRaceStarted, game?.favoriteTeamId);
 
   if (!game || !game.homeTeam || !game.awayTeam) return null;
 
