@@ -7,38 +7,80 @@ import { getLeagueColor } from './teamsData';
 import { useGameOdds } from './useGameOdds';
 import { useLiveScore } from './useLiveScores';
 
-// Fetch F1 qualifying grid to show top 3 starters on race day
-const f1GridCache = {};
-const useF1Grid = (isRaceDay) => {
-  const [grid, setGrid] = useState(null);
+// Map F1 team IDs to constructor name keywords for matching ESPN driver data
+const F1_TEAM_KEYWORDS = {
+  'f1-red-bull': ['red bull'],
+  'f1-ferrari': ['ferrari'],
+  'f1-mercedes': ['mercedes'],
+  'f1-mclaren': ['mclaren'],
+  'f1-aston-martin': ['aston martin'],
+  'f1-alpine': ['alpine'],
+  'f1-williams': ['williams'],
+  'f1-alphatauri': ['rb', 'racing bulls', 'alphatauri'],
+  'f1-sauber': ['sauber', 'kick sauber'],
+  'f1-haas': ['haas'],
+};
+
+// Fetch F1 race/qualifying results — live or post
+const f1ResultsCache = {};
+const useF1Results = (isF1Race, favoriteTeamId) => {
+  const [results, setResults] = useState(null);
   useEffect(() => {
-    if (!isRaceDay) return;
-    const cacheKey = 'today';
-    if (f1GridCache[cacheKey]) {setGrid(f1GridCache[cacheKey]);return;}
-    // Fetch today's scoreboard to get the current event's qualifying results
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()).replace(/-/g, '');
-    fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=10&dates=${today}`).
-    then((r) => r.ok ? r.json() : null).
-    then((data) => {
-      if (!data) return;
-      const event = data.events?.[0];
-      if (!event) return;
-      // Find Qual competition
-      const qualComp = event.competitions?.find((c) => c.type?.abbreviation === 'Qual');
-      if (!qualComp) return;
-      const sorted = [...(qualComp.competitors || [])].sort((a, b) => (a.order || 999) - (b.order || 999));
-      const top3 = sorted.slice(0, 3).map((c) => ({
-        name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
-        flag: c.athlete?.flag?.href || null
-      }));
-      if (top3.length > 0) {
-        f1GridCache[cacheKey] = top3;
-        setGrid(top3);
-      }
-    }).
-    catch(() => {});
-  }, [isRaceDay]);
-  return grid;
+    if (!isF1Race) return;
+    const cacheKey = 'f1-today';
+    const fetchResults = () => {
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date()).replace(/-/g, '');
+      fetch(`https://site.api.espn.com/apis/site/v2/sports/racing/f1/scoreboard?limit=10&dates=${today}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (!data) return;
+          const event = data.events?.[0];
+          if (!event) return;
+          // Prefer live Race competition, fallback to Qual
+          const raceComp = event.competitions?.find((c) => c.type?.abbreviation === 'Race' || c.type?.text === 'Race');
+          const qualComp = event.competitions?.find((c) => c.type?.abbreviation === 'Qual');
+          const comp = raceComp || qualComp;
+          if (!comp) return;
+          const isLive = comp.status?.type?.state === 'in' || comp.status?.type?.completed === false;
+          const isRaceSession = !!(raceComp);
+          const sorted = [...(comp.competitors || [])].sort((a, b) => (a.order || 999) - (b.order || 999));
+          const top3 = sorted.slice(0, 3).map((c) => ({
+            position: c.order || null,
+            name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
+            flag: c.athlete?.flag?.href || null,
+            teamName: (c.athlete?.team?.name || c.team?.name || '').toLowerCase(),
+          }));
+          // Find drivers from the selected team
+          const keywords = F1_TEAM_KEYWORDS[favoriteTeamId] || [];
+          const teamDrivers = sorted
+            .filter((c) => {
+              const tn = (c.athlete?.team?.name || c.team?.name || '').toLowerCase();
+              return keywords.some(kw => tn.includes(kw));
+            })
+            .map((c) => ({
+              position: c.order || null,
+              name: c.athlete?.shortName || c.athlete?.displayName || 'Unknown',
+              flag: c.athlete?.flag?.href || null,
+            }));
+          const payload = { top3, teamDrivers, isLive, isRaceSession };
+          f1ResultsCache[cacheKey] = payload;
+          setResults(payload);
+        })
+        .catch(() => {});
+    };
+    if (f1ResultsCache[cacheKey]) {
+      setResults(f1ResultsCache[cacheKey]);
+    } else {
+      fetchResults();
+    }
+    // Poll every 30s if race is live
+    const interval = setInterval(() => {
+      delete f1ResultsCache[cacheKey];
+      fetchResults();
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [isF1Race, favoriteTeamId]);
+  return results;
 };
 
 // Map F1 race country/location to a dominant flag color
