@@ -18,22 +18,6 @@ const LEAGUE_PATHS = {
   'NCAAB-Baseball': 'baseball/college-baseball',
 };
 
-// Fetch live score for a single game from ESPN
-export async function fetchLiveScore(league, espnGameId) {
-  const path = LEAGUE_PATHS[league];
-  if (!path || !espnGameId) return null;
-  try {
-    const res = await fetch(`${ESPN_BASE}/${path}/scoreboard`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    const event = (data.events || []).find(e => e.id === String(espnGameId));
-    if (!event) return null;
-    return parseScoreFromEvent(event, league);
-  } catch {
-    return null;
-  }
-}
-
 function parseScoreFromEvent(event, league) {
   const competition = event.competitions?.[0];
   if (!competition) return null;
