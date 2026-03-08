@@ -25,6 +25,7 @@ const LEAGUE_LOGOS = {
   'NCAAB-Baseball': 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/college-baseball.png&w=80&h=80',
   F1: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/f1.png&w=80&h=80',
   PGA: 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/leagues/500/pga.png&w=80&h=80',
+  PWHL: 'https://1000logos.net/wp-content/uploads/2024/10/PWHL-Logo-500x281.png',
 };
 
 const LeagueLogo = ({ leagueKey, size = 'md' }) => {

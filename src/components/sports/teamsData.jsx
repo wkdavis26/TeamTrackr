@@ -124,8 +124,9 @@ export const LEAGUES = {
   PWHL: {
     name: "PWHL",
     icon: "🏒",
+    logo: "https://1000logos.net/wp-content/uploads/2024/10/PWHL-Logo-500x281.png",
     espnPath: "hockey/pwhl",
-    color: "#000000",
+    color: "#4B2E83",
   },
   };
 
