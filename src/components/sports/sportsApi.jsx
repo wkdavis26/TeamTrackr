@@ -278,7 +278,7 @@ export const fetchPWHLSchedule = async () => {
   } catch {
     // Fallback: try alternate endpoint
     try {
-      const res = await fetch('https://lscluster.hockeytech.com/feed/?feed=modulekit&view=schedule&key=694fc793a5798f7a&fmt=json&client_code=pwhl&lang_id=1&season_id=8');
+      const res = await fetch('https://lscluster.hockeytech.com/feed/?feed=modulekit&view=schedule&key=446521baf8c38984&fmt=json&client_code=pwhl&lang_id=1&season_id=8');
       if (!res.ok) return { games: [], PWHL_TEAMS: {}, LSID_TO_PWHL: {} };
       const data = await res.json();
       const PWHL_TEAMS = {
