@@ -1034,6 +1034,37 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
+  // Parse PWHL games
+  if (teamIdsByLeague['PWHL'] && pwhlResult?.games?.length) {
+    const { games: pwhlGames, PWHL_TEAMS, LSID_TO_PWHL } = pwhlResult;
+    const pwhlIds = teamIdsByLeague['PWHL'];
+    pwhlGames.forEach(game => {
+      const homeId = LSID_TO_PWHL[String(game.home_team)];
+      const awayId = LSID_TO_PWHL[String(game.visiting_team)];
+      if (!homeId || !awayId) return;
+      const favoriteTeamId = pwhlIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      // Parse date — leaguestat format: "2026-03-08 12:00:00"
+      const gameDate = new Date(game.date_with_timezone || (game.date_played + ' ' + (game.game_time || '12:00:00')));
+      if (isNaN(gameDate.getTime()) || gameDate <= liveWindowStart) return;
+      const homeTeamData = PWHL_TEAMS[homeId];
+      const awayTeamData = PWHL_TEAMS[awayId];
+      allGames.push({
+        id: `pwhl-${game.game_id}`,
+        date: gameDate,
+        league: 'PWHL',
+        leagueIcon: '🏒',
+        homeTeam: { id: homeId, name: homeTeamData?.name || homeId, logo: homeTeamData?.logo || null, color: homeTeamData?.color || null },
+        awayTeam: { id: awayId, name: awayTeamData?.name || awayId, logo: awayTeamData?.logo || null, color: awayTeamData?.color || null },
+        favoriteTeamId,
+        venue: game.venue_name || game.venue || 'TBD',
+        status: game.game_status || 'Scheduled',
+        isPreseason: false,
+        broadcasts: null,
+      });
+    });
+  }
+
   // Sort by date
   return allGames.sort((a, b) => a.date - b.date);
 };
