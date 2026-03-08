@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { format, isToday, isTomorrow, differenceInDays } from 'date-fns';
-import { MapPin, Clock, Tv, TrendingUp } from 'lucide-react';
+import { MapPin, Clock, Tv } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { getLeagueColor } from './teamsData';
 import { useGameOdds } from './useGameOdds';
