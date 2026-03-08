@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Calendar, List, Settings, Heart, Loader2, LayoutGrid, Tv2 } from 'lucide-react';
+import { Calendar, List, Heart, Loader2, LayoutGrid, Tv2, Settings, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import TeamSelector from '@/components/sports/TeamSelector';
@@ -10,30 +10,34 @@ import UpcomingGames from '@/components/sports/UpcomingGames';
 import CalendarView from '@/components/sports/CalendarView';
 import TeamsOverview from '@/components/sports/TeamsOverview';
 import LeagueGames from '@/components/sports/LeagueGames';
-import { LEAGUES } from '@/components/sports/teamsData';
 import { fetchAllSchedules } from '@/components/sports/sportsApi';
 
+const TABS = [
+  { id: 'upcoming', label: 'Upcoming', icon: List },
+  { id: 'overview', label: 'Standings', icon: LayoutGrid },
+  { id: 'calendar', label: 'Calendar', icon: Calendar },
+  { id: 'league', label: 'All Games', icon: Tv2 },
+  { id: 'teams', label: 'My Teams', icon: Settings },
+];
+
 export default function Home() {
-  const [view, setView] = useState('overview'); // 'upcoming', 'overview', 'calendar', 'teams', 'league'
+  const [view, setView] = useState('overview');
   const [hidePreseason, setHidePreseason] = useState(() => {
     return localStorage.getItem('hidePreseason') === 'true';
   });
   const queryClient = useQueryClient();
 
-  // Fetch current user
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me()
   });
 
-  // Fetch favorite teams - filtered to current user only
   const { data: favoriteTeams = [], isLoading } = useQuery({
     queryKey: ['favoriteTeams', currentUser?.email],
     queryFn: () => base44.entities.FavoriteTeam.filter({ created_by: currentUser.email }),
     enabled: !!currentUser
   });
 
-  // Fetch real schedule data from APIs
   const { data: upcomingGames = [], isLoading: isLoadingGames } = useQuery({
     queryKey: ['schedules-v3', favoriteTeams.map((t) => t.team_id).join(',')],
     queryFn: () => fetchAllSchedules(favoriteTeams),
@@ -41,13 +45,11 @@ export default function Home() {
     staleTime: 0
   });
 
-  // Create team mutation
   const createTeamMutation = useMutation({
     mutationFn: (team) => base44.entities.FavoriteTeam.create(team),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] })
   });
 
-  // Delete team mutation
   const deleteTeamMutation = useMutation({
     mutationFn: (teamId) => {
       const team = favoriteTeams.find((t) => t.team_id === teamId);
@@ -70,229 +72,151 @@ export default function Home() {
     }
   };
 
-
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
-      </div>);
-
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8">
-
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
-            TeamTrackr
-          </h1>
-          <p className="text-gray-500">
-            Track all your favorite teams so you never miss a play
-          </p>
-          <button
-            onClick={() => base44.auth.logout()}
-            className="mt-3 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            Logout
-          </button>
-        </motion.header>
-
-        {/* Navigation Tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex justify-center mb-8">
-
-          <div className="inline-flex p-1 rounded-2xl bg-white border border-gray-200 shadow-sm overflow-x-auto max-w-full">
-            <Button
-              variant="ghost"
-              onClick={() => setView('upcoming')}
-              className={cn(
-                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
-                view === 'upcoming' ?
-                "bg-emerald-500 text-white hover:bg-emerald-600" :
-                "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-              )}>
-
-              <List className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="text-sm">Upcoming {upcomingGames.length > 0 && `(${upcomingGames.length})`}</span>
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setView('overview')}
-              className={cn(
-                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
-                view === 'overview' ?
-                "bg-emerald-500 text-white hover:bg-emerald-600" :
-                "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-              )}>
-
-              <LayoutGrid className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="text-sm">Standings</span>
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setView('calendar')}
-              className={cn(
-                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
-                view === 'calendar' ?
-                "bg-emerald-500 text-white hover:bg-emerald-600" :
-                "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-              )}>
-
-              <Calendar className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="text-sm">Calendar</span>
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setView('league')}
-              className={cn(
-                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
-                view === 'league' ?
-                "bg-emerald-500 text-white hover:bg-emerald-600" :
-                "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-              )}>
-
-              <Tv2 className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="text-sm">All Games</span>
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setView('teams')}
-              className={cn(
-                "rounded-xl px-3 md:px-6 transition-all duration-200 whitespace-nowrap",
-                view === 'teams' ?
-                "bg-emerald-500 text-white hover:bg-emerald-600" :
-                "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-              )}>
-
-              <Settings className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="text-sm">My Teams {favoriteTeams.length > 0 && `(${favoriteTeams.length})`}</span>
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Content */}
-        <AnimatePresence mode="wait">
-          {view === 'upcoming' &&
-          <motion.div
-            key="upcoming"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}>
-
-              {favoriteTeams.length === 0 ?
-            <div className="text-center py-16">
-                  <div className="text-6xl mb-4">🏆</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No teams selected</h3>
-                  <p className="text-gray-500 mb-6">Select your favorite teams to see upcoming games</p>
-                  <Button
-                onClick={() => setView('teams')}
-                className="bg-emerald-500 hover:bg-emerald-600">
-
-                    <Heart className="w-4 h-4 mr-2" />
-                    Choose Teams
-                  </Button>
-                </div> :
-            isLoadingGames ?
-            <div className="flex items-center justify-center py-16">
-                  <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mr-2" />
-                  <span className="text-gray-500">Loading schedules...</span>
-                </div> :
-
-            <>
-                  <div className="flex items-center gap-2 mb-4">
-                    <input
-                  type="checkbox"
-                  id="hide-preseason"
-                  checked={hidePreseason}
-                  onChange={(e) => {
-                    setHidePreseason(e.target.checked);
-                    localStorage.setItem('hidePreseason', e.target.checked);
-                  }}
-                  className="w-4 h-4 accent-emerald-500 cursor-pointer" />
-
-                    <label htmlFor="hide-preseason" className="text-sm text-gray-500 cursor-pointer select-none">
-                      Hide preseason games
-                    </label>
-                  </div>
-                  <UpcomingGames games={hidePreseason ? upcomingGames.filter((g) => !g.isPreseason) : upcomingGames} />
-                </>
-            }
-            </motion.div>
-          }
-
-          {view === 'overview' &&
-          <motion.div
-            key="overview"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}>
-
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Standings</h2>
-                <p className="text-gray-500">Current standings for your selected teams - drag leagues to reorder
-              </p>
-              </div>
-              <TeamsOverview favoriteTeams={favoriteTeams} />
-            </motion.div>}
-
-          {view === 'calendar' &&
-          <motion.div
-            key="calendar"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}>
-
-              <CalendarView
-              games={upcomingGames}
-              hidePreseason={hidePreseason}
-              onToggleHidePreseason={(checked) => {
-                setHidePreseason(checked);
-                localStorage.setItem('hidePreseason', checked);
-              }} />
-
-            </motion.div>
-          }
-
-          {view === 'league' &&
-          <motion.div
-            key="league"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}>
-
-              <LeagueGames favoriteTeams={favoriteTeams} />
-            </motion.div>
-          }
-
-          {view === 'teams' &&
-          <motion.div
-            key="teams"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}>
-
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Select Your Teams</h2>
-                <p className="text-gray-500">Choose teams from any league to track their games</p>
-              </div>
-              <TeamSelector
-              selectedTeams={favoriteTeams}
-              onToggleTeam={handleToggleTeam} />
-
-            </motion.div>
-          }
-        </AnimatePresence>
+    <div className="flex flex-col bg-gray-50" style={{ minHeight: '100dvh' }}>
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 px-4 pt-safe-top">
+        <div className="max-w-7xl mx-auto py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">TeamTrackr</h1>
+          {view === 'teams' && (
+            <button
+              onClick={() => base44.auth.logout()}
+              className="flex items-center gap-1.5 text-sm text-gray-400 active:text-gray-700 transition-colors py-2 px-1"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          )}
+        </div>
       </div>
-    </div>);
 
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-4 py-6 pb-4">
+          <AnimatePresence mode="wait">
+            {view === 'upcoming' && (
+              <motion.div key="upcoming" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                {favoriteTeams.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="text-6xl mb-4">🏆</div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No teams selected</h3>
+                    <p className="text-gray-500 mb-6">Select your favorite teams to see upcoming games</p>
+                    <Button onClick={() => setView('teams')} className="bg-emerald-500 hover:bg-emerald-600">
+                      <Heart className="w-4 h-4 mr-2" />
+                      Choose Teams
+                    </Button>
+                  </div>
+                ) : isLoadingGames ? (
+                  <div className="flex items-center justify-center py-16">
+                    <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mr-2" />
+                    <span className="text-gray-500">Loading schedules...</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2 mb-4">
+                      <input
+                        type="checkbox"
+                        id="hide-preseason"
+                        checked={hidePreseason}
+                        onChange={(e) => {
+                          setHidePreseason(e.target.checked);
+                          localStorage.setItem('hidePreseason', e.target.checked);
+                        }}
+                        className="w-4 h-4 accent-emerald-500"
+                      />
+                      <label htmlFor="hide-preseason" className="text-sm text-gray-500 select-none">
+                        Hide preseason games
+                      </label>
+                    </div>
+                    <UpcomingGames games={hidePreseason ? upcomingGames.filter((g) => !g.isPreseason) : upcomingGames} />
+                  </>
+                )}
+              </motion.div>
+            )}
+
+            {view === 'overview' && (
+              <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">Standings</h2>
+                  <p className="text-gray-500 text-sm">Drag leagues to reorder</p>
+                </div>
+                <TeamsOverview favoriteTeams={favoriteTeams} />
+              </motion.div>
+            )}
+
+            {view === 'calendar' && (
+              <motion.div key="calendar" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <CalendarView
+                  games={upcomingGames}
+                  hidePreseason={hidePreseason}
+                  onToggleHidePreseason={(checked) => {
+                    setHidePreseason(checked);
+                    localStorage.setItem('hidePreseason', checked);
+                  }}
+                />
+              </motion.div>
+            )}
+
+            {view === 'league' && (
+              <motion.div key="league" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <LeagueGames favoriteTeams={favoriteTeams} />
+              </motion.div>
+            )}
+
+            {view === 'teams' && (
+              <motion.div key="teams" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">My Teams</h2>
+                  <p className="text-gray-500 text-sm">Choose teams from any league to track their games</p>
+                </div>
+                <TeamSelector selectedTeams={favoriteTeams} onToggleTeam={handleToggleTeam} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Bottom Tab Bar */}
+      <div className="bg-white border-t border-gray-200 pb-safe-bottom">
+        <div className="flex items-stretch max-w-7xl mx-auto">
+          {TABS.map(({ id, label, icon: Icon }) => {
+            const isActive = view === id;
+            const badge = id === 'upcoming' && upcomingGames.length > 0 ? upcomingGames.length
+              : id === 'teams' && favoriteTeams.length > 0 ? favoriteTeams.length
+              : null;
+            return (
+              <button
+                key={id}
+                onClick={() => setView(id)}
+                className={cn(
+                  "flex-1 flex flex-col items-center justify-center gap-1 py-3 relative transition-colors active:bg-gray-50",
+                  isActive ? "text-emerald-500" : "text-gray-400"
+                )}
+              >
+                <div className="relative">
+                  <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 1.8} />
+                  {badge && (
+                    <span className="absolute -top-1.5 -right-2 bg-emerald-500 text-white text-[9px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
+                </div>
+                <span className={cn("text-[10px] font-medium", isActive ? "text-emerald-500" : "text-gray-400")}>
+                  {label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
 }
