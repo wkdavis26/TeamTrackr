@@ -239,9 +239,8 @@ async function fetchPGAGames() {
 
 async function fetchPWHLGames() {
   try {
-    const res = await fetch('https://lscluster.hockeytech.com/feed/index.php?feed=modulekit&view=schedule&key=446521baf8c38984&fmt=json&client_code=pwhl&lang_id=1&season_id=8&team_id=0&league_id=1');
-    const data = res.ok ? await res.json() : null;
-    const games = data?.SiteKit?.Schedule || [];
+    const response = await base44.functions.invoke('pwhlSchedule', {});
+    const games = response.data?.games || [];
     console.log('[PWHL] Total games from API:', games.length);
     const result = games.map(game => {
       const homeId = PWHL_LSID[String(game.home_team)];
