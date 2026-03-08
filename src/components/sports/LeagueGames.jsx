@@ -241,14 +241,14 @@ async function fetchPWHLGames() {
     const res = await fetch('https://lscluster.hockeytech.com/feed/index.php?feed=modulekit&view=schedule&key=446521baf8c38984&fmt=json&client_code=pwhl&lang_id=1&season_id=8&team_id=0&league_id=1');
     const data = res.ok ? await res.json() : null;
     const games = data?.SiteKit?.Schedule || [];
-    const now = new Date();
-    const todayMidnight = new Date(now); todayMidnight.setHours(0, 0, 0, 0);
     return games.map(game => {
       const homeId = PWHL_LSID[String(game.home_team)];
       const awayId = PWHL_LSID[String(game.visiting_team)];
       if (!homeId || !awayId) return null;
+      // Skip completed games
+      if (game.final === '1' || game.game_status === 'Final' || game.game_status === 'Final OT') return null;
       const gameDate = new Date(game.GameDateISO8601 || game.date_with_timezone || (game.date_played + 'T12:00:00'));
-      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return null;
+      if (isNaN(gameDate.getTime())) return null;
       return {
         id: `pwhl-${game.game_id}`,
         date: gameDate,
