@@ -121,6 +121,12 @@ export const LEAGUES = {
     espnPath: null,
     color: "#1a4731",
   },
+  NWSL: {
+    name: "NWSL",
+    icon: "⚽",
+    espnPath: "soccer/usa.nwsl",
+    color: "#004B87",
+  },
   PWHL: {
     name: "PWHL",
     icon: "🏒",
