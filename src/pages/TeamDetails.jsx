@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Link, useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import GameCard from '@/components/sports/GameCard';
 import { fetchAllSchedules } from '@/components/sports/sportsApi';
+import { LEAGUES } from '@/components/sports/teamsData';
 
 export default function TeamDetails() {
   const navigate = useNavigate();
