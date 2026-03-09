@@ -359,8 +359,9 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
   const apRank = (isNCAAF || isNCAAB) && ncaaAbbr ? apRankings[ncaaAbbr] || null : null;
 
   const stats = standing?.stats;
-  const w = stats ? getStat(stats, 'wins', 'W') : '—';
-  const l = stats ? getStat(stats, 'losses', 'L') : '—';
+  const wlSummary = (isNCAAF || isNCAAB) ? getWLFromSummary(stats) : null;
+  const w = wlSummary ? wlSummary.w : (stats ? getStat(stats, 'wins', 'W') : '—');
+  const l = wlSummary ? wlSummary.l : (stats ? getStat(stats, 'losses', 'L') : '—');
   const otl = stats ? getStat(stats, 'otLosses', 'OTL') : null;
   const pct = stats ? getStat(stats, 'winPercent', 'PCT') : '—';
   const pts = stats ? getStat(stats, 'points', 'PTS') : '—';
