@@ -101,7 +101,7 @@ export default function Home() {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" style={{ paddingBottom: '80px' }}>
         <div className="max-w-7xl mx-auto px-4 py-6 pb-4">
           <AnimatePresence mode="wait">
             {view === 'upcoming' && (
