@@ -21,29 +21,77 @@ const LEAGUE_PATHS = {
   NWSL: 'soccer/usa.nwsl',
 };
 
-async function fetchAllTeamsNews(favoriteTeams) {
-  // Fetch news per unique league (ESPN news API doesn't accept custom team slugs)
-  const leagues = [...new Set(favoriteTeams.filter(t => LEAGUE_PATHS[t.league]).map(t => t.league))];
+// Extract abbreviation from our custom team_id slug
+// e.g. "nfl-ne" -> "NE", "premier-league-ars" -> "ARS"
+function getAbbrFromTeamId(teamId) {
+  const parts = teamId.split('-');
+  // Last part is always the abbreviation
+  return parts[parts.length - 1].toUpperCase();
+}
 
-  const results = await Promise.all(
-    leagues.map(async (league) => {
+async function fetchAllTeamsNews(favoriteTeams) {
+  const supported = favoriteTeams.filter(t => LEAGUE_PATHS[t.league]);
+  if (!supported.length) return [];
+
+  // Group by league
+  const byLeague = {};
+  supported.forEach(t => {
+    if (!byLeague[t.league]) byLeague[t.league] = [];
+    byLeague[t.league].push(t);
+  });
+
+  // For each league, fetch ESPN teams to get numeric IDs, then fetch news per team
+  const allArticles = await Promise.all(
+    Object.entries(byLeague).map(async ([league, teams]) => {
+      const path = LEAGUE_PATHS[league];
       try {
-        const res = await fetch(
-          `https://site.api.espn.com/apis/site/v2/sports/${LEAGUE_PATHS[league]}/news?limit=20`
+        // Get ESPN team list with numeric IDs
+        const teamsRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${path}/teams?limit=500`);
+        if (!teamsRes.ok) return [];
+        const teamsData = await teamsRes.json();
+        const espnTeams = teamsData.sports?.[0]?.leagues?.[0]?.teams || [];
+
+        // Build abbreviation -> ESPN numeric id map
+        const abbrToId = {};
+        espnTeams.forEach(({ team }) => {
+          if (team?.abbreviation && team?.id) {
+            abbrToId[team.abbreviation.toUpperCase()] = team.id;
+          }
+        });
+
+        // Fetch news for each followed team using numeric ESPN ID
+        const teamNewsResults = await Promise.all(
+          teams.map(async (team) => {
+            const abbr = getAbbrFromTeamId(team.team_id);
+            const espnId = abbrToId[abbr];
+            if (!espnId) return [];
+            try {
+              const newsRes = await fetch(
+                `https://site.api.espn.com/apis/site/v2/sports/${path}/news?team=${espnId}&limit=8`
+              );
+              if (!newsRes.ok) return [];
+              const newsData = await newsRes.json();
+              return (newsData.articles || []).map(a => ({
+                ...a,
+                _teamName: team.team_name,
+                _teamLogo: team.logo_url,
+              }));
+            } catch {
+              return [];
+            }
+          })
         );
-        if (!res.ok) return [];
-        const data = await res.json();
-        return (data.articles || []).map(a => ({ ...a, _league: league }));
+        return teamNewsResults.flat();
       } catch {
         return [];
       }
     })
   );
 
-  // Flatten, deduplicate by article id, sort by published date
+  // Flatten, deduplicate by article id, sort newest first
   const seen = new Set();
-  const all = results.flat().filter(a => {
-    if (seen.has(a.id)) return false;
+  const all = allArticles.flat().filter(a => {
+    if (!a.id || seen.has(a.id)) return false;
     seen.add(a.id);
     return true;
   });
@@ -126,7 +174,10 @@ export default function AllTeamsNews({ favoriteTeams, onAddTeams }) {
                     <p className="text-xs text-gray-500 mt-1 line-clamp-2">{article.description}</p>
                   )}
                   <div className="flex items-center gap-2 mt-1.5">
-                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">{article._league}</span>
+                    {article._teamLogo && (
+                      <img src={article._teamLogo} alt="" className="w-4 h-4 object-contain" />
+                    )}
+                    <span className="text-xs text-gray-400">{article._teamName}</span>
                     {timeAgo && <span className="text-xs text-gray-300">· {timeAgo}</span>}
                     <ExternalLink className="w-3 h-3 text-gray-300 ml-auto flex-shrink-0" />
                   </div>
