@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import GameCard from '@/components/sports/GameCard';
+import TeamNews from '@/components/sports/TeamNews';
 import { fetchAllSchedules } from '@/components/sports/sportsApi';
 import { LEAGUES } from '@/components/sports/teamsData';
 
