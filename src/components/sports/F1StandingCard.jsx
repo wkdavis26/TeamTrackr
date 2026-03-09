@@ -123,11 +123,9 @@ export default function F1StandingCard({ team }) {
                 </span>
               )}
               <span className="text-xs text-gray-400 ml-auto">
-                {standings?.constructor?.pts
-                  ? `${standings.constructor.pts} pts`
-                  : standings?.drivers?.length > 0
-                    ? `${standings.drivers.reduce((sum, d) => sum + (parseInt(d.pts) || 0), 0)} pts`
-                    : ''}
+                {standings?.drivers?.length > 0
+                  ? `${standings.drivers.reduce((sum, d) => sum + (parseInt(d.pts) || 0), 0)} pts`
+                  : standings?.constructor?.pts ? `${standings.constructor.pts} pts` : ''}
               </span>
             </div>
           )}
