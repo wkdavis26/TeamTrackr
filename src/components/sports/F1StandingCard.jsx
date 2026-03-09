@@ -5,54 +5,50 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { LEAGUES } from './teamsData';
 
-let f1StandingsCache = null;
-
-const parseStandingsData = (data) => {
-  const driverGroup = data.children?.find(c =>
-    c.name?.toLowerCase().includes('driver') || c.type?.toLowerCase().includes('driver')
-  ) || data.children?.[0];
-  const constructorGroup = data.children?.find(c =>
-    c.name?.toLowerCase().includes('constructor') || c.type?.toLowerCase().includes('constructor')
-  ) || data.children?.[1];
-
-  const drivers = (driverGroup?.standings?.entries || []).map(entry => ({
-    name: entry.athlete?.shortName || entry.athlete?.displayName || '',
-    abbr: entry.athlete?.abbreviation || '',
-    flagUrl: entry.athlete?.flag?.href || null,
-    teamName: entry.team?.displayName || entry.team?.name || '',
-    rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
-    pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
-  }));
-
-  const constructors = (constructorGroup?.standings?.entries || []).map(entry => ({
-    name: entry.team?.displayName || entry.team?.name || '',
-    rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
-    pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
-  }));
-
-  return { drivers, constructors };
+// Driver abbreviation → F1 team ID mapping for 2026 season
+const DRIVER_TEAM_MAP = {
+  'RUS': 'f1-mercedes', 'ANT': 'f1-mercedes',
+  'VER': 'f1-red-bull', 'LAW': 'f1-red-bull',
+  'LEC': 'f1-ferrari',  'HAM': 'f1-ferrari',
+  'NOR': 'f1-mclaren',  'PIA': 'f1-mclaren',
+  'ALO': 'f1-aston-martin', 'STR': 'f1-aston-martin',
+  'GAS': 'f1-alpine',   'DOO': 'f1-alpine',
+  'ALB': 'f1-williams', 'SAI': 'f1-williams',
+  'HAD': 'f1-alphatauri', 'TSU': 'f1-alphatauri',
+  'HUL': 'f1-alfa-romeo', 'BOR': 'f1-alfa-romeo',
+  'OCO': 'f1-haas',     'BEA': 'f1-haas',
 };
+
+let f1StandingsCache = null;
 
 const fetchF1Standings = async () => {
   if (f1StandingsCache?.drivers?.length > 0) return f1StandingsCache;
   try {
     const year = new Date().getFullYear();
-    // Try current year first, fall back to no season param
-    const urls = [
-      `https://site.api.espn.com/apis/v2/sports/racing/f1/standings?season=${year}`,
-      `https://site.api.espn.com/apis/v2/sports/racing/f1/standings`,
-    ];
-    for (const url of urls) {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const data = await res.json();
-      const parsed = parseStandingsData(data);
-      if (parsed.drivers.length > 0 || parsed.constructors.length > 0) {
-        f1StandingsCache = parsed;
-        return f1StandingsCache;
-      }
-    }
-    return { drivers: [], constructors: [] };
+    const res = await fetch(`https://site.api.espn.com/apis/v2/sports/racing/f1/standings?season=${year}`);
+    if (!res.ok) return { drivers: [], constructors: [] };
+    const data = await res.json();
+
+    const driverGroup = data.children?.find(c => c.name?.toLowerCase().includes('driver')) || data.children?.[0];
+    const constructorGroup = data.children?.find(c => c.name?.toLowerCase().includes('constructor')) || data.children?.[1];
+
+    const drivers = (driverGroup?.standings?.entries || []).map(entry => ({
+      name: entry.athlete?.shortName || entry.athlete?.displayName || '',
+      abbr: entry.athlete?.abbreviation || '',
+      flagUrl: entry.athlete?.flag?.href || null,
+      teamId: DRIVER_TEAM_MAP[entry.athlete?.abbreviation] || null,
+      rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
+      pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
+    }));
+
+    const constructors = (constructorGroup?.standings?.entries || []).map(entry => ({
+      name: entry.team?.displayName || entry.team?.name || '',
+      rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
+      pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
+    }));
+
+    f1StandingsCache = { drivers, constructors };
+    return f1StandingsCache;
   } catch (e) {
     return { drivers: [], constructors: [] };
   }
