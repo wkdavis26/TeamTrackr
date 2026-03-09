@@ -189,6 +189,9 @@ export default function TeamDetails() {
           </motion.div>
         )}
 
+        {/* News */}
+        <TeamNews teamId={teamId} league={league} />
+
         {/* Games list */}
         {isLoadingGames ? (
           <div className="flex items-center justify-center py-12">
