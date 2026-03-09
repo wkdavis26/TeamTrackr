@@ -24,7 +24,7 @@ const STANDINGS_PATHS = {
   'International':  'soccer/international',
 };
 
-const standingsCache = {};
+const standingsCache = {}; // keyed by league
 const colorsCache = {};
 let ncaafApRankingsCache = null;
 
