@@ -14,7 +14,7 @@ const DRIVER_TEAM_MAP = {
   'ALO': 'f1-aston-martin', 'STR': 'f1-aston-martin',
   'GAS': 'f1-alpine',   'DOO': 'f1-alpine',
   'ALB': 'f1-williams', 'SAI': 'f1-williams',
-  'HAD': 'f1-alphatauri', 'TSU': 'f1-alphatauri',
+  'LAW': 'f1-alphatauri', 'TSU': 'f1-alphatauri',
   'HUL': 'f1-alfa-romeo', 'BOR': 'f1-alfa-romeo',
   'OCO': 'f1-haas',     'BEA': 'f1-haas',
 };
