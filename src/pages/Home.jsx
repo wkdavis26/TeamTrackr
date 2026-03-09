@@ -193,7 +193,7 @@ export default function Home() {
       </div>
 
       {/* Bottom Tab Bar */}
-      <div className="bg-white border-t border-gray-200 pb-safe-bottom fixed bottom-0 left-0 right-0 z-50">
+      <div className="bg-white border-t border-gray-200 pb-safe-bottom flex-shrink-0">
         <div className="flex items-stretch max-w-7xl mx-auto">
           {TABS.map(({ id, label, icon: Icon }) => {
             const isActive = view === id;
