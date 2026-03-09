@@ -311,14 +311,21 @@ const findEntryForTeam = (entries, teamId) => {
 
 const getStat = (stats, ...names) => {
   for (const name of names) {
-    // Best match: overall stat where type === name (e.g. type:"losses" for name:"losses")
-    const exact = stats?.find(s => s.name === name && s.type === name);
+    // Match only the pure overall stat where type === name (e.g. type:"losses" name:"losses")
+    const exact = stats?.find(s => (s.name === name || s.abbreviation === name) && s.type === s.name);
     if (exact) return exact.displayValue;
-    // Fallback: match by abbreviation where type === name
-    const byAbbr = stats?.find(s => s.abbreviation === name && s.type === s.name);
-    if (byAbbr) return byAbbr.displayValue;
   }
   return '—';
+};
+
+// Parse overall W-L from the "total" record summary (most reliable source)
+const getWLFromSummary = (stats) => {
+  const totalRecord = stats?.find(s => s.type === 'total');
+  if (totalRecord?.summary) {
+    const parts = totalRecord.summary.split('-');
+    if (parts.length === 2) return { w: parts[0], l: parts[1] };
+  }
+  return null;
 };
 
 const TEAM_COLOR_OVERRIDES = {
