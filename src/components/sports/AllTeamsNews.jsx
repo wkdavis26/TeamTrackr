@@ -22,20 +22,18 @@ const LEAGUE_PATHS = {
 };
 
 async function fetchAllTeamsNews(favoriteTeams) {
-  const supported = favoriteTeams.filter(t => LEAGUE_PATHS[t.league]);
+  // Fetch news per unique league (ESPN news API doesn't accept custom team slugs)
+  const leagues = [...new Set(favoriteTeams.filter(t => LEAGUE_PATHS[t.league]).map(t => t.league))];
+
   const results = await Promise.all(
-    supported.map(async (team) => {
+    leagues.map(async (league) => {
       try {
         const res = await fetch(
-          `https://site.api.espn.com/apis/site/v2/sports/${LEAGUE_PATHS[team.league]}/news?team=${team.team_id}&limit=5`
+          `https://site.api.espn.com/apis/site/v2/sports/${LEAGUE_PATHS[league]}/news?limit=20`
         );
         if (!res.ok) return [];
         const data = await res.json();
-        return (data.articles || []).slice(0, 5).map(a => ({
-          ...a,
-          _teamName: team.team_name,
-          _teamLogo: team.logo_url,
-        }));
+        return (data.articles || []).map(a => ({ ...a, _league: league }));
       } catch {
         return [];
       }
