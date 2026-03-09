@@ -7,33 +7,52 @@ import { LEAGUES } from './teamsData';
 
 let f1StandingsCache = null;
 
+const parseStandingsData = (data) => {
+  const driverGroup = data.children?.find(c =>
+    c.name?.toLowerCase().includes('driver') || c.type?.toLowerCase().includes('driver')
+  ) || data.children?.[0];
+  const constructorGroup = data.children?.find(c =>
+    c.name?.toLowerCase().includes('constructor') || c.type?.toLowerCase().includes('constructor')
+  ) || data.children?.[1];
+
+  const drivers = (driverGroup?.standings?.entries || []).map(entry => ({
+    name: entry.athlete?.shortName || entry.athlete?.displayName || '',
+    abbr: entry.athlete?.abbreviation || '',
+    flagUrl: entry.athlete?.flag?.href || null,
+    teamName: entry.team?.displayName || entry.team?.name || '',
+    rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
+    pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
+  }));
+
+  const constructors = (constructorGroup?.standings?.entries || []).map(entry => ({
+    name: entry.team?.displayName || entry.team?.name || '',
+    rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
+    pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
+  }));
+
+  return { drivers, constructors };
+};
+
 const fetchF1Standings = async () => {
-  if (f1StandingsCache) return f1StandingsCache;
+  if (f1StandingsCache?.drivers?.length > 0) return f1StandingsCache;
   try {
-    const res = await fetch('https://site.api.espn.com/apis/v2/sports/racing/f1/standings');
-    if (!res.ok) return { drivers: [], constructors: [] };
-    const data = await res.json();
-
-    const driverGroup = data.children?.find(c => c.name === 'Driver Standings');
-    const constructorGroup = data.children?.find(c => c.name === 'Constructor Standings');
-
-    const drivers = (driverGroup?.standings?.entries || []).map(entry => ({
-      name: entry.athlete?.shortName || entry.athlete?.displayName || '',
-      abbr: entry.athlete?.abbreviation || '',
-      flagUrl: entry.athlete?.flag?.href || null,
-      teamName: entry.team?.displayName || entry.team?.name || '',
-      rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
-      pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
-    }));
-
-    const constructors = (constructorGroup?.standings?.entries || []).map(entry => ({
-      name: entry.team?.displayName || entry.team?.name || '',
-      rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
-      pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
-    }));
-
-    f1StandingsCache = { drivers, constructors };
-    return f1StandingsCache;
+    const year = new Date().getFullYear();
+    // Try current year first, fall back to no season param
+    const urls = [
+      `https://site.api.espn.com/apis/v2/sports/racing/f1/standings?season=${year}`,
+      `https://site.api.espn.com/apis/v2/sports/racing/f1/standings`,
+    ];
+    for (const url of urls) {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const parsed = parseStandingsData(data);
+      if (parsed.drivers.length > 0 || parsed.constructors.length > 0) {
+        f1StandingsCache = parsed;
+        return f1StandingsCache;
+      }
+    }
+    return { drivers: [], constructors: [] };
   } catch (e) {
     return { drivers: [], constructors: [] };
   }
