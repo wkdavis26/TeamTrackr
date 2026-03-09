@@ -64,7 +64,7 @@ export default function TeamDetails() {
 
   const DRIVER_TEAM_MAP = {
     'RUS': 'f1-mercedes', 'ANT': 'f1-mercedes',
-    'VER': 'f1-red-bull', 'LAW': 'f1-red-bull',
+    'VER': 'f1-red-bull', 'HAD': 'f1-red-bull',
     'LEC': 'f1-ferrari',  'HAM': 'f1-ferrari',
     'NOR': 'f1-mclaren',  'PIA': 'f1-mclaren',
     'ALO': 'f1-aston-martin', 'STR': 'f1-aston-martin',
