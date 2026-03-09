@@ -80,12 +80,10 @@ export default function F1StandingCard({ team }) {
 
   useEffect(() => {
     fetchF1Standings().then(data => {
-      // Drivers for this team
       const teamDrivers = data.drivers
-        .filter(d => teamNameToId(d.teamName) === team.team_id)
+        .filter(d => d.teamId === team.team_id)
         .sort((a, b) => a.rank - b.rank);
 
-      // Constructor standing for this team
       const constructor = data.constructors.find(c => teamNameToId(c.name) === team.team_id);
 
       setStandings({ drivers: teamDrivers, constructor });
