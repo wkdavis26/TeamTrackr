@@ -116,13 +116,11 @@ export default function F1StandingCard({ team }) {
           {/* Constructors rank */}
           {!loading && (standings?.constructor || standings?.drivers?.length > 0) && (
             <div className="flex items-center gap-2 px-1 py-1">
-              <span className="text-xs text-gray-500 font-medium">Constructors</span>
-              {standings?.constructor && (
-                <span className="ml-auto font-bold text-gray-900 text-sm">
-                  #{standings.constructor.rank}
-                </span>
-              )}
-              <span className="text-xs text-gray-400 ml-auto">
+              <span className="text-xs text-gray-500 font-medium flex-1">Constructors</span>
+              <span className="text-xs font-bold text-gray-900 w-8 text-right">
+                {standings?.constructor?.rank ? `#${standings.constructor.rank}` : '—'}
+              </span>
+              <span className="text-xs text-gray-400 w-12 text-right">
                 {standings?.drivers?.length > 0
                   ? `${standings.drivers.reduce((sum, d) => sum + (parseInt(d.pts) || 0), 0)} pts`
                   : standings?.constructor?.pts ? `${standings.constructor.pts} pts` : ''}
