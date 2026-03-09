@@ -311,11 +311,12 @@ const findEntryForTeam = (entries, teamId) => {
 
 const getStat = (stats, ...names) => {
   for (const name of names) {
-    // Prefer overall stats (type has no underscore prefix like home_, road_, conference_)
-    const overall = stats?.find(s => (s.name === name || s.abbreviation === name) && !s.type?.includes('_'));
-    if (overall) return overall.displayValue;
-    const s = stats?.find(s => s.name === name || s.abbreviation === name);
-    if (s) return s.displayValue;
+    // Best match: overall stat where type === name (e.g. type:"losses" for name:"losses")
+    const exact = stats?.find(s => s.name === name && s.type === name);
+    if (exact) return exact.displayValue;
+    // Fallback: match by abbreviation where type === name
+    const byAbbr = stats?.find(s => s.abbreviation === name && s.type === s.name);
+    if (byAbbr) return byAbbr.displayValue;
   }
   return '—';
 };
