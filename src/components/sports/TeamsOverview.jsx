@@ -473,8 +473,8 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-1 text-center">
-                {[['W', w], ['L', l], isBaseball ? ['GB', gb] : ['PCT', pct]].map(([label, val]) => (
+              <div className={`grid gap-1 text-center ${(isNCAAF || isNCAAB || team.league === 'NFL') ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                {[['W', w], ['L', l], ...(isNCAAF || isNCAAB || team.league === 'NFL' ? [] : [isBaseball ? ['GB', gb] : ['PCT', pct]])].map(([label, val]) => (
                   <div key={label}>
                     <div className="text-base font-bold text-gray-900">{val}</div>
                     <div className="text-xs text-gray-400">{label}</div>
