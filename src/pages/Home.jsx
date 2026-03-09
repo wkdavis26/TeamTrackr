@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Calendar, List, Heart, Loader2, LayoutGrid, Tv2, Settings, LogOut } from 'lucide-react';
+import { Calendar, List, Heart, Loader2, LayoutGrid, Tv2, Settings, LogOut, Newspaper } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import TeamSelector from '@/components/sports/TeamSelector';
@@ -10,11 +10,13 @@ import UpcomingGames from '@/components/sports/UpcomingGames';
 import CalendarView from '@/components/sports/CalendarView';
 import TeamsOverview from '@/components/sports/TeamsOverview';
 import LeagueGames from '@/components/sports/LeagueGames';
+import AllTeamsNews from '@/components/sports/AllTeamsNews';
 import { fetchAllSchedules } from '@/components/sports/sportsApi';
 
 const TABS = [
   { id: 'upcoming', label: 'Upcoming', icon: List },
   { id: 'overview', label: 'Standings', icon: LayoutGrid },
+  { id: 'news', label: 'News', icon: Newspaper },
   { id: 'calendar', label: 'Calendar', icon: Calendar },
   { id: 'league', label: 'All Games', icon: Tv2 },
   { id: 'teams', label: 'My Teams', icon: Settings },
