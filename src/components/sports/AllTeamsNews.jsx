@@ -126,10 +126,7 @@ export default function AllTeamsNews({ favoriteTeams, onAddTeams }) {
                     <p className="text-xs text-gray-500 mt-1 line-clamp-2">{article.description}</p>
                   )}
                   <div className="flex items-center gap-2 mt-1.5">
-                    {article._teamLogo && (
-                      <img src={article._teamLogo} alt="" className="w-4 h-4 object-contain" />
-                    )}
-                    <span className="text-xs text-gray-400">{article._teamName}</span>
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">{article._league}</span>
                     {timeAgo && <span className="text-xs text-gray-300">· {timeAgo}</span>}
                     <ExternalLink className="w-3 h-3 text-gray-300 ml-auto flex-shrink-0" />
                   </div>
