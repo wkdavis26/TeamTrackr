@@ -311,6 +311,9 @@ const findEntryForTeam = (entries, teamId) => {
 
 const getStat = (stats, ...names) => {
   for (const name of names) {
+    // Prefer overall stats (type has no underscore prefix like home_, road_, conference_)
+    const overall = stats?.find(s => (s.name === name || s.abbreviation === name) && !s.type?.includes('_'));
+    if (overall) return overall.displayValue;
     const s = stats?.find(s => s.name === name || s.abbreviation === name);
     if (s) return s.displayValue;
   }
