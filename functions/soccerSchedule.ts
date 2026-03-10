@@ -45,12 +45,16 @@ Deno.serve(async (req) => {
     const year = now.getFullYear();
     const season = month >= 7 ? year : year - 1; // July onwards = new season
 
-    // Fetch teams to create ID-to-abbreviation mapping
+    // Fetch teams to create ID-to-code mapping
     const teamsData = await apiFetch(`/teams?league=${config.leagueId}`);
     const teamIdMap = {};
     if (teamsData?.response) {
       teamsData.response.forEach(team => {
-        teamIdMap[team.team.id] = (team.team.code || team.team.name).toLowerCase();
+        // Use team code if available, fallback to name slug
+        const teamSlug = team.team.code 
+          ? team.team.code.toLowerCase() 
+          : team.team.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        teamIdMap[team.team.id] = teamSlug;
       });
     }
 
