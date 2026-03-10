@@ -761,13 +761,22 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   if (teamIdsByLeague['NBA']) {
     const nbaIds = teamIdsByLeague['NBA'];
     const todayMidnightUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    console.log('[NBA] todayMidnightUTC:', todayMidnightUTC.toISOString(), 'nbaIds:', nbaIds);
+    let nbaParsedCount = 0;
     nbaGames.forEach(g => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
       const gameDate = new Date(g.date);
       const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
-      if (!favoriteTeamId) return;
-      if (gameDate < todayMidnightUTC) return;
+      if (!favoriteTeamId) {
+        console.log('[NBA] No favorite team found for', homeId, 'vs', awayId);
+        return;
+      }
+      if (gameDate < todayMidnightUTC) {
+        console.log('[NBA] Game date', gameDate.toISOString(), 'is before', todayMidnightUTC.toISOString());
+        return;
+      }
+      nbaParsedCount++;
       allGames.push({
         id: `nba-${g.id}`,
         date: gameDate,
@@ -780,6 +789,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
         status: g.status || 'NS',
       });
     });
+    console.log('[NBA] Parsed', nbaParsedCount, 'NBA games');
   }
   
   // Parse WNBA games
