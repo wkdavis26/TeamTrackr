@@ -87,6 +87,11 @@ Deno.serve(async (req) => {
       // Extract odds from the bet structure
       let odds = null;
       if (firstBookmaker?.bets) {
+        // Log first bet structure to debug
+        if (game.fixture.id === futureGames[0]?.fixture.id) {
+          console.log('[soccerSchedule] First bet:', JSON.stringify(firstBookmaker.bets[0], null, 2));
+        }
+        
         const matchBet = firstBookmaker.bets.find(b => b.name === 'Match Winner' || b.name === '1x2' || b.name === 'Win');
         if (matchBet?.values) {
           odds = {
