@@ -43,9 +43,13 @@ export default function TeamDetails() {
 
   // Filter games for this team only, grouped by date
   const teamGames = useMemo(() => {
-    return allGames
-      .filter(game => game.favoriteTeamId === teamId)
-      .sort((a, b) => a.date - b.date);
+    console.log('[TeamDetails] Filtering for team:', teamId, 'from', allGames.length, 'total games');
+    const filtered = allGames.filter(game => game.favoriteTeamId === teamId);
+    console.log('[TeamDetails] Found', filtered.length, 'games for this team');
+    if (filtered.length > 0) {
+      console.log('[TeamDetails] Sample game:', filtered[0]);
+    }
+    return filtered.sort((a, b) => a.date - b.date);
   }, [allGames, teamId]);
 
   const gamesByDate = useMemo(() => {
