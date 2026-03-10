@@ -1014,7 +1014,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const awayId = game.awayTeam?.id;
       const favoriteTeamId = teamIdsByLeague['Serie A'].find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
-      const gameDate = new Date(game.date);
+      const gameDate = typeof game.date === 'string' ? new Date(game.date) : game.date;
       if (gameDate <= now) return;
       allGames.push({
         id: `sa-${game.id}`,
