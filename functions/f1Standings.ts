@@ -21,7 +21,7 @@ const teamNameToId = (name) => {
   if (n.includes('alpine')) return 'f1-alpine';
   if (n.includes('williams')) return 'f1-williams';
   if (n.includes('racing bulls') || n.includes('rb') || n.includes('alphatauri') || n.includes('visa')) return 'f1-alphatauri';
-  if (n.includes('sauber') || n.includes('kick')) return 'f1-sauber';
+  if (n.includes('sauber') || n.includes('kick') || n.includes('audi')) return 'f1-sauber';
   if (n.includes('haas')) return 'f1-haas';
   return null;
 };
