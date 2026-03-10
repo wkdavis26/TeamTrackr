@@ -45,6 +45,15 @@ Deno.serve(async (req) => {
     const year = now.getFullYear();
     const season = month >= 7 ? year : year - 1; // July onwards = new season
 
+    // Fetch teams to create ID-to-abbreviation mapping
+    const teamsData = await apiFetch(`/teams?league=${config.leagueId}`);
+    const teamIdMap = {};
+    if (teamsData?.response) {
+      teamsData.response.forEach(team => {
+        teamIdMap[team.team.id] = (team.team.code || team.team.name).toLowerCase();
+      });
+    }
+
     // Fetch games for current season
     const data = await apiFetch(`/fixtures?league=${config.leagueId}&season=${season}`);
 
