@@ -76,7 +76,10 @@ Deno.serve(async (req) => {
       })
       .filter(g => g.homeTeam.id && g.awayTeam.id);
 
-    return Response.json({ games }, {
+    return Response.json({ 
+      games,
+      debug: { teamsCount: teams.length, gamesCount: rawGames.length, teamMapSize: Object.keys(teamMap).length }
+    }, {
       headers: {
         'Cache-Control': 'public, max-age=300'
       }
