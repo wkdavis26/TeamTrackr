@@ -547,7 +547,10 @@ export default function TeamsOverview({ favoriteTeams }) {
     load();
   }, [favoriteTeams.map(t => t.team_id).sort().join(',')]);
 
-  const byLeague = favoriteTeams.reduce((acc, t) => {
+  // Deduplicate teams by team_id
+  const uniqueTeams = Array.from(new Map(favoriteTeams.map(t => [t.team_id, t])).values());
+  
+  const byLeague = uniqueTeams.reduce((acc, t) => {
     if (!acc[t.league]) acc[t.league] = [];
     acc[t.league].push(t);
     return acc;
