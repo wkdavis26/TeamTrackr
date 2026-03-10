@@ -79,10 +79,12 @@ const fetchESPNScheduleRange = async (sportPath, endDate) => {
   }
 };
 
-// Fetch NFL schedule
+// Fetch NFL schedule from api-sports backend function
 export const fetchNFLSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('football/nfl');
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('nflSchedule', {});
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching NFL schedule:', error);
     return [];
