@@ -54,9 +54,12 @@ Deno.serve(async (req) => {
     const endpoint = `/${config.sport}/standings?season=${config.season}&league=${config.league}`;
     const data = await apiFetch(endpoint);
 
-    if (!data || !data.response) {
+    if (!data) {
+      console.error(`No data returned for ${league}`);
       return Response.json({ standings: [] });
     }
+
+    console.log(`api-sports response for ${league}:`, JSON.stringify(data).substring(0, 500));
 
     // Transform api-sports response into ESPN-like format for frontend
     // api-sports returns array of divisions with teams
