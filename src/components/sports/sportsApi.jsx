@@ -1040,10 +1040,11 @@ export const fetchAllSchedules = async (favoriteTeams) => {
 
   // Parse Bundesliga games (from api-sports backend function)
   if (teamIdsByLeague['Bundesliga']) {
+    const bundesligaIds = teamIdsByLeague['Bundesliga'];
     bundesligaGames.forEach(game => {
       const homeId = game.homeTeam?.id;
       const awayId = game.awayTeam?.id;
-      const favoriteTeamId = teamIdsByLeague['Bundesliga'].find(id => id === homeId || id === awayId);
+      const favoriteTeamId = bundesligaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = typeof game.date === 'string' ? new Date(game.date) : game.date;
       if (gameDate <= now) return;
