@@ -34,11 +34,35 @@ export default function Home() {
     queryFn: () => base44.auth.me()
   });
 
-  const { data: favoriteTeams = [], isLoading } = useQuery({
+  const { data: rawFavoriteTeams = [], isLoading } = useQuery({
     queryKey: ['favoriteTeams', currentUser?.email],
     queryFn: () => base44.entities.FavoriteTeam.filter({ created_by: currentUser.email }),
     enabled: !!currentUser
   });
+
+  // Deduplicate teams by team_id + league (keep first occurrence, delete duplicates)
+  const favoriteTeams = React.useMemo(() => {
+    const seen = new Set();
+    const deduped = [];
+    const toDelete = [];
+    
+    rawFavoriteTeams.forEach(team => {
+      const key = `${team.team_id}-${team.league}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduped.push(team);
+      } else {
+        toDelete.push(team.id);
+      }
+    });
+    
+    // Delete duplicates in the background
+    if (toDelete.length > 0) {
+      toDelete.forEach(id => base44.entities.FavoriteTeam.delete(id));
+    }
+    
+    return deduped;
+  }, [rawFavoriteTeams]);
 
   const { data: upcomingGames = [], isLoading: isLoadingGames } = useQuery({
     queryKey: ['schedules-v3', favoriteTeams.map((t) => t.team_id).join(',')],
