@@ -28,10 +28,14 @@ Deno.serve(async (req) => {
     const teams = teamsData?.response || [];
     const rawGames = gamesData?.response || [];
 
-    // Build apiId -> code map
-    const codeMap = {};
+    // Build apiId -> abbreviation map (use abbr or name slug)
+    const teamMap = {};
     teams.forEach(t => {
-      if (t.id && t.code) codeMap[t.id] = t.code;
+      if (t.id) {
+        // Use abbr if available, otherwise create from name
+        const code = t.abbr || t.abbreviation || (t.name ? t.name.split(' ').map(w => w[0]).join('').toUpperCase() : null);
+        if (code) teamMap[t.id] = code.toLowerCase();
+      }
     });
 
     // If no teams, return debug info to check structure
