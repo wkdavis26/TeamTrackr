@@ -137,10 +137,12 @@ export const fetchNBASchedule = async () => {
   }
 };
 
-// Fetch Champions League schedule
+// Fetch Champions League schedule via api-sports
 export const fetchChampionsLeagueSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('soccer/uefa.champions');
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('championsLeagueSchedule', {});
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching Champions League schedule:', error);
     return [];
