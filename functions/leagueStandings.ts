@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     // Transform api-sports response into ESPN-like format for frontend
     const standings = data.response.map(group => {
       const confName = group.group?.name || group.country?.name || null;
-      const entries = (group.standings || []).map((division, divIdx) => {
+      const entries = (group.standings || []).flatMap((division) => {
         return (division.map((team, rank) => ({
           team: {
             id: team.team?.id,
@@ -83,8 +83,8 @@ Deno.serve(async (req) => {
           _confName: confName,
           _divName: group.group?.name || null,
           _divRank: rank + 1,
-        })) || [];
-      }).flat();
+        })) || []);
+      });
 
       return { confName, entries };
     });
