@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
 
     const now = new Date();
 
-    const games = (gamesData.response || [])
+    const games = (rawGames || [])
       .filter(g => {
         // Parse UTC date from the game object
         const dateStr = g.date;
