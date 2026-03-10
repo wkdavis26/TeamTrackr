@@ -34,9 +34,12 @@ Deno.serve(async (req) => {
     // Build apiId -> abbreviation map
      const teamMap = {};
      teams.forEach(t => {
-       if (t.id && t.team?.abbreviation) {
-         const abbr = t.team.abbreviation.toLowerCase();
-         teamMap[t.id] = abbr;
+       if (t.id) {
+         // Try different field names for abbreviation
+         const abbr = t.abbreviation || t.code || t.team?.abbreviation || (t.name ? t.name.substring(0, 3).toLowerCase() : null);
+         if (abbr) {
+           teamMap[t.id] = abbr.toLowerCase();
+         }
        }
      });
 
