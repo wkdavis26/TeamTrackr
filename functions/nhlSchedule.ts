@@ -23,13 +23,18 @@ Deno.serve(async (req) => {
       apiFetch('/games?league=1&season=2025'),
     ]);
 
+    if (!teamsData || !teamsData.response) {
+      return Response.json({ games: [], error: 'No teams data' });
+    }
+    if (!gamesData || !gamesData.response) {
+      return Response.json({ games: [], error: 'No games data' });
+    }
+
     // Build apiId -> code map
     const codeMap = {};
     (teamsData.response || []).forEach(t => {
       if (t.id && t.code) codeMap[t.id] = t.code;
     });
-    console.log('[NHL] Teams response sample:', (teamsData.response || []).slice(0, 2));
-    console.log('[NHL] Code map:', codeMap);
 
     const now = new Date();
 
