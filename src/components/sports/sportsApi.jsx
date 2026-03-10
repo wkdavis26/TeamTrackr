@@ -178,7 +178,7 @@ export const fetchLaLigaSchedule = async () => {
 // Fetch NCAA Football schedule
 export const fetchNCAAFSchedule = async () => {
   try {
-    const endOfSeason = new Date(2026, 5, 30); // through June
+    const endOfSeason = new Date(2027, 0, 31); // through January 2027 (covers bowl games)
     return await fetchESPNScheduleRange('football/college-football', endOfSeason);
   } catch (error) {
     console.error('Error fetching NCAAF schedule:', error);
