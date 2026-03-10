@@ -12,20 +12,10 @@ const apiFetch = async (endpoint) => {
       },
     });
     if (!res.ok) {
-      console.error(`API error: ${res.status} for ${endpoint}`);
       return null;
     }
-    const text = await res.text();
-    try {
-      const json = JSON.parse(text);
-      console.log(`API response for ${endpoint}:`, json?.response ? 'has data' : 'empty');
-      return json;
-    } catch (e) {
-      console.error('JSON parse error:', text);
-      return null;
-    }
+    return res.json();
   } catch (e) {
-    console.error('Fetch error:', e.message);
     return null;
   }
 };
@@ -66,24 +56,115 @@ Deno.serve(async (req) => {
     const now = new Date();
     const month = now.getMonth();
     const year = now.getFullYear();
-    const season = month >= 7 ? year : year - 1; // July onwards = new season
+    const season = month >= 7 ? year : year - 1;
 
-    // Fetch standings from api-sports
-    const endpoint = `/standings?league=${config.leagueId}&season=${season}`;
-    const data = await apiFetch(endpoint);
+    // Try to fetch standings directly first
+    let data = await apiFetch(`/standings?league=${config.leagueId}&season=${season}`);
+    
+    // If no standings available, derive from fixtures
+    if (!data?.response || !Array.isArray(data.response) || data.response.length === 0) {
+      const fixturesData = await apiFetch(`/fixtures?league=${config.leagueId}&season=${season}&status=FT`);
+      
+      if (!fixturesData?.response || fixturesData.response.length === 0) {
+        return Response.json({ standings: [] });
+      }
 
-    if (!data?.response) {
-      // Return empty if API doesn't have data
-      return Response.json({ standings: [] });
+      // Build standings from completed fixtures
+      const teamStats = {};
+      
+      fixturesData.response.forEach(fixture => {
+        const homeTeam = fixture.teams.home;
+        const awayTeam = fixture.teams.away;
+        const goals = fixture.goals;
+        
+        if (!teamStats[homeTeam.id]) {
+          teamStats[homeTeam.id] = { 
+            team: homeTeam, 
+            played: 0, 
+            wins: 0, 
+            draws: 0, 
+            losses: 0, 
+            gf: 0, 
+            ga: 0, 
+            gd: 0, 
+            points: 0 
+          };
+        }
+        if (!teamStats[awayTeam.id]) {
+          teamStats[awayTeam.id] = { 
+            team: awayTeam, 
+            played: 0, 
+            wins: 0, 
+            draws: 0, 
+            losses: 0, 
+            gf: 0, 
+            ga: 0, 
+            gd: 0, 
+            points: 0 
+          };
+        }
+
+        const homeStats = teamStats[homeTeam.id];
+        const awayStats = teamStats[awayTeam.id];
+        
+        homeStats.played += 1;
+        awayStats.played += 1;
+        homeStats.gf += goals.home;
+        homeStats.ga += goals.away;
+        awayStats.gf += goals.away;
+        awayStats.ga += goals.home;
+
+        if (goals.home > goals.away) {
+          homeStats.wins += 1;
+          homeStats.points += 3;
+          awayStats.losses += 1;
+        } else if (goals.home < goals.away) {
+          awayStats.wins += 1;
+          awayStats.points += 3;
+          homeStats.losses += 1;
+        } else {
+          homeStats.draws += 1;
+          homeStats.points += 1;
+          awayStats.draws += 1;
+          awayStats.points += 1;
+        }
+        
+        homeStats.gd = homeStats.gf - homeStats.ga;
+        awayStats.gd = awayStats.gf - awayStats.ga;
+      });
+
+      // Sort by points then goal difference
+      const standings = Object.values(teamStats)
+        .sort((a, b) => {
+          if (b.points !== a.points) return b.points - a.points;
+          if (b.gd !== a.gd) return b.gd - a.gd;
+          return b.gf - a.gf;
+        })
+        .map((stat, rank) => ({
+          team: {
+            id: stat.team.id,
+            abbreviation: stat.team.code || stat.team.name.substring(0, 3).toUpperCase(),
+            displayName: stat.team.name,
+            logo: stat.team.logo,
+            color: null,
+          },
+          stats: [
+            { name: 'wins', abbreviation: 'W', displayValue: String(stat.wins), value: String(stat.wins) },
+            { name: 'losses', abbreviation: 'L', displayValue: String(stat.losses), value: String(stat.losses) },
+            { name: 'winPercent', abbreviation: 'GD', displayValue: String(stat.gd), value: String(stat.gd) },
+            { name: 'points', abbreviation: 'PTS', displayValue: String(stat.points), value: String(stat.points) },
+            { name: 'total', type: 'total', summary: `${stat.wins}-${stat.draws}-${stat.losses}` },
+          ],
+          _divRank: rank + 1,
+        }));
+
+      return Response.json({ standings });
     }
 
-    // Transform api-sports response into ESPN-like format for frontend
+    // Transform api-sports standings response
     const allEntries = [];
     
-    // api-sports returns an array of standings grouped by stage
-    const standingsArray = Array.isArray(data.response) ? data.response : [];
-    
-    standingsArray.forEach((stageGroup) => {
+    (data.response || []).forEach((stageGroup) => {
       const confName = stageGroup.group?.name || null;
       const divName = stageGroup.group?.name || null;
       
@@ -100,10 +181,9 @@ Deno.serve(async (req) => {
             stats: [
               { name: 'wins', abbreviation: 'W', displayValue: String(team.all?.wins || 0), value: String(team.all?.wins || 0) },
               { name: 'losses', abbreviation: 'L', displayValue: String(team.all?.losses || 0), value: String(team.all?.losses || 0) },
-              { name: 'winPercent', abbreviation: 'PCT', displayValue: (team.goalsDiff !== undefined ? team.goalsDiff : 0).toString(), value: String(team.goalsDiff || 0) },
+              { name: 'winPercent', abbreviation: 'GD', displayValue: String(team.goalsDiff || 0), value: String(team.goalsDiff || 0) },
               { name: 'points', abbreviation: 'PTS', displayValue: String(team.points || 0), value: String(team.points || 0) },
-              { name: 'gamesBehind', abbreviation: 'GB', displayValue: '0', value: '0' },
-              { name: 'total', type: 'total', summary: `${team.all?.wins || 0}-${team.all?.losses || 0}` },
+              { name: 'total', type: 'total', summary: `${team.all?.wins || 0}-${team.all?.draws || 0}-${team.all?.losses || 0}` },
             ],
             _confName: confName,
             _divName: divName,
@@ -115,7 +195,6 @@ Deno.serve(async (req) => {
 
     return Response.json({ standings: allEntries });
   } catch (error) {
-    console.error('Error fetching standings:', error);
     return Response.json({ error: error.message, standings: [] }, { status: 500 });
   }
 });
