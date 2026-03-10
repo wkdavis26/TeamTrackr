@@ -13,20 +13,15 @@ const apiFetch = async (endpoint) => {
   return res.json();
 };
 
-// Map league names to api-sports league IDs and names
+// Map league names to api-sports league IDs
 const LEAGUE_CONFIG = {
-  'NBA': { sport: 'basketball', league: 'nba', season: 2025 },
-  'NFL': { sport: 'american-football', league: 'nfl', season: 2025 },
-  'NHL': { sport: 'ice-hockey', league: 'nhl', season: 2025 },
-  'MLB': { sport: 'baseball', league: 'mlb', season: 2025 },
-  'WNBA': { sport: 'basketball', league: 'wnba', season: 2025 },
-  'Premier League': { sport: 'football', league: 'premier-league', season: 2025 },
-  'La Liga': { sport: 'football', league: 'la-liga', season: 2025 },
-  'Serie A': { sport: 'football', league: 'serie-a', season: 2025 },
-  'Bundesliga': { sport: 'football', league: 'bundesliga', season: 2025 },
-  'MLS': { sport: 'football', league: 'mls', season: 2025 },
-  'NCAAF': { sport: 'american-football', league: 'ncaaf', season: 2025 },
-  'NCAAB': { sport: 'basketball', league: 'ncaab', season: 2024 },
+  'NHL': { leagueId: 1 },
+  'MLB': { leagueId: 1 },
+  'Premier League': { leagueId: 39 },
+  'La Liga': { leagueId: 140 },
+  'Serie A': { leagueId: 135 },
+  'Bundesliga': { leagueId: 78 },
+  'MLS': { leagueId: 218 },
 };
 
 Deno.serve(async (req) => {
