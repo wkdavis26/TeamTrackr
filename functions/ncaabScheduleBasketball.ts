@@ -7,7 +7,11 @@ const apiFetch = async (endpoint) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     headers: { 'x-apisports-key': API_KEY }
   });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  if (!res.ok) {
+    const text = await res.text();
+    console.log(`API error ${res.status}:`, text);
+    throw new Error(`API error: ${res.status}`);
+  }
   return res.json();
 };
 
@@ -17,29 +21,12 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // NCAA Basketball - trying multiple endpoints to find games
-    let raw = [];
     const now = new Date();
     
-    // Try league 1 (NCAA)
-    try {
-      const data = await apiFetch('/games?league=1&season=2025');
-      if (data.response?.length > 0) {
-        raw = data.response;
-      }
-    } catch (e) {
-      console.log('League 1 failed, trying alternative');
-    }
-    
-    // If empty, try fetching all games and filter
-    if (raw.length === 0) {
-      try {
-        const data = await apiFetch('/games?season=2025');
-        raw = data.response || [];
-      } catch (e) {
-        console.log('Season fetch failed');
-      }
-    }
+    // Try fetching NCAA games - league 1 is NCAA basketball
+    let data = await apiFetch('/games?league=1&season=2025');
+    console.log('NCAA API response:', data.response?.length || 0, 'games');
+    let raw = data.response || [];
 
     const games = raw
       .filter(g => {
@@ -63,8 +50,10 @@ Deno.serve(async (req) => {
         status: g.status?.long || 'Scheduled',
       }));
 
+    console.log('Returning', games.length, 'filtered games');
     return Response.json({ games });
   } catch (error) {
+    console.log('Error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
