@@ -26,13 +26,12 @@ const teamNameToId = (name) => {
   return null;
 };
 
-const NATIONALITY_TO_CODE = {
-  'Dutch': 'nl', 'British': 'gb', 'Monegasque': 'mc', 'German': 'de',
-  'Spanish': 'es', 'Australian': 'au', 'Mexican': 'mx', 'Finnish': 'fi',
-  'Canadian': 'ca', 'French': 'fr', 'Thai': 'th', 'Chinese': 'cn',
-  'Japanese': 'jp', 'American': 'us', 'New Zealander': 'nz', 'Italian': 'it',
-  'Argentine': 'ar', 'Danish': 'dk', 'Brazilian': 'br', 'Austrian': 'at',
-  'Belgian': 'be', 'Swiss': 'ch', 'Polish': 'pl',
+const DRIVER_FLAG = {
+  'VER': 'nl', 'HAM': 'gb', 'LEC': 'mc', 'SAI': 'es', 'NOR': 'gb',
+  'PIA': 'au', 'RUS': 'gb', 'ALO': 'es', 'STR': 'ca', 'PER': 'mx',
+  'GAS': 'fr', 'OCO': 'fr', 'TSU': 'jp', 'ALB': 'gb', 'HUL': 'de',
+  'MAG': 'dk', 'BOT': 'fi', 'ZHO': 'cn', 'LAW': 'nz', 'BEA': 'gb',
+  'DOO': 'au', 'ANT': 'us', 'HAD': 'us', 'BOR': 'it', 'COL': 'ar',
 };
 
 Deno.serve(async (req) => {
