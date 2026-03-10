@@ -17,65 +17,23 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Fetch available leagues to find correct NCAAF league ID
-    const leaguesData = await apiFetch('/leagues');
-    const teamsData = { response: [] };
-    const gamesData = { response: [] };
-    const league2 = leaguesData.response?.[1];
-    const gamesData = await apiFetch('/games?league=2&season=2025');
-    return Response.json({ league2Name: league2?.league?.name, league2Id: league2?.league?.id, gamesCount: gamesData.response?.length, gamesErrors: gamesData.errors, sampleGame: gamesData.response?.[0] });
+    // Diagnostic: check what league 2 returns
+    const [leaguesData, gamesData2025, gamesData2024] = await Promise.all([
+      apiFetch('/leagues'),
+      apiFetch('/games?league=2&season=2025'),
+      apiFetch('/games?league=2&season=2024'),
+    ]);
 
-    // Build apiId -> code map
-    const codeMap = {};
-    (teamsData.response || []).forEach(t => {
-      if (t.id && t.code) codeMap[t.id] = t.code;
+    const league2 = leaguesData.response?.find(l => l.league?.id === 2);
+
+    return Response.json({
+      league2Name: league2?.league?.name,
+      games2025: gamesData2025.response?.length,
+      games2024: gamesData2024.response?.length,
+      errors2025: gamesData2025.errors,
+      sampleGame2025: gamesData2025.response?.[0],
+      sampleGame2024: gamesData2024.response?.[0],
     });
-
-    const now = new Date();
-
-    const games = (gamesData.response || [])
-      .filter(g => {
-        const dateStr = g.game?.date?.date;
-        const timeStr = g.game?.date?.time || '00:00';
-        if (!dateStr) return false;
-        const gameDate = new Date(`${dateStr}T${timeStr}:00Z`);
-        const status = g.game?.status?.short;
-        return status === 'NS' || status === 'SCH' || gameDate > now;
-      })
-      .map(g => {
-        const homeApiId = g.teams?.home?.id;
-        const awayApiId = g.teams?.away?.id;
-        const homeCode = codeMap[homeApiId] || '';
-        const awayCode = codeMap[awayApiId] || '';
-        const dateStr = g.game?.date?.date;
-        const timeStr = g.game?.date?.time || '00:00';
-        return {
-          id: g.game?.id,
-          date: `${dateStr}T${timeStr}:00Z`,
-          homeTeam: {
-            id: homeCode ? `ncaaf-${homeCode.toLowerCase()}` : null,
-            name: g.teams?.home?.name || '',
-            logo: g.teams?.home?.logo || null,
-          },
-          awayTeam: {
-            id: awayCode ? `ncaaf-${awayCode.toLowerCase()}` : null,
-            name: g.teams?.away?.name || '',
-            logo: g.teams?.away?.logo || null,
-          },
-          venue: g.game?.venue?.name || 'TBD',
-          week: g.game?.week || '',
-          stage: g.game?.stage || '',
-          status: g.game?.status?.short || 'NS',
-        };
-      })
-      .filter(g => g.homeTeam.id && g.awayTeam.id);
-
-    console.log('Total raw games:', gamesData.response?.length, 'Filtered:', games.length);
-    if (gamesData.response?.length > 0) {
-      const sample = gamesData.response[0];
-      console.log('Sample game:', JSON.stringify(sample?.game?.date), JSON.stringify(sample?.game?.status));
-    }
-    return Response.json({ games });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
