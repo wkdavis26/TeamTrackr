@@ -762,7 +762,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(g.date);
-      if (gameDate <= now) return;
+      if (gameDate < now) return;
       allGames.push({
         id: `nba-${g.id}`,
         date: gameDate,
@@ -817,7 +817,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = plIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      if (isNaN(gameDate.getTime()) || gameDate < now) return;
+      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
+      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
       allGames.push({
         id: `pl-${game.id}`,
         date: gameDate,
@@ -894,7 +895,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = mlsIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      if (isNaN(gameDate.getTime()) || gameDate < now) return;
+      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
+      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
       allGames.push({
         id: `mls-${game.id}`,
         date: gameDate,
@@ -919,7 +921,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = laligaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      if (isNaN(gameDate.getTime()) || gameDate < now) return;
+      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
+      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
       allGames.push({
         id: `ll-${game.id}`,
         date: gameDate,
@@ -1022,7 +1025,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = serieAIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      if (isNaN(gameDate.getTime()) || gameDate < now) return;
+      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
+      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
       allGames.push({
         id: `sa-${game.id}`,
         date: gameDate,
@@ -1047,7 +1051,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = bundesligaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      if (isNaN(gameDate.getTime()) || gameDate < now) return;
+      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
+      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
       allGames.push({
         id: `bl-${game.id}`,
         date: gameDate,
