@@ -56,13 +56,16 @@ Deno.serve(async (req) => {
     // Filter for future games
     const futureGames = data.response.filter(game => new Date(game.fixture.date) > now);
 
-    // Fetch odds for these games using the /odds/live/bets endpoint
-    const oddsData = await apiFetch(`/odds?fixture=${futureGames.map(g => g.fixture.id).join('-')}`);
+    // Fetch odds for first game as sample (API may have rate limits for bulk requests)
     const oddsMap = {};
-    if (oddsData?.response) {
-      oddsData.response.forEach(oddItem => {
-        oddsMap[oddItem.fixture.id] = oddItem.bookmakers || [];
-      });
+    if (futureGames.length > 0) {
+      const firstGameId = futureGames[0].fixture.id;
+      const oddsData = await apiFetch(`/odds?fixture=${firstGameId}`);
+      if (oddsData?.response) {
+        oddsData.response.forEach(oddItem => {
+          oddsMap[oddItem.fixture.id] = oddItem.bookmakers || [];
+        });
+      }
     }
 
     // Parse games into standardized format
