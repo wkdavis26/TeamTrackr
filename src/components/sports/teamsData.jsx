@@ -40,7 +40,7 @@ export const LEAGUES = {
   NCAAF: {
     name: "NCAA Football",
     icon: "🏈",
-    espnPath: "football/college-football",
+    espnPath: null, // uses api-sports via ncaafTeams/ncaafSchedule backend functions
     color: "#CC5500",
   },
   MLS: {
@@ -151,11 +151,12 @@ export const fetchLeagueTeams = async (leagueKey) => {
   const league = LEAGUES[leagueKey];
   if (!league) return [];
 
-  // NFL: use api-sports backend function
-  if (leagueKey === 'NFL') {
+  // NFL / NCAAF: use api-sports backend functions
+  if (leagueKey === 'NFL' || leagueKey === 'NCAAF') {
+    const fnName = leagueKey === 'NFL' ? 'nflTeams' : 'ncaafTeams';
     try {
       const { base44 } = await import('@/api/base44Client');
-      const res = await base44.functions.invoke('nflTeams', {});
+      const res = await base44.functions.invoke(fnName, {});
       return (res.data?.teams || []).map(t => ({
         id: t.id,
         name: t.name,
@@ -164,7 +165,7 @@ export const fetchLeagueTeams = async (leagueKey) => {
         color: null,
       }));
     } catch (e) {
-      console.error('Error fetching NFL teams:', e);
+      console.error(`Error fetching ${leagueKey} teams:`, e);
       return [];
     }
   }
