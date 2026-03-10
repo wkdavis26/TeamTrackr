@@ -7,6 +7,7 @@ import { LEAGUES } from './teamsData';
 import { base44 } from '@/api/base44Client';
 
 let f1StandingsCache = null;
+let f1StandingsCacheKey = null;
 
 const fetchF1Standings = async () => {
   if (f1StandingsCache?.drivers?.length > 0) return f1StandingsCache;
