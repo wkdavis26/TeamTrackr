@@ -1068,32 +1068,26 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
-  // Parse NCAA Basketball games
+  // Parse NCAA Basketball games (from api-sports backend function)
   if (teamIdsByLeague['NCAAB']) {
     const ncaabIds = teamIdsByLeague['NCAAB'];
-    ncaabGames.forEach(event => {
-      if (!event.competitions?.[0]) return;
-      const competition = event.competitions[0];
-      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
-      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
-      if (!homeTeam || !awayTeam) return;
-      const homeId = `ncaab-${homeTeam.team?.abbreviation?.toLowerCase()}`;
-      const awayId = `ncaab-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+    ncaabGames.forEach(game => {
+      const homeId = game.homeTeam?.id;
+      const awayId = game.awayTeam?.id;
       const favoriteTeamId = ncaabIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
-      const gameDate = new Date(event.date);
-      if (gameDate <= liveWindowStart) return;
+      const gameDate = new Date(game.date);
+      if (isNaN(gameDate.getTime()) || gameDate <= now) return;
       allGames.push({
-        id: event.id,
+        id: `ncaab-${game.id}`,
         date: gameDate,
         league: 'NCAAB',
         leagueIcon: '🏀',
-        homeTeam: { id: homeId, name: homeTeam.team?.displayName, logo: homeTeam.team?.logo, color: homeTeam.team?.color },
-        awayTeam: { id: awayId, name: awayTeam.team?.displayName, logo: awayTeam.team?.logo, color: awayTeam.team?.color },
+        homeTeam: { id: homeId, name: game.homeTeam?.name, logo: game.homeTeam?.logo },
+        awayTeam: { id: awayId, name: game.awayTeam?.name, logo: game.awayTeam?.logo },
         favoriteTeamId,
-        venue: competition.venue?.fullName || 'TBD',
-        status: event.status?.type?.description || 'Scheduled',
-        isPreseason: false,
+        venue: game.venue || 'TBD',
+        status: game.status || 'Scheduled',
       });
     });
   }
