@@ -883,17 +883,49 @@ export const fetchAllSchedules = async (favoriteTeams) => {
 
   // Parse MLS games
   if (teamIdsByLeague['MLS']) {
-    mlsGames.forEach(event => {
-      const game = parseESPNEvent(event, 'MLS', teamIdsByLeague['MLS']);
-      if (game && game.date > now) allGames.push(game);
+    mlsGames.forEach(game => {
+      const homeId = game.homeTeam?.id;
+      const awayId = game.awayTeam?.id;
+      const favoriteTeamId = teamIdsByLeague['MLS'].find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(game.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: `mls-${game.id}`,
+        date: gameDate,
+        league: 'MLS',
+        leagueIcon: '⚽',
+        homeTeam: { id: homeId, name: game.homeTeam?.name, logo: game.homeTeam?.logo },
+        awayTeam: { id: awayId, name: game.awayTeam?.name, logo: game.awayTeam?.logo },
+        favoriteTeamId,
+        venue: game.venue || 'TBD',
+        status: game.status || 'Scheduled',
+        odds: game.odds || null,
+      });
     });
   }
 
-  // Parse La Liga games
+  // Parse La Liga games (from api-sports backend function)
   if (teamIdsByLeague['La Liga']) {
-    laligaGames.forEach(event => {
-      const game = parseESPNEvent(event, 'La Liga', teamIdsByLeague['La Liga']);
-      if (game && game.date > now) allGames.push(game);
+    laligaGames.forEach(game => {
+      const homeId = game.homeTeam?.id;
+      const awayId = game.awayTeam?.id;
+      const favoriteTeamId = teamIdsByLeague['La Liga'].find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(game.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: `ll-${game.id}`,
+        date: gameDate,
+        league: 'La Liga',
+        leagueIcon: '⚽',
+        homeTeam: { id: homeId, name: game.homeTeam?.name, logo: game.homeTeam?.logo },
+        awayTeam: { id: awayId, name: game.awayTeam?.name, logo: game.awayTeam?.logo },
+        favoriteTeamId,
+        venue: game.venue || 'TBD',
+        status: game.status || 'Scheduled',
+        odds: game.odds || null,
+      });
     });
   }
   
