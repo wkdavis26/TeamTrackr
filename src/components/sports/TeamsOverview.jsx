@@ -507,7 +507,9 @@ export default function TeamsOverview({ favoriteTeams }) {
     if (!favoriteTeams.length) { setLoading(false); return; }
     const load = async () => {
       setLoading(true);
-      const leagues = [...new Set(favoriteTeams.map(t => t.league))];
+      // Deduplicate teams by team_id to prevent duplicate key issues
+      const uniqueTeams = Array.from(new Map(favoriteTeams.map(t => [t.team_id, t])).values());
+      const leagues = [...new Set(uniqueTeams.map(t => t.league))];
 
       // Fetch standings, team colors, and AP rankings in parallel
       const [standingsList, colorsList, apMap] = await Promise.all([
@@ -525,7 +527,7 @@ export default function TeamsOverview({ favoriteTeams }) {
 
       const result = {};
       const colors = {};
-      favoriteTeams.forEach(team => {
+      uniqueTeams.forEach(team => {
         const entries = entriesByLeague[team.league] || [];
         const entry = findEntryForTeam(entries, team.team_id);
         result[team.team_id] = entry || null;
@@ -543,7 +545,7 @@ export default function TeamsOverview({ favoriteTeams }) {
       setLoading(false);
     };
     load();
-  }, [favoriteTeams.map(t => t.team_id).join(',')]);
+  }, [favoriteTeams.map(t => t.team_id).sort().join(',')]);
 
   const byLeague = favoriteTeams.reduce((acc, t) => {
     if (!acc[t.league]) acc[t.league] = [];
