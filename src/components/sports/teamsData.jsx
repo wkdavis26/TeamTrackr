@@ -151,9 +151,20 @@ export const fetchLeagueTeams = async (leagueKey) => {
   const league = LEAGUES[leagueKey];
   if (!league) return [];
 
-  // NFL / NCAAF / NBA: use api-sports backend functions
-  if (leagueKey === 'NFL' || leagueKey === 'NCAAF' || leagueKey === 'NBA') {
-    const fnName = leagueKey === 'NFL' ? 'nflTeams' : leagueKey === 'NCAAF' ? 'ncaafTeams' : 'nbaTeams';
+  // NFL / NCAAF / NBA / Soccer leagues: use api-sports backend functions
+  const backendFunctionMap = {
+    'NFL': 'nflTeams',
+    'NCAAF': 'ncaafTeams',
+    'NBA': 'nbaTeams',
+    'Premier League': 'premierLeagueTeams',
+    'La Liga': 'laLigaTeams',
+    'Serie A': 'serieATeams',
+    'Bundesliga': 'bundesligaTeams',
+    'MLS': 'mlsTeams',
+  };
+
+  const fnName = backendFunctionMap[leagueKey];
+  if (fnName) {
     try {
       const { base44 } = await import('@/api/base44Client');
       const res = await base44.functions.invoke(fnName, {});
