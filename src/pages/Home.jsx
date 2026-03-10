@@ -36,7 +36,11 @@ export default function Home() {
 
   const { data: favoriteTeams = [], isLoading } = useQuery({
     queryKey: ['favoriteTeams', currentUser?.email],
-    queryFn: () => base44.entities.FavoriteTeam.filter({ created_by: currentUser.email }),
+    queryFn: async () => {
+      const teams = await base44.entities.FavoriteTeam.filter({ created_by: currentUser.email });
+      console.log('Fetched favorite teams:', teams);
+      return teams;
+    },
     enabled: !!currentUser
   });
 
