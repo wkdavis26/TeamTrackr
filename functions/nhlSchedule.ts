@@ -28,6 +28,12 @@ Deno.serve(async (req) => {
     const teams = teamsData?.response || [];
     const rawGames = gamesData?.response || [];
 
+    // Build apiId -> code map
+    const codeMap = {};
+    teams.forEach(t => {
+      if (t.id && t.code) codeMap[t.id] = t.code;
+    });
+
     // If no data, return debug info
     if (teams.length === 0 || rawGames.length === 0) {
       return Response.json({ 
@@ -35,19 +41,19 @@ Deno.serve(async (req) => {
         debug: {
           teamsCount: teams.length,
           gamesCount: rawGames.length,
+          codeMapSize: Object.keys(codeMap).length,
           sampleTeam: teams[0],
           sampleGame: rawGames[0],
-          fullTeamsData: teamsData,
-          fullGamesData: gamesData
+          parsedSampleGame: rawGames[0] ? {
+            id: rawGames[0].id,
+            homeApiId: rawGames[0].teams?.home?.id,
+            awayApiId: rawGames[0].teams?.away?.id,
+            homeCode: codeMap[rawGames[0].teams?.home?.id],
+            awayCode: codeMap[rawGames[0].teams?.away?.id]
+          } : null
         }
       });
     }
-
-    // Build apiId -> code map
-    const codeMap = {};
-    teams.forEach(t => {
-      if (t.id && t.code) codeMap[t.id] = t.code;
-    });
 
     const now = new Date();
 
