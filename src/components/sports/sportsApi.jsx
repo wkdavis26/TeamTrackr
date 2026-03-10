@@ -279,10 +279,12 @@ export const fetchPWHLSchedule = async () => {
   }
 };
 
-// Fetch F1 schedule
+// Fetch F1 schedule from api-sports backend function
 export const fetchF1Schedule = async () => {
   try {
-    return await fetchESPNScheduleRange('racing/f1');
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('f1Schedule', {});
+    return res.data?.sessions || [];
   } catch (error) {
     console.error('Error fetching F1 schedule:', error);
     return [];
