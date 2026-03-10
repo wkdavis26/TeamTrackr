@@ -60,16 +60,21 @@ Deno.serve(async (req) => {
     // Filter for future games
     const futureGames = data.response.filter(game => new Date(game.fixture.date) > now);
 
-    // Fetch odds for first game as sample (API may have rate limits for bulk requests)
+    // Fetch odds for games (requires premium API key with odds access)
     const oddsMap = {};
-    if (futureGames.length > 0) {
-      const firstGameId = futureGames[0].fixture.id;
-      const oddsData = await apiFetch(`/odds?fixture=${firstGameId}`);
-      if (oddsData?.response) {
-        oddsData.response.forEach(oddItem => {
-          oddsMap[oddItem.fixture.id] = oddItem.bookmakers || [];
-        });
+    try {
+      // Fetch odds for first 5 games
+      for (let i = 0; i < Math.min(5, futureGames.length); i++) {
+        const gameId = futureGames[i].fixture.id;
+        const oddsData = await apiFetch(`/odds?fixture=${gameId}`);
+        if (oddsData?.response && Array.isArray(oddsData.response)) {
+          oddsData.response.forEach(oddItem => {
+            oddsMap[oddItem.fixture.id] = oddItem.bookmakers || [];
+          });
+        }
       }
+    } catch (e) {
+      // Odds endpoint may not be available with current API key
     }
 
     // Parse games into standardized format
