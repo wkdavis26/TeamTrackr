@@ -362,19 +362,18 @@ export default function TeamsOverview({ favoriteTeams }) {
       const uniqueTeams = Array.from(new Map(favoriteTeams.map(t => [t.team_id, t])).values());
       const leagues = [...new Set(uniqueTeams.map(t => t.league))];
 
-      // Fetch standings, team colors, and AP rankings in parallel
-      const [standingsList, colorsList, apMap] = await Promise.all([
+      // Fetch standings and AP rankings in parallel
+      const [standingsList, apMap] = await Promise.all([
         Promise.all(leagues.map(async l => ({ league: l, entries: await fetchLeagueStandings(l) }))),
-        Promise.all(leagues.map(async l => ({ league: l, colors: await fetchLeagueTeamColors(l) }))),
         (leagues.includes('NCAAF') || leagues.includes('NCAAB')) ? fetchNCAAFApRankings() : Promise.resolve({}),
       ]);
 
       const entriesByLeague = {};
-      standingsList.forEach(({ league, entries }) => { entriesByLeague[league] = entries; });
-
-      // Keep per-league color maps (avoid cross-league abbreviation collisions)
       const colorsByLeague = {};
-      colorsList.forEach(({ league, colors }) => { colorsByLeague[league] = colors; });
+      standingsList.forEach(({ league, entries }) => { 
+        entriesByLeague[league] = entries;
+        colorsByLeague[league] = extractTeamColors(entries, league);
+      });
 
       const result = {};
       const colors = {};
