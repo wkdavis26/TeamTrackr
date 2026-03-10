@@ -116,6 +116,7 @@ export default function F1StandingCard({ team }) {
           {/* Constructors rank */}
           {!loading && (standings?.constructor || standings?.drivers?.length > 0) && (
             <div className="flex items-center gap-2 px-1 py-1">
+              <div className="w-4 h-3 flex-shrink-0" /> {/* spacer to align with flag */}
               <span className="text-xs text-gray-500 font-medium flex-1">{standings?.constructor?.team || team.team_name}</span>
               <span className="text-xs font-bold text-gray-900 w-8 text-right">
                 {standings?.constructor?.rank ? `#${standings.constructor.rank}` : '—'}
