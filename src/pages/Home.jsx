@@ -101,10 +101,7 @@ export default function Home() {
   });
 
   const deleteTeamMutation = useMutation({
-    mutationFn: (teamId) => {
-      const team = favoriteTeams.find((t) => t.team_id === teamId);
-      if (team) return base44.entities.FavoriteTeam.delete(team.id);
-    },
+    mutationFn: (dbId) => base44.entities.FavoriteTeam.delete(dbId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
       queryClient.invalidateQueries({ queryKey: ['schedules-v3'] });
@@ -116,7 +113,6 @@ export default function Home() {
     if (existing) {
       deleteTeamMutation.mutate(existing.id);
     } else {
-      // Check for duplicates in the mutation queue to prevent accidental double-adds
       if (!createTeamMutation.isPending) {
         createTeamMutation.mutate({
           team_id: team.team_id,
