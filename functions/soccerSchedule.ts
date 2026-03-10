@@ -62,12 +62,13 @@ Deno.serve(async (req) => {
       return Response.json({ games: [] });
     }
 
-    // Filter for future games (exclude postponed/cancelled matches)
-    const futureGames = data.response.filter(game => {
-      const gameDate = new Date(game.fixture.date);
-      const status = game.fixture.status?.short || '';
-      return gameDate > now && !['PPD', 'CANC', 'ABD'].includes(status);
-    });
+    // Filter for in-progress and upcoming games (within 4 hour lookback)
+     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+     const futureGames = data.response.filter(game => {
+       const gameDate = new Date(game.fixture.date);
+       const status = game.fixture.status?.short || '';
+       return gameDate > liveWindowStart && !['PPD', 'CANC', 'ABD'].includes(status);
+     });
 
     // Fetch odds for games (requires premium API key with odds access)
     const oddsMap = {};
