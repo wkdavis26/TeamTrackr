@@ -24,16 +24,26 @@ Deno.serve(async (req) => {
     ]);
 
     if (!teamsData || !teamsData.response) {
-      return Response.json({ games: [], error: 'No teams data' });
+      return Response.json({ games: [], error: 'No teams data', debug: teamsData });
     }
     if (!gamesData || !gamesData.response) {
-      return Response.json({ games: [], error: 'No games data' });
+      return Response.json({ games: [], error: 'No games data', debug: gamesData });
     }
 
     // Build apiId -> code map
     const codeMap = {};
-    (teamsData.response || []).forEach(t => {
+    teamsData.response.forEach(t => {
       if (t.id && t.code) codeMap[t.id] = t.code;
+    });
+    
+    return Response.json({ 
+      games: gamesData.response.slice(0, 2), 
+      teamsCount: teamsData.response.length,
+      gamesCount: gamesData.response.length,
+      sampleTeam: teamsData.response[0],
+      sampleGame: gamesData.response[0]
+    }, {
+      headers: { 'Cache-Control': 'public, max-age=300' }
     });
 
     const now = new Date();
