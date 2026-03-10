@@ -56,13 +56,17 @@ Deno.serve(async (req) => {
       return Response.json({ standings: [] });
     }
 
-    const season = new Date().getFullYear();
+    // Use current or previous season based on month (season runs Aug-May)
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    const season = month >= 7 ? year : year - 1; // July onwards = new season
 
     // Fetch standings from api-sports
     const endpoint = `/standings?league=${config.leagueId}&season=${season}`;
     const data = await apiFetch(endpoint);
 
-    if (!data?.response) {
+    if (!data?.response || data.response.length === 0) {
       // Return empty if API doesn't have data
       return Response.json({ standings: [] });
     }
