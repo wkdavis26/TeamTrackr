@@ -854,15 +854,11 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
-  // Parse F1 races/sessions
+  // Parse F1 races/sessions (flat sessions from api-sports)
   if (teamIdsByLeague['F1']) {
-    f1Games.forEach(event => {
-      const sessions = parseF1Event(event, teamIdsByLeague['F1']);
-      if (sessions) {
-        sessions.forEach(s => {
-          if (s.date > now) allGames.push(s);
-        });
-      }
+    f1Games.forEach(session => {
+      const entries = parseF1Session(session, teamIdsByLeague['F1']);
+      if (entries) entries.forEach(s => allGames.push(s));
     });
   }
 
