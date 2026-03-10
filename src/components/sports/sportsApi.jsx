@@ -197,27 +197,12 @@ export const fetchNCAAFSchedule = async () => {
   }
 };
 
-// Fetch NCAA Basketball schedule - fetches next 45 days one day at a time (ESPN doesn't support ranges for NCAAB)
+// Fetch NCAA Basketball schedule via api-sports
 export const fetchNCAABSchedule = async () => {
   try {
-    const now = new Date();
-    // Fetch next 14 days one day at a time (ESPN NCAAB doesn't support date ranges)
-    const days = [];
-    for (let i = 0; i <= 14; i++) {
-      const d = new Date(now);
-      d.setDate(now.getDate() + i);
-      days.push(fmtDate(d));
-    }
-
-    const allEvents = [];
-    await Promise.all(days.map(dateStr =>
-      fetch(`${ESPN_BASE}/basketball/mens-college-basketball/scoreboard?limit=500&dates=${dateStr}&groups=50`)
-        .then(r => r.ok ? r.json() : {})
-        .then(d => { if (d.events?.length) allEvents.push(...d.events); })
-        .catch(() => {})
-    ));
-
-    return allEvents;
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('ncaabScheduleBasketball', {});
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching NCAAB schedule:', error);
     return [];
