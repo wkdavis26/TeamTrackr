@@ -19,12 +19,20 @@ Deno.serve(async (req) => {
 
     const data = await apiFetch('/games?season=2025');
     const games = data.response || [];
-    const upcoming = games.filter(g => g.status?.short === 'NS');
+    
+    // Get the last few games to see if they're in the future
+    const last5 = games.slice(-5);
+    const statusCounts = {};
+    games.forEach(g => {
+      const s = g.status?.short || 'unknown';
+      statusCounts[s] = (statusCounts[s] || 0) + 1;
+    });
 
     return Response.json({
       total: games.length,
-      upcomingCount: upcoming.length,
-      sampleUpcoming: upcoming.slice(0, 2),
+      paginationTotal: data.paging?.total,
+      statusCounts,
+      last5: last5.map(g => ({ date: g.date?.start, status: g.status?.short, home: g.teams?.home?.name, away: g.teams?.visitors?.name })),
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
