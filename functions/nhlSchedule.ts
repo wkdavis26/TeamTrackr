@@ -25,16 +25,14 @@ Deno.serve(async (req) => {
       apiFetch('/games?league=57&season=2026'),
     ]);
 
-    console.log('[NHL] teamsData:', teamsData);
-    console.log('[NHL] gamesData:', gamesData);
+    console.log('[NHL] Full response structure:', JSON.stringify({ teamsData, gamesData }, null, 2));
 
-    if (!teamsData?.response || !gamesData?.response) {
-      return Response.json({ games: [], debug: { teamsData, gamesData } });
-    }
+    const teams = teamsData?.response || [];
+    const rawGames = gamesData?.response || [];
 
     // Build apiId -> code map
     const codeMap = {};
-    teamsData.response.forEach(t => {
+    teams.forEach(t => {
       if (t.id && t.code) codeMap[t.id] = t.code;
     });
 
