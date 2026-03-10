@@ -146,13 +146,34 @@ export const LEAGUES = {
   },
   };
 
-// Fetch all teams for a given league from ESPN
+// Fetch all teams for a given league from ESPN (or api-sports for NFL)
 export const fetchLeagueTeams = async (leagueKey) => {
   const league = LEAGUES[leagueKey];
-  if (!league || !league.espnPath) {
-    // Return static data for F1 and International Football
+  if (!league) return [];
+
+  // NFL: use api-sports backend function
+  if (leagueKey === 'NFL') {
+    try {
+      const { base44 } = await import('@/api/base44Client');
+      const res = await base44.functions.invoke('nflTeams', {});
+      return (res.data?.teams || []).map(t => ({
+        id: t.id,
+        name: t.name,
+        abbreviation: t.abbreviation,
+        logo: t.logo || null,
+        color: null,
+      }));
+    } catch (e) {
+      console.error('Error fetching NFL teams:', e);
+      return [];
+    }
+  }
+
+  if (!league.espnPath) {
+    // Return static data for F1, PWHL, etc.
     return league?.teams || [];
   }
+
   try {
     // NCAAF requires groups=80 (FBS) to return teams
     const extraParams = leagueKey === 'NCAAF' ? '&groups=80' : leagueKey === 'NCAAB' ? '&groups=50' : '';
