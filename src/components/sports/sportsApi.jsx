@@ -761,8 +761,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
         console.log('[NBA] Invalid date:', g.date);
         return;
       }
-      console.log('[NBA] Game date:', gameDate.toISOString(), 'NOW:', now.toISOString(), 'passes:', gameDate >= now);
-      if (gameDate < now) return;
+      console.log('[NBA] Game date:', gameDate.toISOString(), 'NOW:', now.toISOString(), 'passes:', gameDate > liveWindowStart);
+      if (gameDate <= liveWindowStart) return;
       allGames.push({
         id: `nba-${g.id}`,
         date: gameDate,
