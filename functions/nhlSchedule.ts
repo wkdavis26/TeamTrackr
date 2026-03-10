@@ -4,11 +4,13 @@ const API_KEY = Deno.env.get('Sports_API_Key');
 const BASE_URL = 'https://v1.hockey.api-sports.io';
 
 const apiFetch = async (endpoint) => {
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
+  const fullUrl = `${BASE_URL}${endpoint}`;
+  const res = await fetch(fullUrl, {
     headers: { 'x-apisports-key': API_KEY }
   });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
+  if (!res.ok) throw new Error(`API error: ${res.status} ${fullUrl}`);
+  const data = await res.json();
+  return data;
 };
 
 Deno.serve(async (req) => {
