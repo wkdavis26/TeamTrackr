@@ -233,20 +233,24 @@ export const fetchNCAABaseballSchedule = async () => {
   }
 };
 
-// Fetch Serie A schedule
+// Fetch Serie A schedule via api-sports
 export const fetchSerieASchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('soccer/ita.1');
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('soccerSchedule', { league: 'Serie A' });
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching Serie A schedule:', error);
     return [];
   }
 };
 
-// Fetch Bundesliga schedule
+// Fetch Bundesliga schedule via api-sports
 export const fetchBundesligaSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('soccer/ger.1');
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('soccerSchedule', { league: 'Bundesliga' });
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching Bundesliga schedule:', error);
     return [];
