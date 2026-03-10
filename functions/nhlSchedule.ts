@@ -1,17 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const API_BASE = 'https://api-sports-io.p.rapidapi.com';
 const API_KEY = Deno.env.get('Sports_API_Key');
+const BASE_URL = 'https://v1.hockey.api-sports.io';
 
 const apiFetch = async (endpoint) => {
-  const url = `${API_BASE}${endpoint}`;
-  const res = await fetch(url, {
-    headers: {
-      'x-rapidapi-key': API_KEY,
-      'x-rapidapi-host': 'api-sports-io.p.rapidapi.com',
-    },
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
+    headers: { 'x-apisports-key': API_KEY }
   });
-  if (!res.ok) return null;
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json();
 };
 
@@ -19,44 +15,62 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Fetch teams and games in parallel
+    const [teamsData, gamesData] = await Promise.all([
+      apiFetch('/teams?league=1&season=2025'),
+      apiFetch('/games?league=1&season=2025'),
+    ]);
+
+    // Build apiId -> code map
+    const codeMap = {};
+    (teamsData.response || []).forEach(t => {
+      if (t.id && t.code) codeMap[t.id] = t.code;
+    });
 
     const now = new Date();
-    const season = now.getFullYear();
 
-    // Fetch games for current season
-    const data = await apiFetch(`/hockey/games?season=${season}&league=1`);
-
-    if (!data || !data.response) {
-      return Response.json({ games: [] });
-    }
-
-    // Filter for future games and parse into standardized format
-    const games = data.response
-      .filter(game => new Date(game.date) > now)
-      .map(game => ({
-        id: game.id,
-        date: new Date(game.date),
-        homeTeam: {
-          id: `nhl-${game.teams.home.name.toLowerCase().replace(/\s+/g, '-')}`,
-          name: game.teams.home.name,
-          logo: game.teams.home.logo,
-        },
-        awayTeam: {
-          id: `nhl-${game.teams.away.name.toLowerCase().replace(/\s+/g, '-')}`,
-          name: game.teams.away.name,
-          logo: game.teams.away.logo,
-        },
-        venue: game.venue?.name || 'TBD',
-        status: game.status?.long || 'Scheduled',
-      }));
+    const games = (gamesData.response || [])
+      .filter(g => {
+        // Parse UTC date+time from the game object
+        const dateStr = g.game?.date?.date;
+        const timeStr = g.game?.date?.time || '00:00';
+        if (!dateStr) return false;
+        const gameDate = new Date(`${dateStr}T${timeStr}:00Z`);
+        // Include games not yet finished (future + today)
+        const status = g.game?.status?.short;
+        return status === 'NS' || status === 'SCH' || gameDate > now;
+      })
+      .map(g => {
+        const homeApiId = g.teams?.home?.id;
+        const awayApiId = g.teams?.away?.id;
+        const homeCode = codeMap[homeApiId] || '';
+        const awayCode = codeMap[awayApiId] || '';
+        const dateStr = g.game?.date?.date;
+        const timeStr = g.game?.date?.time || '00:00';
+        return {
+          id: g.game?.id,
+          date: `${dateStr}T${timeStr}:00Z`,
+          homeTeam: {
+            id: homeCode ? `nhl-${homeCode.toLowerCase()}` : null,
+            name: g.teams?.home?.name || '',
+            logo: g.teams?.home?.logo || null,
+          },
+          awayTeam: {
+            id: awayCode ? `nhl-${awayCode.toLowerCase()}` : null,
+            name: g.teams?.away?.name || '',
+            logo: g.teams?.away?.logo || null,
+          },
+          venue: g.game?.venue?.name || 'TBD',
+          status: g.game?.status?.short || 'NS',
+        };
+      })
+      .filter(g => g.homeTeam.id && g.awayTeam.id);
 
     return Response.json({ games }, {
       headers: {
-        'Cache-Control': 'public, max-age=300',
+        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
       }
     });
   } catch (error) {
