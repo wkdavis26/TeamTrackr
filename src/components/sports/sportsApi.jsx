@@ -653,6 +653,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     }
     teamIdsByLeague[team.league].push(team.team_id);
   });
+  console.log('Favorite teams by league:', teamIdsByLeague);
   
   const allGames = [];
   const now = new Date();
