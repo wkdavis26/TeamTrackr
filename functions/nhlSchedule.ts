@@ -52,16 +52,6 @@ Deno.serve(async (req) => {
     const now = new Date();
 
     const games = (rawGames || [])
-      .filter(g => {
-        // Parse UTC date from the game object
-        const dateStr = g.date;
-        if (!dateStr) return false;
-        const gameDate = new Date(dateStr);
-        // Include games not yet finished - use same logic as NFL (4 hour window for live games)
-        const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
-        const status = g.status?.short;
-        return status === 'NS' || status === 'SCH' || gameDate > liveWindowStart;
-      })
       .map(g => {
         const homeApiId = g.teams?.home?.id;
         const awayApiId = g.teams?.away?.id;
