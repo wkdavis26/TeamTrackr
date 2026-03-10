@@ -828,14 +828,13 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     const plIds = teamIdsByLeague['Premier League'];
     console.log('[Premier League] Looking for:', plIds, 'Sample game:', plGames[0]);
     plGames.forEach(game => {
-      const homeId = game.homeTeam?.id;
-      const awayId = game.awayTeam?.id;
-      console.log('[Premier League] Game IDs:', homeId, awayId);
+      const homeId = `premier-league-${game.homeTeam?.id}`;
+      const awayId = `premier-league-${game.awayTeam?.id}`;
+      console.log('[Premier League] Game IDs:', homeId, awayId, 'Match:', plIds.find(id => id === homeId || id === awayId));
       const favoriteTeamId = plIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
-      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
+      if (isNaN(gameDate.getTime()) || gameDate <= now) return;
       allGames.push({
         id: `pl-${game.id}`,
         date: gameDate,
