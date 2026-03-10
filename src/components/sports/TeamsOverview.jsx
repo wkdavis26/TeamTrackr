@@ -127,6 +127,7 @@ const fetchNBAStandings = async () => {
 };
 
 const fetchLeagueStandings = async (league) => {
+  if (league === 'NFL') return []; // NFL standings handled in NFLStandingCard
   if (standingsCache[league]) return standingsCache[league];
   const path = STANDINGS_PATHS[league];
   if (!path) return [];
