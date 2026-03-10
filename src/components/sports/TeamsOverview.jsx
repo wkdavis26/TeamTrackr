@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { LEAGUES } from './teamsData';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import F1StandingCard from './F1StandingCard';
+import NFLStandingCard from './NFLStandingCard';
 
 const STANDINGS_PATHS = {
   NFL:              'football/nfl',
