@@ -88,7 +88,7 @@ export default function Home() {
     } else {
       if (!createTeamMutation.isPending) {
         createTeamMutation.mutate({
-          team_id: team.team_id,
+          team_id: team.team_id || `${team.league.toLowerCase().replace(/\s+/g, '-')}-${team.team_name.toLowerCase().replace(/\s+/g, '-')}`,
           team_name: team.team_name,
           league: team.league,
           logo_url: team.logo
