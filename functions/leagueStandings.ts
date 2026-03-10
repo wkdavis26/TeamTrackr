@@ -47,22 +47,10 @@ Deno.serve(async (req) => {
       return Response.json({ standings: [] });
     }
 
-    // Determine sport and season
-    const sportMap = {
-      'NHL': 'hockey',
-      'MLB': 'baseball',
-      'Premier League': 'football',
-      'La Liga': 'football',
-      'Serie A': 'football',
-      'Bundesliga': 'football',
-      'MLS': 'football',
-    };
-
-    const sport = sportMap[league];
     const season = new Date().getFullYear();
 
     // Fetch standings from api-sports
-    const endpoint = `/${sport}/standings?league=${config.leagueId}&season=${season}`;
+    const endpoint = `/standings?league=${config.leagueId}&season=${season}`;
     const data = await apiFetch(endpoint);
 
     if (!data || !data.response) {
@@ -70,12 +58,11 @@ Deno.serve(async (req) => {
     }
 
     // Transform api-sports response into ESPN-like format for frontend
-    // api-sports returns array of divisions with teams
     const allEntries = [];
     
     (data.response || []).forEach(divisionGroup => {
       const confName = divisionGroup.group?.name || null;
-      const divName = divisionGroup.division?.name || null;
+      const divName = divisionGroup.group?.name || null;
       
       (divisionGroup.standings || []).forEach((team, rank) => {
         allEntries.push({
@@ -87,35 +74,18 @@ Deno.serve(async (req) => {
             color: null,
           },
           stats: [
-            { name: 'wins', abbreviation: 'W', displayValue: String(team.win || team.wins || 0), value: String(team.win || team.wins || 0) },
-            { name: 'losses', abbreviation: 'L', displayValue: String(team.loss || team.losses || 0), value: String(team.loss || team.losses || 0) },
-            { name: 'winPercent', abbreviation: 'PCT', displayValue: team.percentage || '0.000', value: team.percentage || '0.000' },
+            { name: 'wins', abbreviation: 'W', displayValue: String(team.all?.wins || 0), value: String(team.all?.wins || 0) },
+            { name: 'losses', abbreviation: 'L', displayValue: String(team.all?.losses || 0), value: String(team.all?.losses || 0) },
+            { name: 'winPercent', abbreviation: 'PCT', displayValue: (team.goalsDiff !== undefined ? team.goalsDiff : 0).toString(), value: String(team.goalsDiff || 0) },
             { name: 'points', abbreviation: 'PTS', displayValue: String(team.points || 0), value: String(team.points || 0) },
-            { name: 'gamesBehind', abbreviation: 'GB', displayValue: String(team.gamesBehind || 0), value: String(team.gamesBehind || 0) },
-            { name: 'total', type: 'total', summary: `${team.win || team.wins || 0}-${team.loss || team.losses || 0}` },
+            { name: 'gamesBehind', abbreviation: 'GB', displayValue: '0', value: '0' },
+            { name: 'total', type: 'total', summary: `${team.all?.wins || 0}-${team.all?.losses || 0}` },
           ],
           _confName: confName,
           _divName: divName,
           _divRank: rank + 1,
         });
       });
-    });
-
-    // Compute conference ranks
-    const confMap = {};
-    allEntries.forEach(e => {
-      if (e._confName) {
-        if (!confMap[e._confName]) confMap[e._confName] = [];
-        confMap[e._confName].push(e);
-      }
-    });
-    
-    Object.values(confMap).forEach(list => {
-      list.sort((a, b) => 
-        parseFloat(b.stats?.find(s => s.name === 'wins')?.value ?? 0) -
-        parseFloat(a.stats?.find(s => s.name === 'wins')?.value ?? 0)
-      );
-      list.forEach((e, i) => { e._confRank = i + 1; });
     });
 
     return Response.json({ standings: allEntries });
