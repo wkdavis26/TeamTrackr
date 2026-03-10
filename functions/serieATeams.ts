@@ -32,11 +32,10 @@ Deno.serve(async (req) => {
     }
 
     const teams = data.response.map(item => {
-      const teamName = item.team.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       return {
-        id: `serie-a-${teamName}`,
+        id: `serie-a-${item.team.id}`,
         name: item.team.name,
-        abbreviation: teamName,
+        abbreviation: item.team.id,
         logo: item.team.logo || null,
       };
     });
