@@ -7,8 +7,8 @@ const apiFetch = async (endpoint) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     headers: { 'x-apisports-key': API_KEY }
   });
-  const text = await res.text();
-  return { status: res.status, body: text.slice(0, 2000) };
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
 };
 
 Deno.serve(async (req) => {
@@ -17,13 +17,15 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const [teams, games, seasons] = await Promise.all([
-      apiFetch('/teams'),
-      apiFetch('/games?season=2025'),
-      apiFetch('/seasons'),
-    ]);
+    const data = await apiFetch('/games?season=2025');
+    const games = data.response || [];
+    const upcoming = games.filter(g => g.status?.short === 'NS');
 
-    return Response.json({ teams, games, seasons });
+    return Response.json({
+      total: games.length,
+      upcomingCount: upcoming.length,
+      sampleUpcoming: upcoming.slice(0, 2),
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
