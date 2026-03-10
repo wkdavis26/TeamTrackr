@@ -759,6 +759,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   if (teamIdsByLeague['NBA']) {
     const nbaIds = teamIdsByLeague['NBA'];
     console.log('[NBA] Looking for favorite IDs:', nbaIds, 'Total games from API:', nbaGames.length);
+    console.log('[NBA] Sample game:', nbaGames[0]);
     nbaGames.forEach(g => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
