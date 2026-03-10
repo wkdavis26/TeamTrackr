@@ -28,6 +28,8 @@ Deno.serve(async (req) => {
     (teamsData.response || []).forEach(t => {
       if (t.id && t.code) codeMap[t.id] = t.code;
     });
+    console.log('[NHL] Teams response sample:', (teamsData.response || []).slice(0, 2));
+    console.log('[NHL] Code map:', codeMap);
 
     const now = new Date();
 
