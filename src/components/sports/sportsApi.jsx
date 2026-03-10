@@ -759,8 +759,6 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   if (teamIdsByLeague['NBA']) {
     const nbaIds = teamIdsByLeague['NBA'];
     console.log('[NBA] Looking for favorite IDs:', nbaIds, 'Total games from API:', nbaGames.length);
-    const todayMidnight = new Date(now);
-    todayMidnight.setHours(0, 0, 0, 0);
     nbaGames.forEach(g => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
@@ -774,8 +772,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
         console.log('[NBA] Invalid date:', g.date);
         return;
       }
-      console.log('[NBA] Game date:', gameDate.toISOString(), 'todayMidnight:', todayMidnight.toISOString(), 'passes:', gameDate >= todayMidnight);
-      if (gameDate < todayMidnight) return;
+      console.log('[NBA] Game date:', gameDate.toISOString(), 'NOW:', now.toISOString(), 'passes:', gameDate >= now);
+      if (gameDate < now) return;
       allGames.push({
         id: `nba-${g.id}`,
         date: gameDate,
