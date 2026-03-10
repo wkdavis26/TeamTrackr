@@ -40,34 +40,7 @@ export default function Home() {
     enabled: !!currentUser
   });
 
-  // Clean up duplicates on first load
-  React.useEffect(() => {
-    if (rawFavoriteTeams.length === 0 || !currentUser?.email) return;
-    
-    const cleanup = async () => {
-      const seen = new Set();
-      const toDelete = [];
-      
-      rawFavoriteTeams.forEach(team => {
-        const key = `${team.team_id}-${team.league}`;
-        if (seen.has(key)) {
-          console.log('[Cleanup] Deleting duplicate:', team.team_id, team.league, team.id);
-          toDelete.push(team.id);
-        } else {
-          seen.add(key);
-        }
-      });
-      
-      console.log('[Cleanup] Found', toDelete.length, 'duplicates to delete');
-      
-      if (toDelete.length > 0) {
-        await Promise.all(toDelete.map(id => base44.entities.FavoriteTeam.delete(id)));
-        await queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
-      }
-    };
-    
-    cleanup();
-  }, [rawFavoriteTeams, currentUser?.email, queryClient]);
+
 
   // Deduplicate teams by team_id + league
   const favoriteTeams = React.useMemo(() => {
