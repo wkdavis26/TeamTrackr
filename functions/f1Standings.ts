@@ -40,69 +40,90 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // 2026 season roster - hardcoded to ensure all drivers show even with 0 pts
+    const ROSTER_2026 = [
+      { abbr: 'VER', teamId: 'f1-red-bull' },
+      { abbr: 'HAD', teamId: 'f1-red-bull' },
+      { abbr: 'LEC', teamId: 'f1-ferrari' },
+      { abbr: 'HAM', teamId: 'f1-ferrari' },
+      { abbr: 'NOR', teamId: 'f1-mclaren' },
+      { abbr: 'PIA', teamId: 'f1-mclaren' },
+      { abbr: 'RUS', teamId: 'f1-mercedes' },
+      { abbr: 'ANT', teamId: 'f1-mercedes' },
+      { abbr: 'ALO', teamId: 'f1-aston-martin' },
+      { abbr: 'STR', teamId: 'f1-aston-martin' },
+      { abbr: 'GAS', teamId: 'f1-alpine' },
+      { abbr: 'DOO', teamId: 'f1-alpine' },
+      { abbr: 'ALB', teamId: 'f1-williams' },
+      { abbr: 'SAI', teamId: 'f1-williams' },
+      { abbr: 'LAW', teamId: 'f1-alphatauri' },
+      { abbr: 'LIN', teamId: 'f1-alphatauri' },
+      { abbr: 'BOR', teamId: 'f1-sauber' },
+      { abbr: 'HUL', teamId: 'f1-sauber' },
+      { abbr: 'BEA', teamId: 'f1-haas' },
+      { abbr: 'OCO', teamId: 'f1-haas' },
+    ];
+
     // Try current year first, fall back up to 3 years until we get data
     const currentYear = new Date().getFullYear();
     let year = currentYear;
-    let driversData, teamsData, allDriversData;
+    let driversData, teamsData;
 
     for (let attempt = 0; attempt < 3; attempt++) {
-      [driversData, teamsData, allDriversData] = await Promise.all([
+      [driversData, teamsData] = await Promise.all([
         apiFetch(`/rankings/drivers?season=${year}`),
         apiFetch(`/rankings/teams?season=${year}`),
-        apiFetch(`/drivers?season=${year}`),
       ]);
       if (driversData.response?.length > 0 || teamsData.response?.length > 0) break;
       year--;
     }
 
-    // Build a map of ranked drivers by name for fast lookup
+    // Build a lookup of ranked drivers by abbr
+    const rankedByAbbr = {};
+    for (const entry of (driversData.response || [])) {
+      const abbr = entry.driver?.abbr || '';
+      if (abbr) rankedByAbbr[abbr] = {
+        name: entry.driver?.name || '',
+        rank: entry.position || 0,
+        pts: String(entry.points ?? 0),
+      };
+    }
+
+    // Also build lookup by name for drivers with missing abbr in rankings
     const rankedByName = {};
     for (const entry of (driversData.response || [])) {
       const name = entry.driver?.name || '';
-      rankedByName[name] = { rank: entry.position || 0, pts: String(entry.points ?? 0) };
+      rankedByName[name] = {
+        abbr: entry.driver?.abbr || '',
+        rank: entry.position || 0,
+        pts: String(entry.points ?? 0),
+      };
     }
 
-    // Build full driver list from /drivers endpoint (includes 0-point drivers)
-    const driverSet = new Set();
-    const drivers = [];
+    // Build driver name lookup from abbr (from rankings data)
+    const DRIVER_NAMES = {
+      'VER': 'Max Verstappen', 'HAD': 'Isack Hadjar', 'LEC': 'Charles Leclerc',
+      'HAM': 'Lewis Hamilton', 'NOR': 'Lando Norris', 'PIA': 'Oscar Piastri',
+      'RUS': 'George Russell', 'ANT': 'Andrea Kimi Antonelli', 'ALO': 'Fernando Alonso',
+      'STR': 'Lance Stroll', 'GAS': 'Pierre Gasly', 'DOO': 'Jack Doohan',
+      'ALB': 'Alexander Albon', 'SAI': 'Carlos Sainz', 'LAW': 'Liam Lawson',
+      'LIN': 'Arvid Lindblad', 'BOR': 'Gabriel Bortoleto', 'HUL': 'Nico Hulkenberg',
+      'BEA': 'Oliver Bearman', 'OCO': 'Esteban Ocon',
+    };
 
-    // First add all drivers from the season roster
-    for (const entry of (allDriversData.response || [])) {
-      const name = entry.name || '';
-      const abbr = entry.abbr || '';
-      if (driverSet.has(name)) continue;
-      driverSet.add(name);
-      const teamName = entry.teams?.find(t => String(t.season) === String(year))?.team?.name || '';
+    const drivers = ROSTER_2026.map(({ abbr, teamId }) => {
+      const name = rankedByAbbr[abbr]?.name || DRIVER_NAMES[abbr] || abbr;
+      const ranked = rankedByAbbr[abbr] || rankedByName[name] || { rank: 0, pts: '0' };
       const countryCode = DRIVER_FLAG[abbr] || null;
-      const ranked = rankedByName[name] || { rank: 0, pts: '0' };
-      drivers.push({
+      return {
         name,
         abbr,
-        teamName,
-        teamId: teamNameToId(teamName),
+        teamId,
         flagUrl: countryCode ? `https://flagcdn.com/16x12/${countryCode}.png` : null,
         rank: ranked.rank,
         pts: ranked.pts,
-      });
-    }
-
-    // Also add any ranked drivers not already in the roster list
-    for (const entry of (driversData.response || [])) {
-      const name = entry.driver?.name || '';
-      if (driverSet.has(name)) continue;
-      driverSet.add(name);
-      const abbr = entry.driver?.abbr || '';
-      const countryCode = DRIVER_FLAG[abbr] || null;
-      drivers.push({
-        name,
-        abbr,
-        teamName: entry.team?.name || '',
-        teamId: teamNameToId(entry.team?.name),
-        flagUrl: countryCode ? `https://flagcdn.com/16x12/${countryCode}.png` : null,
-        rank: entry.position || 0,
-        pts: String(entry.points ?? 0),
-      });
-    }
+      };
+    });
 
     const constructors = (teamsData.response || []).map(entry => ({
       name: entry.team?.name || '',
