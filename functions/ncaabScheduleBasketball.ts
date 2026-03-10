@@ -27,19 +27,13 @@ Deno.serve(async (req) => {
     let data = null;
     let raw = [];
     
-    // Try league 1
+    // Fetch NCAA Basketball games (league 116)
     try {
-      data = await apiFetch('/games?league=1&season=2025');
+      data = await apiFetch('/games?league=116&season=2025');
       raw = data.response || [];
     } catch (e) {
-      // Try without league filter
-      try {
-        data = await apiFetch('/games?season=2025');
-        raw = data.response?.filter(g => g.league?.id === 1) || [];
-      } catch (e2) {
-        // Return empty if API fails
-        return Response.json({ games: [] });
-      }
+      // Return empty if API fails
+      return Response.json({ games: [] });
     }
 
     const games = raw
