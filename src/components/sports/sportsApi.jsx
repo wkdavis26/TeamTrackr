@@ -933,14 +933,13 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     const laligaIds = teamIdsByLeague['La Liga'];
     console.log('[La Liga] Looking for:', laligaIds, 'Sample game:', laligaGames[0]);
     laligaGames.forEach(game => {
-      const homeId = game.homeTeam?.id;
-      const awayId = game.awayTeam?.id;
+      const homeId = `la-liga-${game.homeTeam?.id}`;
+      const awayId = `la-liga-${game.awayTeam?.id}`;
       console.log('[La Liga] Game IDs:', homeId, awayId);
       const favoriteTeamId = laligaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
-      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
+      if (isNaN(gameDate.getTime()) || gameDate <= now) return;
       allGames.push({
         id: `ll-${game.id}`,
         date: gameDate,
