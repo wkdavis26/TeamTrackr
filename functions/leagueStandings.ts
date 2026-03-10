@@ -53,7 +53,10 @@ Deno.serve(async (req) => {
     const endpoint = `/standings?league=${config.leagueId}&season=${season}`;
     const data = await apiFetch(endpoint);
 
+    console.log('Standings API response:', data);
+
     if (!data || !data.response) {
+      console.error('No response from standings API');
       return Response.json({ standings: [] });
     }
 
