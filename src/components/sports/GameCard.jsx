@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { isToday } from 'date-fns';
-import { MapPin, Clock, Tv } from 'lucide-react';
+import { MapPin, Clock, Tv, ChevronRight } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { getLeagueColor } from './teamsData';
 import { useGameOdds } from './useGameOdds';
 import { useLiveScore } from './useLiveScores';
+import { createPageUrl } from '@/utils';
 
 // Map F1 team IDs to constructor name keywords for matching ESPN driver data
 const F1_TEAM_KEYWORDS = {
