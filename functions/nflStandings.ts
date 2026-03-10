@@ -17,27 +17,36 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const season = 2024; // most recent completed NFL season
-    const data = await apiFetch(`/standings?league=1&season=${season}`);
-    const raw = data.response || [];
+    const season = 2024;
 
-    // api-sports standings shape: [{ team: {id, name, logo, code}, ...stats }]
-    const standings = raw.map(entry => ({
-      teamId: `nfl-${(entry.team?.code || '').toLowerCase()}`,
-      teamName: entry.team?.name || '',
-      teamLogo: entry.team?.logo || null,
-      apiTeamId: entry.team?.id,
-      conference: entry.conference || '',
-      division: entry.division || '',
-      wins: entry.won ?? 0,
-      losses: entry.lost ?? 0,
-      ties: entry.ties ?? 0,
-      winPct: entry.points_for > 0 ? (entry.won / (entry.won + entry.lost + (entry.ties ?? 0))).toFixed(3) : '0.000',
-      pointsFor: entry.points_for ?? 0,
-      pointsAgainst: entry.points_against ?? 0,
-      streak: entry.streak || '',
-      rank: entry.position || 0,
-    }));
+    // Fetch teams and standings in parallel to build id->code map
+    const [teamsData, standingsData] = await Promise.all([
+      apiFetch('/teams?league=1&season=2025'),
+      apiFetch(`/standings?league=1&season=${season}`),
+    ]);
+
+    // Build apiId -> code map from teams list
+    const codeMap = {};
+    (teamsData.response || []).forEach(t => {
+      if (t.id && t.code) codeMap[t.id] = t.code;
+    });
+
+    const standings = (standingsData.response || []).map(entry => {
+      const apiId = entry.team?.id;
+      const code = codeMap[apiId] || '';
+      return {
+        teamId: code ? `nfl-${code.toLowerCase()}` : null,
+        teamName: entry.team?.name || '',
+        teamLogo: entry.team?.logo || null,
+        apiTeamId: apiId,
+        conference: entry.conference || '',
+        division: entry.division || '',
+        wins: entry.won ?? 0,
+        losses: entry.lost ?? 0,
+        ties: entry.ties ?? 0,
+        rank: entry.position || 0,
+      };
+    }).filter(s => s.teamId);
 
     return Response.json({ standings, season });
   } catch (error) {
