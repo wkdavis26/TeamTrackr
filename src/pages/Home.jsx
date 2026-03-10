@@ -65,12 +65,15 @@ export default function Home() {
     if (existing) {
       deleteTeamMutation.mutate(team.team_id);
     } else {
-      createTeamMutation.mutate({
-        team_id: team.team_id,
-        team_name: team.team_name,
-        league: team.league,
-        logo_url: team.logo
-      });
+      // Check for duplicates in the mutation queue to prevent accidental double-adds
+      if (!createTeamMutation.isPending) {
+        createTeamMutation.mutate({
+          team_id: team.team_id,
+          team_name: team.team_name,
+          league: team.league,
+          logo_url: team.logo
+        });
+      }
     }
   };
 
