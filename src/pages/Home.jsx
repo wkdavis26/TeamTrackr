@@ -49,7 +49,10 @@ export default function Home() {
 
   const createTeamMutation = useMutation({
     mutationFn: (team) => base44.entities.FavoriteTeam.create(team),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
+      queryClient.invalidateQueries({ queryKey: ['schedules-v3'] });
+    }
   });
 
   const deleteTeamMutation = useMutation({
@@ -57,7 +60,10 @@ export default function Home() {
       const team = favoriteTeams.find((t) => t.team_id === teamId);
       if (team) return base44.entities.FavoriteTeam.delete(team.id);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
+      queryClient.invalidateQueries({ queryKey: ['schedules-v3'] });
+    }
   });
 
   const handleToggleTeam = (team) => {
