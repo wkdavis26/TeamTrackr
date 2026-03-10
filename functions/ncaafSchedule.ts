@@ -1,14 +1,12 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const API_KEY = Deno.env.get('Sports_API_Key');
-const BASE_URL = 'https://v1.american-football.api-sports.io';
-
-const apiFetch = async (endpoint) => {
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { 'x-apisports-key': API_KEY }
-  });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
+// NCAAF teams have no codes in api-sports, so we use ESPN for schedule data.
+// ESPN supports a date range via the scoreboard endpoint.
+const fmtDate = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}${m}${day}`;
 };
 
 Deno.serve(async (req) => {
@@ -17,23 +15,47 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Diagnostic: check what league 2 returns
-    const [leaguesData, gamesData2025, gamesData2024] = await Promise.all([
-      apiFetch('/leagues'),
-      apiFetch('/games?league=2&season=2025'),
-      apiFetch('/games?league=2&season=2024'),
-    ]);
+    const now = new Date();
+    const startStr = fmtDate(now);
+    // Cover through Jan 31 of next year (bowl games / playoff)
+    const end = new Date(now.getFullYear() + 1, 0, 31);
+    const endStr = fmtDate(end);
 
-    const league2 = leaguesData.response?.find(l => l.league?.id === 2);
+    const res = await fetch(
+      `https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?limit=500&dates=${startStr}-${endStr}`
+    );
+    if (!res.ok) throw new Error(`ESPN API error: ${res.status}`);
+    const data = await res.json();
+    const events = data.events || [];
 
-    return Response.json({
-      league2Name: league2?.league?.name,
-      games2025: gamesData2025.response?.length,
-      games2024: gamesData2024.response?.length,
-      errors2025: gamesData2025.errors,
-      sampleGame2025: gamesData2025.response?.[0],
-      sampleGame2024: gamesData2024.response?.[0],
-    });
+    const games = events
+      .filter(e => e.competitions?.[0])
+      .map(e => {
+        const comp = e.competitions[0];
+        const home = comp.competitors?.find(c => c.homeAway === 'home');
+        const away = comp.competitors?.find(c => c.homeAway === 'away');
+        if (!home || !away) return null;
+        return {
+          id: e.id,
+          date: e.date,
+          homeTeam: {
+            id: `ncaaf-${home.team?.abbreviation?.toLowerCase()}`,
+            name: home.team?.displayName || home.team?.name,
+            logo: home.team?.logo || home.team?.logos?.[0]?.href || null,
+          },
+          awayTeam: {
+            id: `ncaaf-${away.team?.abbreviation?.toLowerCase()}`,
+            name: away.team?.displayName || away.team?.name,
+            logo: away.team?.logo || away.team?.logos?.[0]?.href || null,
+          },
+          venue: comp.venue?.fullName || 'TBD',
+          status: e.status?.type?.description || 'Scheduled',
+          stage: e.season?.type === 1 ? 'Pre Season' : '',
+        };
+      })
+      .filter(Boolean);
+
+    return Response.json({ games });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
