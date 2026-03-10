@@ -31,12 +31,22 @@ Deno.serve(async (req) => {
     console.log('[NHL] Sample team:', JSON.stringify(teams[0]));
     console.log('[NHL] Sample game:', JSON.stringify(rawGames[0]));
 
-    // Build apiId -> abbreviation map
+    // Build apiId -> abbreviation map using proper NHL abbreviations
+     const nhlAbbreviations = {
+       'Boston Bruins': 'BOS', 'New York Rangers': 'NYR', 'Toronto Maple Leafs': 'TOR', 'Montreal Canadiens': 'MTL',
+       'Pittsburgh Penguins': 'PIT', 'Chicago Blackhawks': 'CHI', 'Los Angeles Kings': 'LAK', 'Edmonton Oilers': 'EDM',
+       'Tampa Bay Lightning': 'TBL', 'Colorado Avalanche': 'COL', 'Florida Panthers': 'FLA', 'Dallas Stars': 'DAL',
+       'Washington Capitals': 'WSH', 'Philadelphia Flyers': 'PHI', 'New Jersey Devils': 'NJD', 'New York Islanders': 'NYI',
+       'Carolina Hurricanes': 'CAR', 'Columbus Blue Jackets': 'CBJ', 'Minnesota Wild': 'MIN', 'Nashville Predators': 'NSH',
+       'St. Louis Blues': 'STL', 'Winnipeg Jets': 'WPG', 'Utah Hockey Club': 'UTA', 'San Jose Sharks': 'SJS',
+       'Anaheim Ducks': 'ANA', 'Calgary Flames': 'CGY', 'Vancouver Canucks': 'VAN', 'Vegas Golden Knights': 'VGK',
+       'Seattle Kraken': 'SEA', 'Ottawa Senators': 'OTT', 'Buffalo Sabres': 'BUF', 'Detroit Red Wings': 'DET',
+     };
+     
      const teamMap = {};
      teams.forEach(t => {
-       if (t.id) {
-         // Try different field names for abbreviation
-         const abbr = t.abbreviation || t.code || t.team?.abbreviation || (t.name ? t.name.substring(0, 3).toLowerCase() : null);
+       if (t.id && t.name) {
+         const abbr = nhlAbbreviations[t.name] || t.abbreviation || t.code || t.name.substring(0, 3).toLowerCase();
          if (abbr) {
            teamMap[t.id] = abbr.toLowerCase();
          }
