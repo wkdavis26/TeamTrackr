@@ -653,7 +653,6 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     }
     teamIdsByLeague[team.league].push(team.team_id);
   });
-  console.log('Favorite teams by league:', teamIdsByLeague);
   
   const allGames = [];
   const now = new Date();
@@ -1192,6 +1191,5 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   }
 
   // Sort by date
-  console.log(`fetchAllSchedules returning ${allGames.length} games out of processed:`, allGames.map(g => `${g.league}: ${g.homeTeam.name} vs ${g.awayTeam.name}`));
   return allGames.sort((a, b) => a.date - b.date);
 };
