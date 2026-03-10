@@ -76,9 +76,6 @@ Deno.serve(async (req) => {
 
     // Parse games into standardized format
     const games = futureGames.map(game => {
-      // Use team mapping to convert IDs to abbreviations for consistency with frontend
-      const homeTeamId = teamIdMap[game.teams.home.id] || game.teams.home.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      const awayTeamId = teamIdMap[game.teams.away.id] || game.teams.away.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       const bookmakers = oddsMap[game.fixture.id] || [];
       const firstBookmaker = bookmakers[0];
       
@@ -101,12 +98,12 @@ Deno.serve(async (req) => {
         id: game.fixture.id,
         date: new Date(game.fixture.date),
         homeTeam: {
-          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${homeTeamId}`,
+          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${game.teams.home.id}`,
           name: game.teams.home.name,
           logo: game.teams.home.logo,
         },
         awayTeam: {
-          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${awayTeamId}`,
+          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${game.teams.away.id}`,
           name: game.teams.away.name,
           logo: game.teams.away.logo,
         },
