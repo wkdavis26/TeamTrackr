@@ -62,8 +62,12 @@ Deno.serve(async (req) => {
       return Response.json({ games: [] });
     }
 
-    // Filter for future games
-    const futureGames = data.response.filter(game => new Date(game.fixture.date) > now);
+    // Filter for future games (exclude postponed/cancelled matches)
+    const futureGames = data.response.filter(game => {
+      const gameDate = new Date(game.fixture.date);
+      const status = game.fixture.status?.short || '';
+      return gameDate > now && !['PPD', 'CANC', 'ABD'].includes(status);
+    });
 
     // Fetch odds for games (requires premium API key with odds access)
     const oddsMap = {};
