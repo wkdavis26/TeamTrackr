@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
 
     // Parse games into standardized format
     const games = futureGames.map(game => {
-      // Use team ID from API if available, fallback to slug from name
+      // Use team abbreviation for consistency with frontend team selection
       const homeTeamId = game.teams.home.id ? String(game.teams.home.id).toLowerCase() 
         : game.teams.home.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       const awayTeamId = game.teams.away.id ? String(game.teams.away.id).toLowerCase()
