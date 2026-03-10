@@ -55,9 +55,6 @@ Deno.serve(async (req) => {
       year--;
     }
 
-    console.log('allDriversData sample:', JSON.stringify(allDriversData.response?.slice(0,2)));
-    console.log('allDrivers count:', allDriversData.response?.length);
-
     // Build a map of ranked drivers by name for fast lookup
     const rankedByName = {};
     for (const entry of (driversData.response || [])) {
