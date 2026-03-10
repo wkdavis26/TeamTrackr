@@ -1,15 +1,17 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const API_BASE = 'https://api-sports-io.p.rapidapi.com';
+const API_BASE = 'https://v3.football.api-sports.io';
 
 const apiFetch = async (endpoint) => {
   const res = await fetch(`${API_BASE}${endpoint}`, {
     headers: {
-      'x-rapidapi-key': Deno.env.get('Sports_API_Key'),
-      'x-rapidapi-host': 'api-sports-io.p.rapidapi.com',
+      'x-apisports-key': Deno.env.get('Sports_API_Key'),
     },
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error(`API error: ${res.status} ${res.statusText}`);
+    return null;
+  }
   return res.json();
 };
 
