@@ -30,7 +30,7 @@ export default function F1StandingCard({ team }) {
         .filter(d => d.teamId === team.team_id)
         .sort((a, b) => a.rank - b.rank);
 
-      const constructor = data.constructors.find(c => teamNameToId(c.name) === team.team_id);
+      const constructor = data.constructors.find(c => c.teamId === team.team_id);
 
       setStandings({ drivers: teamDrivers, constructor });
       setLoading(false);
