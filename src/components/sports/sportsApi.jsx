@@ -119,10 +119,12 @@ export const fetchWNBASchedule = async () => {
   }
 };
 
-// Fetch NBA schedule
+// Fetch NBA schedule from api-sports backend function
 export const fetchNBASchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('basketball/nba');
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('nbaSchedule', {});
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching NBA schedule:', error);
     return [];
