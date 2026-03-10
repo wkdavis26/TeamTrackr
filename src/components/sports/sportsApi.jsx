@@ -529,79 +529,64 @@ const parseNHLEvent = (game, favoriteTeamIds) => {
   };
 };
 
-// Session types to include and their display labels
-const F1_SESSION_TYPES = {
-  'Qual': 'Qualifying',
-  'SQ': 'Sprint Qualifying',
-  'Sprint': 'Sprint Qualifying',
-  'SR': 'Sprint Race',
+// Session type labels from api-sports type strings
+const F1_SESSION_LABEL = {
   'Race': 'Race',
-  'FP1': 'Practice 1',
-  'FP2': 'Practice 2',
-  'FP3': 'Practice 3',
-  'P': 'Practice',
+  'Qualifying': 'Qualifying',
+  'Sprint': 'Sprint Race',
+  'Sprint Qualifying': 'Sprint Qualifying',
+  '1st Practice': 'Practice 1',
+  '2nd Practice': 'Practice 2',
+  '3rd Practice': 'Practice 3',
 };
 
-// All session types to show (including practice)
-const F1_SHOWN_SESSIONS = new Set(['Qual', 'SQ', 'Sprint', 'SR', 'Race', 'FP1', 'FP2', 'FP3', 'P']);
+// Session types to show
+const F1_SHOWN_TYPES = new Set(['Race', 'Qualifying', 'Sprint', 'Sprint Qualifying', '1st Practice', '2nd Practice', '3rd Practice']);
 
-// Parse F1 event — creates one entry per relevant session per team
-const parseF1Event = (event, favoriteTeamIds) => {
-  if (!event) return null;
+// Parse a flat F1 session from api-sports — creates one entry per team
+const parseF1Session = (session, favoriteTeamIds) => {
+  if (!session) return null;
 
   const f1TeamIds = favoriteTeamIds.filter(id => id.startsWith('f1-'));
   if (f1TeamIds.length === 0) return null;
 
+  if (!F1_SHOWN_TYPES.has(session.type)) return null;
+
+  const sessionDate = new Date(session.date);
   const now = new Date();
-  const sessions = (event.competitions || []).filter(c => {
-    const abbr = c.type?.abbreviation;
-    return F1_SHOWN_SESSIONS.has(abbr) && new Date(c.date) > now;
+  if (sessionDate <= now) return null;
+
+  const sessionLabel = F1_SESSION_LABEL[session.type] || session.type;
+  const grandPrixName = session.competitionName || 'Grand Prix';
+  const isMainRace = session.type === 'Race';
+
+  return f1TeamIds.map(teamId => {
+    const f1TeamData = LEAGUES.F1.teams.find(t => t.id === teamId);
+    return {
+      id: `${session.id}-${teamId}`,
+      date: sessionDate,
+      league: 'F1',
+      leagueIcon: '🏎️',
+      homeTeam: {
+        id: teamId,
+        name: getF1TeamName(teamId),
+        logo: f1TeamData?.logo || '🏎️',
+        color: f1TeamData?.color || null,
+      },
+      awayTeam: {
+        id: 'f1-race',
+        name: `${grandPrixName} – ${sessionLabel}`,
+        logo: isMainRace ? '🏁' : '⏱️',
+      },
+      favoriteTeamId: teamId,
+      venue: session.circuit || grandPrixName,
+      isF1Race: true,
+      f1Session: sessionLabel,
+      isMainRace,
+      f1Country: session.country || '',
+      broadcasts: null,
+    };
   });
-
-  // If no individual sessions, fall back to the event date (Race)
-  const entries = sessions.length > 0 ? sessions : [{ date: event.date, type: { abbreviation: 'Race' } }];
-
-  const results = [];
-  entries.forEach(session => {
-    const abbr = session.type?.abbreviation || 'Race';
-    const sessionLabel = F1_SESSION_TYPES[abbr] || abbr;
-    const grandPrixName = (event.name || event.shortName || 'Grand Prix')
-      .replace(/^[^A-Z]*/, '') // strip sponsor prefix if any
-      .trim();
-
-    const broadcasts = (session.broadcasts || [])
-      .flatMap(b => b.names || [b.market || b.type].filter(Boolean));
-
-    f1TeamIds.forEach(teamId => {
-        const f1TeamData = LEAGUES.F1.teams.find(t => t.id === teamId);
-        results.push({
-          id: `${event.id}-${session.id || abbr}-${teamId}`,
-          date: new Date(session.date),
-          league: 'F1',
-          leagueIcon: '🏎️',
-          homeTeam: {
-            id: teamId,
-            name: getF1TeamName(teamId),
-            logo: f1TeamData?.logo || '🏎️',
-            color: f1TeamData?.color || null,
-          },
-          awayTeam: {
-            id: 'f1-race',
-            name: `${event.name || 'Grand Prix'} – ${sessionLabel}`,
-            logo: abbr === 'Race' ? '🏁' : '⏱️',
-          },
-          favoriteTeamId: teamId,
-          venue: event.circuit?.fullName || event.name || 'TBD',
-          isF1Race: true,
-          f1Session: sessionLabel,
-          isMainRace: abbr === 'Race',
-          f1Country: event.circuit?.country || event.competitions?.[0]?.venue?.address?.country || extractF1Country(event.name || ''),
-          broadcasts: broadcasts.length > 0 ? broadcasts : null,
-        });
-    });
-  });
-
-  return results;
 };
 
 // Extract country from F1 event name (e.g. "Formula 1 Australian Grand Prix" -> "Australia")
