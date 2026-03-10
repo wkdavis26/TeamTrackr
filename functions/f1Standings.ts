@@ -31,7 +31,7 @@ const DRIVER_FLAG = {
   'PIA': 'au', 'RUS': 'gb', 'ALO': 'es', 'STR': 'ca', 'PER': 'mx',
   'GAS': 'fr', 'OCO': 'fr', 'TSU': 'jp', 'ALB': 'gb', 'HUL': 'de',
   'MAG': 'dk', 'BOT': 'fi', 'ZHO': 'cn', 'LAW': 'nz', 'BEA': 'gb',
-  'DOO': 'au', 'ANT': 'it', 'HAD': 'us', 'BOR': 'br', 'COL': 'ar', 'LIN': 'gb',
+  'DOO': 'au', 'ANT': 'it', 'HAD': 'fr', 'BOR': 'br', 'COL': 'ar', 'LIN': 'se',
 };
 
 Deno.serve(async (req) => {
