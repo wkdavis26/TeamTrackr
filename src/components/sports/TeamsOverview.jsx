@@ -309,10 +309,14 @@ const findEntryForTeam = (entries, teamId) => {
   });
 };
 
+const SPLIT_TYPES = new Set(['home', 'away', 'road', 'neutral', 'streak', 'lastTen', 'lastFive', 'vsConf', 'vsDiv']);
+
 const getStat = (stats, ...names) => {
   for (const name of names) {
-    // Match only the pure overall stat where type === name (e.g. type:"losses" name:"losses")
-    const exact = stats?.find(s => (s.name === name || s.abbreviation === name) && s.type === s.name);
+    const exact = stats?.find(s =>
+      (s.name === name || s.abbreviation === name) &&
+      !SPLIT_TYPES.has(s.type)
+    );
     if (exact) return exact.displayValue;
   }
   return '—';
