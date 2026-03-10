@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
       const abbr = entry.abbr || '';
       if (driverSet.has(name)) continue;
       driverSet.add(name);
-      const teamName = entry.teams?.find(t => t.season === year)?.team?.name || '';
+      const teamName = entry.teams?.find(t => String(t.season) === String(year))?.team?.name || '';
       const countryCode = DRIVER_FLAG[abbr] || null;
       const ranked = rankedByName[name] || { rank: 0, pts: '0' };
       drivers.push({
