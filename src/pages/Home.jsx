@@ -83,7 +83,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col bg-gray-50" style={{ position: 'fixed', inset: 0 }}>
+    <div className="flex flex-col bg-gray-50" style={{ height: '100dvh', overflow: 'hidden' }}>
       {/* Header */}
       <div className="bg-white border-b border-gray-100 px-4 pt-safe-top">
         <div className="max-w-7xl mx-auto py-4 flex items-center justify-between">
