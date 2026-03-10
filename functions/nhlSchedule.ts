@@ -25,8 +25,11 @@ Deno.serve(async (req) => {
       apiFetch('/games?league=57&season=2026'),
     ]);
 
+    console.log('[NHL] teamsData:', teamsData);
+    console.log('[NHL] gamesData:', gamesData);
+
     if (!teamsData?.response || !gamesData?.response) {
-      return Response.json({ games: [] });
+      return Response.json({ games: [], debug: { teamsData, gamesData } });
     }
 
     // Build apiId -> code map
