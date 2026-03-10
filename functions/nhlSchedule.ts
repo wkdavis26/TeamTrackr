@@ -45,9 +45,10 @@ Deno.serve(async (req) => {
         const timeStr = g.game?.date?.time || '00:00';
         if (!dateStr) return false;
         const gameDate = new Date(`${dateStr}T${timeStr}:00Z`);
-        // Include games not yet finished (future + today)
+        // Include games not yet finished (future + today) - use same logic as NFL (4 hour window for live games)
+        const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
         const status = g.game?.status?.short;
-        return status === 'NS' || status === 'SCH' || gameDate > now;
+        return status === 'NS' || status === 'SCH' || gameDate > liveWindowStart;
       })
       .map(g => {
         const homeApiId = g.teams?.home?.id;
