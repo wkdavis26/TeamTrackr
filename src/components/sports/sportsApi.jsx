@@ -147,38 +147,36 @@ export const fetchChampionsLeagueSchedule = async () => {
   }
 };
 
-// Fetch Premier League schedule
+// Fetch Premier League schedule via api-sports
 export const fetchPremierLeagueSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('soccer/eng.1');
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('soccerSchedule', { league: 'Premier League' });
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching Premier League schedule:', error);
     return [];
   }
 };
 
-// Fetch MLS schedule — uses the scoreboard with a full-season date range
-export const fetchMLSSchedule = async (teamAbbreviations = []) => {
+// Fetch MLS schedule via api-sports
+export const fetchMLSSchedule = async () => {
   try {
-    const now = new Date();
-    // MLS season runs through December
-    const endOfSeason = new Date(now.getFullYear(), 11, 31);
-    const startStr = fmtDate(now);
-    const endStr = fmtDate(endOfSeason);
-    const res = await fetch(`${ESPN_BASE}/soccer/usa.1/scoreboard?limit=500&dates=${startStr}-${endStr}`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.events || [];
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('soccerSchedule', { league: 'MLS' });
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching MLS schedule:', error);
     return [];
   }
 };
 
-// Fetch La Liga schedule
+// Fetch La Liga schedule via api-sports
 export const fetchLaLigaSchedule = async () => {
   try {
-    return await fetchESPNScheduleRange('soccer/esp.1');
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('soccerSchedule', { league: 'La Liga' });
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching La Liga schedule:', error);
     return [];
