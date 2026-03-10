@@ -194,19 +194,19 @@ export default function TeamDetails() {
             className="mb-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-5"
           >
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Standings</h2>
-            {f1Standings.constructor && (
-              <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 mb-3">
-                <span className="text-sm text-gray-600 font-medium">Constructors Championship</span>
-                <span className="ml-auto font-bold text-gray-900">#{f1Standings.constructor.rank}</span>
-                <span className="text-sm text-gray-400">{f1Standings.constructor.pts} pts</span>
-              </div>
-            )}
             <div className="flex flex-col gap-2">
+              {f1Standings.constructor && (
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50">
+                  <span className="text-sm text-gray-700 flex-1">Constructors Championship</span>
+                  <span className="text-sm font-bold text-gray-900 w-8 text-right">#{f1Standings.constructor.rank}</span>
+                  <span className="text-sm text-gray-400 w-14 text-right">{f1Standings.constructor.pts} pts</span>
+                </div>
+              )}
               {f1Standings.drivers.map(driver => (
                 <div key={driver.abbr} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50">
                   {driver.flagUrl && <img src={driver.flagUrl} alt="" className="w-5 h-4 object-cover rounded-sm flex-shrink-0" />}
                   <span className="text-sm text-gray-700 flex-1">{driver.name}</span>
-                  <span className="font-bold text-gray-900 text-sm">#{driver.rank}</span>
+                  <span className="text-sm font-bold text-gray-900 w-8 text-right">#{driver.rank}</span>
                   <span className="text-sm text-gray-400 w-14 text-right">{driver.pts} pts</span>
                 </div>
               ))}
