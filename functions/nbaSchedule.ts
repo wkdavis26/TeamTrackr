@@ -21,10 +21,10 @@ Deno.serve(async (req) => {
     const raw = data.response || [];
     const now = new Date();
 
-    // Status 1 = Not Started
+    // Status 1 = Not Started, 2 = In Progress
     const games = raw
-      .filter(g => g.status?.short === '1' || g.status?.short === 1)
-      .filter(g => new Date(g.date?.start) > now)
+      .filter(g => ['1', '2', 1, 2].includes(g.status?.short))
+      .filter(g => new Date(g.date?.start) >= now)
       .map(g => ({
         id: g.id,
         date: g.date?.start,
