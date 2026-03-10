@@ -92,26 +92,19 @@ const fetchLeagueStandings = async (league) => {
   }
 };
 
-// Returns { ABBR: 'hexcolor' } from ESPN teams endpoint
-const fetchLeagueTeamColors = async (league) => {
+// Extract team colors from standings data
+const extractTeamColors = (entries, league) => {
   if (league === 'NFL') return {}; // NFL colors handled in NFLStandingCard
   if (colorsCache[league]) return colorsCache[league];
-  const path = STANDINGS_PATHS[league];
-  if (!path) return {};
-  try {
-    const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${path}/teams?limit=100`);
-    if (!res.ok) return {};
-    const data = await res.json();
-    const teams = data.sports?.[0]?.leagues?.[0]?.teams || [];
-    const map = {};
-    teams.forEach(({ team }) => {
-      if (team?.abbreviation) map[team.abbreviation.toUpperCase()] = team.color || null;
-    });
-    colorsCache[league] = map;
-    return map;
-  } catch (e) {
-    return {};
-  }
+  const map = {};
+  entries.forEach(entry => {
+    const abbr = entry.team?.abbreviation?.toUpperCase();
+    if (abbr && entry.team?.color) {
+      map[abbr] = entry.team.color;
+    }
+  });
+  colorsCache[league] = map;
+  return map;
 };
 
 const teamIdToName = {
