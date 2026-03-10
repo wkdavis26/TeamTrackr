@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       raw = data.response?.filter(g => g.league?.id === 1) || [];
     }
 
-    const games = raw
+    const games = raw.slice(0, 5) // Debug: show first 5 to see structure
       .filter(g => {
         const gameDate = new Date(g.date);
         return gameDate > now;
