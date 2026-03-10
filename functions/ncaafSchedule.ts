@@ -17,15 +17,9 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // NCAAF FBS = league 2. Try 2025 season (most recent with data).
-    const [teamsData, gamesData] = await Promise.all([
-      apiFetch('/teams?league=2&season=2025'),
-      apiFetch('/games?league=2&season=2025'),
-    ]);
-    console.log('teamsData errors:', JSON.stringify(teamsData.errors));
-    console.log('gamesData errors:', JSON.stringify(gamesData.errors));
-    console.log('teams count:', teamsData.response?.length);
-    console.log('games count:', gamesData.response?.length);
+    // Fetch available leagues to find correct NCAAF league ID
+    const leaguesData = await apiFetch('/leagues');
+    console.log('leagues:', JSON.stringify(leaguesData.response?.slice(0, 10)));
 
     // Build apiId -> code map
     const codeMap = {};
