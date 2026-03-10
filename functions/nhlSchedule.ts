@@ -28,20 +28,12 @@ Deno.serve(async (req) => {
     const teams = teamsData?.response || [];
     const rawGames = gamesData?.response || [];
 
-    // Build apiId -> abbreviation map (use abbr or name slug)
+    // Build apiId -> abbreviation map
      const teamMap = {};
      teams.forEach(t => {
-       if (t.id) {
-         // Use abbr if available, otherwise create from name
-         const code = t.abbr || t.abbreviation || (t.name ? t.name.split(' ').map(w => w[0]).join('').toUpperCase() : null);
-         if (code) {
-           const normalized = code.toLowerCase();
-           teamMap[t.id] = normalized;
-           // Log Dallas Stars for debugging
-           if (t.name && t.name.includes('Dallas')) {
-             console.log(`[DEBUG] Dallas team: id=${t.id}, name=${t.name}, abbr=${code}, normalized=${normalized}`);
-           }
-         }
+       if (t.id && t.team?.abbreviation) {
+         const abbr = t.team.abbreviation.toLowerCase();
+         teamMap[t.id] = abbr;
        }
      });
 
