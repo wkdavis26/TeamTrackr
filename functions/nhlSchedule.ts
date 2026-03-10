@@ -25,10 +25,23 @@ Deno.serve(async (req) => {
       apiFetch('/games?league=57&season=2026'),
     ]);
 
-    console.log('[NHL] Full response structure:', JSON.stringify({ teamsData, gamesData }, null, 2));
-
     const teams = teamsData?.response || [];
     const rawGames = gamesData?.response || [];
+
+    // If no data, return debug info
+    if (teams.length === 0 || rawGames.length === 0) {
+      return Response.json({ 
+        games: [], 
+        debug: {
+          teamsCount: teams.length,
+          gamesCount: rawGames.length,
+          sampleTeam: teams[0],
+          sampleGame: rawGames[0],
+          fullTeamsData: teamsData,
+          fullGamesData: gamesData
+        }
+      });
+    }
 
     // Build apiId -> code map
     const codeMap = {};
