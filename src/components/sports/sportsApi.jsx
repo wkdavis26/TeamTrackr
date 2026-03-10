@@ -892,7 +892,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = teamIdsByLeague['MLS'].find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = typeof game.date === 'string' ? new Date(game.date) : game.date;
-      if (gameDate < now) return;
+      if (gameDate <= now) return;
       allGames.push({
         id: `mls-${game.id}`,
         date: gameDate,
