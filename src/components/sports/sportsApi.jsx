@@ -1037,13 +1037,12 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   if (teamIdsByLeague['Serie A']) {
     const serieAIds = teamIdsByLeague['Serie A'];
     serieAGames.forEach(game => {
-      const homeId = game.homeTeam?.id;
-      const awayId = game.awayTeam?.id;
+      const homeId = `serie-a-${game.homeTeam?.id}`;
+      const awayId = `serie-a-${game.awayTeam?.id}`;
       const favoriteTeamId = serieAIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
-      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
+      if (isNaN(gameDate.getTime()) || gameDate <= now) return;
       allGames.push({
         id: `sa-${game.id}`,
         date: gameDate,
@@ -1063,13 +1062,12 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   if (teamIdsByLeague['Bundesliga']) {
     const bundesligaIds = teamIdsByLeague['Bundesliga'];
     bundesligaGames.forEach(game => {
-      const homeId = game.homeTeam?.id;
-      const awayId = game.awayTeam?.id;
+      const homeId = `bundesliga-${game.homeTeam?.id}`;
+      const awayId = `bundesliga-${game.awayTeam?.id}`;
       const favoriteTeamId = bundesligaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
-      const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
-      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
+      if (isNaN(gameDate.getTime()) || gameDate <= now) return;
       allGames.push({
         id: `bl-${game.id}`,
         date: gameDate,
