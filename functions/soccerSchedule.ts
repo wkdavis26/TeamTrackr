@@ -12,20 +12,15 @@ const LEAGUE_CONFIG = {
 };
 
 const apiFetch = async (endpoint) => {
-  const url = `${API_BASE}${endpoint}`;
-  console.log(`[soccerSchedule] Fetching: ${url}`);
-  const res = await fetch(url, {
+  const res = await fetch(`${API_BASE}${endpoint}`, {
     headers: {
       'x-apisports-key': API_KEY,
     },
   });
   if (!res.ok) {
-    console.error(`[soccerSchedule] API error: ${res.status} ${res.statusText}`);
     return null;
   }
-  const data = await res.json();
-  console.log(`[soccerSchedule] Response results:`, data.results);
-  return data;
+  return res.json();
 };
 
 Deno.serve(async (req) => {
