@@ -69,13 +69,57 @@ const NBA_DIVISION_GROUPS = [
 ];
 
 const fetchNBAStandings = async () => {
-  try {
-    const { base44 } = await import('@/api/base44Client');
-    const res = await base44.functions.invoke('leagueStandings', { league: 'NBA' });
-    return res.data?.standings || [];
-  } catch (e) {
-    return [];
-  }
+  const allEntries = [];
+  await Promise.all(NBA_DIVISION_GROUPS.map(async ({ id, conf, div }) => {
+    try {
+      const res = await fetch(`https://site.api.espn.com/apis/v2/sports/basketball/nba/standings?group=${id}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const divEntries = data.standings?.entries || [];
+      const sorted = [...divEntries].sort((a, b) =>
+        parseFloat(b.stats?.find(s => s.name === 'winPercent')?.value ?? 0) -
+        parseFloat(a.stats?.find(s => s.name === 'winPercent')?.value ?? 0)
+      );
+      sorted.forEach((entry, rank) => {
+        allEntries.push({ ...entry, _confName: conf, _divName: div, _divRank: rank + 1 });
+      });
+    } catch {}
+  }));
+  const confMap = {};
+  allEntries.forEach(e => {
+    if (!confMap[e._confName]) confMap[e._confName] = [];
+    confMap[e._confName].push(e);
+  });
+  Object.values(confMap).forEach(list => {
+    list.sort((a, b) => parseFloat(b.stats?.find(s => s.name === 'wins')?.value ?? 0) - parseFloat(a.stats?.find(s => s.name === 'wins')?.value ?? 0));
+    list.forEach((e, i) => { e._confRank = i + 1; });
+    const leaderWins = parseFloat(list[0]?.stats?.find(s => s.name === 'wins')?.value ?? 0);
+    const leaderLosses = parseFloat(list[0]?.stats?.find(s => s.name === 'losses')?.value ?? 0);
+    list.forEach(e => {
+      const w = parseFloat(e.stats?.find(s => s.name === 'wins')?.value ?? 0);
+      const l = parseFloat(e.stats?.find(s => s.name === 'losses')?.value ?? 0);
+      e._confGamesBack = ((leaderWins - w) + (l - leaderLosses)) / 2;
+    });
+  });
+  const divMap = {};
+  allEntries.forEach(e => {
+    if (!divMap[e._divName]) divMap[e._divName] = [];
+    divMap[e._divName].push(e);
+  });
+  Object.values(divMap).forEach(list => {
+    list.sort((a, b) =>
+      parseFloat(b.stats?.find(s => s.name === 'winPercent')?.value ?? 0) -
+      parseFloat(a.stats?.find(s => s.name === 'winPercent')?.value ?? 0)
+    );
+    const leaderWins = parseFloat(list[0]?.stats?.find(s => s.name === 'wins')?.value ?? 0);
+    const leaderLosses = parseFloat(list[0]?.stats?.find(s => s.name === 'losses')?.value ?? 0);
+    list.forEach(e => {
+      const w = parseFloat(e.stats?.find(s => s.name === 'wins')?.value ?? 0);
+      const l = parseFloat(e.stats?.find(s => s.name === 'losses')?.value ?? 0);
+      e._divGamesBack = ((leaderWins - w) + (l - leaderLosses)) / 2;
+    });
+  });
+  return allEntries;
 };
 
 const fetchLeagueStandings = async (league) => {
