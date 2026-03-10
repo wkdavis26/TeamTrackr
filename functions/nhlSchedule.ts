@@ -73,8 +73,7 @@ Deno.serve(async (req) => {
           venue: g.game?.venue?.name || 'TBD',
           status: g.game?.status?.short || 'NS',
         };
-      })
-      .filter(g => g.homeTeam.id && g.awayTeam.id);
+      });
 
     return Response.json({ games }, {
       headers: {
