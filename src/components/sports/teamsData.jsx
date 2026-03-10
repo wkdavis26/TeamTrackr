@@ -154,8 +154,10 @@ export const fetchLeagueTeams = async (leagueKey) => {
     return league?.teams || [];
   }
   try {
+    // NCAAF requires groups=80 (FBS) to return teams
+    const extraParams = leagueKey === 'NCAAF' ? '&groups=80' : leagueKey === 'NCAAB' ? '&groups=50' : '';
     const response = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/${league.espnPath}/teams?limit=500`
+      `https://site.api.espn.com/apis/site/v2/sports/${league.espnPath}/teams?limit=500${extraParams}`
     );
     if (!response.ok) return [];
     const data = await response.json();
