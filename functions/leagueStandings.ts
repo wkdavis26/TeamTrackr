@@ -3,16 +3,25 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 const API_BASE = 'https://v3.football.api-sports.io';
 
 const apiFetch = async (endpoint) => {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: {
-      'x-apisports-key': Deno.env.get('Sports_API_Key'),
-    },
-  });
-  if (!res.ok) {
-    console.error(`API error: ${res.status} ${res.statusText}`);
+  try {
+    const url = `${API_BASE}${endpoint}`;
+    const apiKey = Deno.env.get('Sports_API_Key');
+    const res = await fetch(url, {
+      headers: {
+        'x-apisports-key': apiKey,
+      },
+    });
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error('JSON parse error:', text);
+      return null;
+    }
+  } catch (e) {
+    console.error('Fetch error:', e.message);
     return null;
   }
-  return res.json();
 };
 
 // Map league names to api-sports league IDs
