@@ -57,18 +57,18 @@ Deno.serve(async (req) => {
       .map(g => {
         const homeApiId = g.teams?.home?.id;
         const awayApiId = g.teams?.away?.id;
-        const homeCode = codeMap[homeApiId] || '';
-        const awayCode = codeMap[awayApiId] || '';
+        const homeCode = teamMap[homeApiId];
+        const awayCode = teamMap[awayApiId];
         return {
           id: g.id,
           date: g.date,
           homeTeam: {
-            id: homeCode ? `nhl-${homeCode.toLowerCase()}` : null,
+            id: homeCode ? `nhl-${homeCode}` : null,
             name: g.teams?.home?.name || '',
             logo: g.teams?.home?.logo || null,
           },
           awayTeam: {
-            id: awayCode ? `nhl-${awayCode.toLowerCase()}` : null,
+            id: awayCode ? `nhl-${awayCode}` : null,
             name: g.teams?.away?.name || '',
             logo: g.teams?.away?.logo || null,
           },
