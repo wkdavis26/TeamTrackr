@@ -11,34 +11,28 @@ const apiFetch = async (endpoint) => {
   return res.json();
 };
 
+// NFL team ID 1-32 are the 32 NFL teams (no "All-Stars" or national teams)
+// We'll fetch all and filter by country=USA + known NFL team IDs (1-32)
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const year = new Date().getFullYear();
-    let data = await apiFetch(`/teams?league=1&season=${year}`);
-    if (!data.response?.length) {
-      data = await apiFetch(`/teams?league=1&season=${year - 1}`);
-    }
+    const data = await apiFetch('/teams?league=1&season=2025');
+    const raw = data.response || [];
 
-    // Debug: return the raw first entry to inspect the shape
-    const sample = data.response?.[0];
+    const teams = raw
+      .filter(t => t.name && t.code && t.country?.code === 'US')
+      .map(t => ({
+        id: `nfl-${t.code.toLowerCase()}`,
+        name: t.name,
+        abbreviation: t.code,
+        logo: t.logo || null,
+        apiId: t.id,
+      }));
 
-    const teams = (data.response || [])
-      .filter(entry => entry.team && entry.team.name)
-      .map(entry => {
-        const team = entry.team;
-        return {
-          id: `nfl-${(team.code || team.name).toLowerCase().replace(/\s+/g, '-')}`,
-          name: team.name,
-          abbreviation: team.code || '',
-          logo: team.logo || null,
-        };
-      });
-
-    return Response.json({ teams, sample });
+    return Response.json({ teams });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
