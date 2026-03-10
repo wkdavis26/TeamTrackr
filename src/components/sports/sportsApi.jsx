@@ -765,6 +765,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     nbaGames.forEach(g => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
+      console.log('[NBA] Game IDs - Home:', homeId, 'Away:', awayId, 'Looking in:', nbaIds);
       const gameDate = new Date(g.date);
       const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) {
