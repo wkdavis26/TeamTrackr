@@ -20,11 +20,12 @@ Deno.serve(async (req) => {
     const data = await apiFetch('/games?season=2025');
     const raw = data.response || [];
     const now = new Date();
+    const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
     // Status 0 = Not Started, 1 = In Progress, 2 = Finished
     const games = raw
       .filter(g => ['0', '1', 0, 1].includes(g.status?.short))
-      .filter(g => new Date(g.date?.start) > now)
+      .filter(g => new Date(g.date?.start) > liveWindowStart)
       .map(g => ({
         id: g.id,
         date: g.date?.start,
