@@ -8,7 +8,7 @@ const LEAGUE_CONFIG = {
   'La Liga': { leagueId: 140 },
   'Serie A': { leagueId: 135 },
   'Bundesliga': { leagueId: 78 },
-  'MLS': { leagueId: 218 },
+  'MLS': { leagueId: 253 },
 };
 
 const apiFetch = async (endpoint) => {
