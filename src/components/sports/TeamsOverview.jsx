@@ -9,7 +9,7 @@ import F1StandingCard from './F1StandingCard';
 import NFLStandingCard from './NFLStandingCard';
 
 const STANDINGS_PATHS = {
-  NFL:              'football/nfl',
+  // NFL handled via api-sports backend function (NFLStandingCard)
   NHL:              'hockey/nhl',
   MLB:              'baseball/mlb',
   NBA:              'basketball/nba',
