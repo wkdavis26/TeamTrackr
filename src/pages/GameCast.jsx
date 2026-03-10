@@ -127,6 +127,7 @@ export default function GameCast() {
 
   const scoringPlays = data?.scoringPlays || [];
   const statKeys = STAT_KEYS[league] || [];
+  const playerTeams = data?.boxscore?.players || [];
 
   const statusText = isLive
     ? `${status?.displayClock || ''} · ${status?.period ? getPeriodLabel(status.period - 1, league) : ''}`
