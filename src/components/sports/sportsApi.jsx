@@ -713,11 +713,28 @@ export const fetchAllSchedules = async (favoriteTeams) => {
         });
       }
 
-      // Parse NFL games
+      // Parse NFL games (flat format from api-sports nflSchedule function)
   if (teamIdsByLeague['NFL']) {
-    nflGames.forEach(event => {
-      const game = parseESPNEvent(event, 'NFL', teamIdsByLeague['NFL']);
-      if (game && game.date > now) allGames.push(game);
+    const nflIds = teamIdsByLeague['NFL'];
+    nflGames.forEach(g => {
+      const homeId = g.homeTeam?.id;
+      const awayId = g.awayTeam?.id;
+      const favoriteTeamId = nflIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(g.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: `nfl-${g.id}`,
+        date: gameDate,
+        league: 'NFL',
+        leagueIcon: '🏈',
+        homeTeam: { id: homeId, name: g.homeTeam?.name, logo: g.homeTeam?.logo },
+        awayTeam: { id: awayId, name: g.awayTeam?.name, logo: g.awayTeam?.logo },
+        favoriteTeamId,
+        venue: g.venue || 'TBD',
+        status: g.status || 'NS',
+        isPreseason: g.stage === 'Pre Season',
+      });
     });
   }
   
