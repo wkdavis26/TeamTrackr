@@ -83,7 +83,7 @@ export default function F1StandingCard({ team }) {
               </div>
             ) : standings?.drivers?.length > 0 ? (
               standings.drivers.map(driver => (
-                <div key={driver.abbr} className="flex items-center gap-2">
+                <div key={driver.rank} className="flex items-center gap-2">
                   {driver.flagUrl
                     ? <img src={driver.flagUrl} alt="" className="w-4 h-3 object-cover rounded-sm flex-shrink-0" />
                     : <div className="w-4 h-3 flex-shrink-0" />}
