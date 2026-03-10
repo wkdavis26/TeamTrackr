@@ -19,7 +19,9 @@ Deno.serve(async (req) => {
 
     // Fetch available leagues to find correct NCAAF league ID
     const leaguesData = await apiFetch('/leagues');
-    console.log('leagues:', JSON.stringify(leaguesData.response?.slice(0, 10)));
+    const teamsData = { response: [] };
+    const gamesData = { response: [] };
+    return Response.json({ leagues: leaguesData.response?.map(l => ({ id: l.id, name: l.name, type: l.type })) });
 
     // Build apiId -> code map
     const codeMap = {};
