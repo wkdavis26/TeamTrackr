@@ -81,104 +81,10 @@ const fetchNBAStandings = async () => {
 const fetchLeagueStandings = async (league) => {
   if (league === 'NFL') return []; // NFL standings handled in NFLStandingCard
   if (standingsCache[league]) return standingsCache[league];
-  const path = STANDINGS_PATHS[league];
-  if (!path) return [];
   try {
-    if (league === 'NBA') {
-      const entries = await fetchNBAStandings();
-      standingsCache[league] = entries;
-      return entries;
-    }
-
-    const url = `https://site.api.espn.com/apis/v2/sports/${path}/standings?level=3`;
-    const res = await fetch(url);
-    if (!res.ok) return [];
-    const data = await res.json();
-
-    // Walk the hierarchy: top-level = conference, next = division
-    const entries = [];
-    const topGroups = data.children || [data];
-    topGroups.forEach((confGroup) => {
-      const confName = confGroup.name || null;
-      const divGroups = confGroup.children || [];
-
-      if (divGroups.length > 0) {
-        // Has divisions under conference
-        divGroups.forEach((divGroup) => {
-          const divName = divGroup.name || null;
-          const divEntries = divGroup.standings?.entries || [];
-          divEntries.forEach((entry, rank) => {
-            entries.push({
-              ...entry,
-              _confName: confName,
-              _divName: divName,
-              _divRank: rank + 1,
-            });
-          });
-        });
-      } else {
-        // No divisions, entries are directly under conference
-        const confEntries = confGroup.standings?.entries || [];
-        confEntries.forEach((entry, rank) => {
-          entries.push({
-            ...entry,
-            _confName: confName,
-            _divName: null,
-            _divRank: rank + 1,
-          });
-        });
-      }
-    });
-
-    // Compute conference rank per conference
-    const confEntriesMap = {};
-    entries.forEach(e => {
-      if (e._confName) {
-        if (!confEntriesMap[e._confName]) confEntriesMap[e._confName] = [];
-        confEntriesMap[e._confName].push(e);
-      }
-    });
-    // Sort by points or wins descending to assign conf rank
-    Object.values(confEntriesMap).forEach(confEntries => {
-      confEntries.sort((a, b) => {
-        const getPts = (e) => parseFloat(e.stats?.find(s => s.name === 'points' || s.name === 'wins')?.value ?? 0);
-        return getPts(b) - getPts(a);
-      });
-      confEntries.forEach((e, i) => { e._confRank = i + 1; });
-    });
-
-    // For NHL: compute points-back from division and conference leaders
-    if (league === 'NHL') {
-      // Division points back
-      const divGroups = {};
-      entries.forEach(e => {
-        const key = e._divName || '_';
-        if (!divGroups[key]) divGroups[key] = [];
-        divGroups[key].push(e);
-      });
-      Object.values(divGroups).forEach(group => {
-        const leaderPts = Math.max(...group.map(e => parseFloat(e.stats?.find(s => s.name === 'points')?.value ?? 0)));
-        group.forEach(e => {
-          const myPts = parseFloat(e.stats?.find(s => s.name === 'points')?.value ?? 0);
-          e._divPtsBack = leaderPts - myPts;
-        });
-      });
-      // Conference points back
-      const confGroups = {};
-      entries.forEach(e => {
-        const key = e._confName || '_';
-        if (!confGroups[key]) confGroups[key] = [];
-        confGroups[key].push(e);
-      });
-      Object.values(confGroups).forEach(group => {
-        const leaderPts = Math.max(...group.map(e => parseFloat(e.stats?.find(s => s.name === 'points')?.value ?? 0)));
-        group.forEach(e => {
-          const myPts = parseFloat(e.stats?.find(s => s.name === 'points')?.value ?? 0);
-          e._confPtsBack = leaderPts - myPts;
-        });
-      });
-    }
-
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('leagueStandings', { league });
+    const entries = res.data?.standings || [];
     standingsCache[league] = entries;
     return entries;
   } catch (e) {
