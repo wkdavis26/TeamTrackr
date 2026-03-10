@@ -54,7 +54,11 @@ Deno.serve(async (req) => {
         status: game.status?.long || 'Scheduled',
       }));
 
-    return Response.json({ games });
+    return Response.json({ games }, {
+      headers: {
+        'Cache-Control': 'public, max-age=300',
+      }
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
