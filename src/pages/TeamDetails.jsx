@@ -40,12 +40,33 @@ export default function TeamDetails() {
     staleTime: 0,
   });
 
-  // Filter games for this team only
+  // Filter games for this team only, grouped by date
   const teamGames = useMemo(() => {
     return allGames
       .filter(game => game.favoriteTeamId === teamId)
       .sort((a, b) => a.date - b.date);
   }, [allGames, teamId]);
+
+  const gamesByDate = useMemo(() => {
+    const groups = {};
+    teamGames.forEach(game => {
+      const key = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date(game.date));
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(game);
+    });
+    return groups;
+  }, [teamGames]);
+
+  const formatDateHeader = (dateKey) => {
+    const d = new Date(dateKey + 'T12:00:00');
+    const today = new Date();
+    const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+    const todayKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(today);
+    const tomorrowKey = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(tomorrow);
+    if (dateKey === todayKey) return 'Today';
+    if (dateKey === tomorrowKey) return 'Tomorrow';
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  };
 
   const getLeagueIcon = () => {
     const icons = {
