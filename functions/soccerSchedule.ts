@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     const season = now.getFullYear();
 
     // Fetch games for current season
-    const data = await apiFetch(`/football/fixtures?league=${config.leagueId}&season=${season}`);
+    const data = await apiFetch(`/fixtures?league=${config.leagueId}&season=${season}`);
 
     if (!data || !data.response) {
       return Response.json({ games: [] });
@@ -57,6 +57,7 @@ Deno.serve(async (req) => {
       .map(game => {
         const homeTeamName = game.teams.home.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
         const awayTeamName = game.teams.away.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const odds = game.odds?.[0];
         
         return {
           id: game.fixture.id,
@@ -73,6 +74,12 @@ Deno.serve(async (req) => {
           },
           venue: game.fixture.venue?.name || 'TBD',
           status: game.fixture.status?.long || 'Scheduled',
+          odds: odds ? {
+            bookmaker: odds.bookmaker?.name,
+            home: odds.values?.find(v => v.odd === '1')?.value,
+            draw: odds.values?.find(v => v.odd === 'X')?.value,
+            away: odds.values?.find(v => v.odd === '2')?.value,
+          } : null,
         };
       });
 
