@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     }
 
     const teams = data.response.map(item => {
-      const teamSlug = (item.team.code || item.team.name).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const teamSlug = item.team.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       return {
         id: `premier-league-${teamSlug}`,
         name: item.team.name,
