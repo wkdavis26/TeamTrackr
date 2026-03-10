@@ -229,9 +229,18 @@ export default function TeamDetails() {
             <p className="text-gray-500">Check back later for the schedule</p>
           </motion.div>
         ) : (
-          <div className="space-y-4">
-            {teamGames.map((game) => (
-              <GameCard key={game.id} game={game} compact={false} />
+          <div className="space-y-6">
+            {Object.entries(gamesByDate).map(([dateKey, games]) => (
+              <div key={dateKey}>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  {formatDateHeader(dateKey)}
+                </h3>
+                <div className="space-y-4">
+                  {games.map((game) => (
+                    <GameCard key={game.id} game={game} compact={false} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
