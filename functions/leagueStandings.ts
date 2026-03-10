@@ -11,9 +11,15 @@ const apiFetch = async (endpoint) => {
         'x-apisports-key': apiKey,
       },
     });
+    if (!res.ok) {
+      console.error(`API error: ${res.status} for ${endpoint}`);
+      return null;
+    }
     const text = await res.text();
     try {
-      return JSON.parse(text);
+      const json = JSON.parse(text);
+      console.log(`API response for ${endpoint}:`, json?.response ? 'has data' : 'empty');
+      return json;
     } catch (e) {
       console.error('JSON parse error:', text);
       return null;
