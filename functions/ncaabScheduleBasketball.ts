@@ -33,11 +33,16 @@ Deno.serve(async (req) => {
       raw = data.response || [];
     } catch (e) {
       // Try without league filter
-      data = await apiFetch('/games?season=2025');
-      raw = data.response?.filter(g => g.league?.id === 1) || [];
+      try {
+        data = await apiFetch('/games?season=2025');
+        raw = data.response?.filter(g => g.league?.id === 1) || [];
+      } catch (e2) {
+        // Return empty if API fails
+        return Response.json({ games: [] });
+      }
     }
 
-    const games = raw.slice(0, 5) // Debug: show first 5 to see structure
+    const games = raw
       .filter(g => {
         const gameDate = new Date(g.date);
         return gameDate > now;
