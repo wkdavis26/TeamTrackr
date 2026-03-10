@@ -75,6 +75,11 @@ Deno.serve(async (req) => {
       })
       .filter(g => g.homeTeam.id && g.awayTeam.id);
 
+    console.log('Total raw games:', gamesData.response?.length, 'Filtered:', games.length);
+    if (gamesData.response?.length > 0) {
+      const sample = gamesData.response[0];
+      console.log('Sample game:', JSON.stringify(sample?.game?.date), JSON.stringify(sample?.game?.status));
+    }
     return Response.json({ games });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
