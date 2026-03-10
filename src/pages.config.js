@@ -47,16 +47,16 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import GameCast from './pages/GameCast';
 import Home from './pages/Home';
 import TeamDetails from './pages/TeamDetails';
-import GameCast from './pages/GameCast';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "GameCast": GameCast,
     "Home": Home,
     "TeamDetails": TeamDetails,
-    "GameCast": GameCast,
 }
 
 export const pagesConfig = {

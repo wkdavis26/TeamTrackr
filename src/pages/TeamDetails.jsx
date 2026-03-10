@@ -84,61 +84,18 @@ export default function TeamDetails() {
     }
   }, [isLoadingFavorites, favoriteTeam, teamId]);
 
-  const DRIVER_TEAM_MAP = {
-    'RUS': 'f1-mercedes', 'ANT': 'f1-mercedes',
-    'VER': 'f1-red-bull', 'HAD': 'f1-red-bull',
-    'LEC': 'f1-ferrari',  'HAM': 'f1-ferrari',
-    'NOR': 'f1-mclaren',  'PIA': 'f1-mclaren',
-    'ALO': 'f1-aston-martin', 'STR': 'f1-aston-martin',
-    'GAS': 'f1-alpine',   'DOO': 'f1-alpine',
-    'ALB': 'f1-williams', 'SAI': 'f1-williams',
-    'LAW': 'f1-alphatauri', 'TSU': 'f1-alphatauri',
-    'HUL': 'f1-alfa-romeo', 'BOR': 'f1-alfa-romeo',
-    'OCO': 'f1-haas',     'BEA': 'f1-haas',
-  };
-  const teamNameToId = (name) => {
-    const n = (name || '').toLowerCase();
-    if (n.includes('red bull')) return 'f1-red-bull';
-    if (n.includes('ferrari')) return 'f1-ferrari';
-    if (n.includes('mercedes')) return 'f1-mercedes';
-    if (n.includes('mclaren')) return 'f1-mclaren';
-    if (n.includes('aston martin')) return 'f1-aston-martin';
-    if (n.includes('alpine')) return 'f1-alpine';
-    if (n.includes('williams')) return 'f1-williams';
-    if (n.includes('racing bulls') || n.includes('rb') || n.includes('alphatauri')) return 'f1-alphatauri';
-    if (n.includes('sauber') || n.includes('kick')) return 'f1-alfa-romeo';
-    if (n.includes('haas')) return 'f1-haas';
-    return null;
-  };
-
   // F1 standings
   const [f1Standings, setF1Standings] = useState(null);
   useEffect(() => {
     if (league !== 'F1') return;
     (async () => {
-      try {
-        const year = new Date().getFullYear();
-        const res = await fetch(`https://site.api.espn.com/apis/v2/sports/racing/f1/standings?season=${year}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        const driverGroup = data.children?.find(c => c.name?.toLowerCase().includes('driver')) || data.children?.[0];
-        const constructorGroup = data.children?.find(c => c.name?.toLowerCase().includes('constructor')) || data.children?.[1];
-        const drivers = (driverGroup?.standings?.entries || []).map(entry => ({
-          name: entry.athlete?.shortName || entry.athlete?.displayName || '',
-          abbr: entry.athlete?.abbreviation || '',
-          flagUrl: entry.athlete?.flag?.href || null,
-          rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
-          pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
-        }));
-        const constructors = (constructorGroup?.standings?.entries || []).map(entry => ({
-          name: entry.team?.displayName || entry.team?.name || '',
-          rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
-          pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
-        }));
-        const teamDrivers = drivers.filter(d => DRIVER_TEAM_MAP[d.abbr] === teamId).sort((a, b) => a.rank - b.rank);
-        const constructor = constructors.find(c => teamNameToId(c.name) === teamId);
-        setF1Standings({ drivers: teamDrivers, constructor });
-      } catch {}
+      const res = await base44.functions.invoke('f1Standings', {});
+      const data = res.data;
+      const allDrivers = data.drivers || [];
+      const allConstructors = data.constructors || [];
+      const teamDrivers = allDrivers.filter(d => d.teamId === teamId).sort((a, b) => a.rank - b.rank);
+      const constructor = allConstructors.find(c => c.teamId === teamId);
+      setF1Standings({ drivers: teamDrivers, constructor });
     })();
   }, [league, teamId]);
 
