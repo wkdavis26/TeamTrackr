@@ -40,24 +40,31 @@ export default function Home() {
     enabled: !!currentUser
   });
 
-  // Clean up duplicates once
+  // Clean up duplicates on first load
   React.useEffect(() => {
-    const seen = new Set();
-    const toDelete = [];
+    if (rawFavoriteTeams.length === 0 || !currentUser?.email) return;
     
-    rawFavoriteTeams.forEach(team => {
-      const key = `${team.team_id}-${team.league}`;
-      if (seen.has(key)) {
-        toDelete.push(team.id);
-      } else {
-        seen.add(key);
+    const cleanup = async () => {
+      const seen = new Set();
+      const toDelete = [];
+      
+      rawFavoriteTeams.forEach(team => {
+        const key = `${team.team_id}-${team.league}`;
+        if (seen.has(key)) {
+          toDelete.push(team.id);
+        } else {
+          seen.add(key);
+        }
+      });
+      
+      if (toDelete.length > 0) {
+        await Promise.all(toDelete.map(id => base44.entities.FavoriteTeam.delete(id)));
+        queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
       }
-    });
+    };
     
-    if (toDelete.length > 0) {
-      toDelete.forEach(id => base44.entities.FavoriteTeam.delete(id));
-    }
-  }, []);
+    cleanup();
+  }, [currentUser?.email]);
 
   // Deduplicate teams by team_id + league
   const favoriteTeams = React.useMemo(() => {
