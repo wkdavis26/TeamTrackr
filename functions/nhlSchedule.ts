@@ -17,33 +17,23 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Fetch teams and games in parallel
+    // Fetch teams and games in parallel - NHL is league 2, season 2026
     const [teamsData, gamesData] = await Promise.all([
-      apiFetch('/teams?league=1&season=2025'),
-      apiFetch('/games?league=1&season=2025'),
+      apiFetch('/teams?league=2&season=2026'),
+      apiFetch('/games?league=2&season=2026'),
     ]);
 
     if (!teamsData || !teamsData.response) {
-      return Response.json({ games: [], error: 'No teams data', debug: teamsData });
+      return Response.json({ games: [], error: 'No teams data' });
     }
     if (!gamesData || !gamesData.response) {
-      return Response.json({ games: [], error: 'No games data', debug: gamesData });
+      return Response.json({ games: [], error: 'No games data' });
     }
 
     // Build apiId -> code map
     const codeMap = {};
     teamsData.response.forEach(t => {
       if (t.id && t.code) codeMap[t.id] = t.code;
-    });
-    
-    return Response.json({ 
-      games: gamesData.response.slice(0, 2), 
-      teamsCount: teamsData.response.length,
-      gamesCount: gamesData.response.length,
-      sampleTeam: teamsData.response[0],
-      sampleGame: gamesData.response[0]
-    }, {
-      headers: { 'Cache-Control': 'public, max-age=300' }
     });
 
     const now = new Date();
