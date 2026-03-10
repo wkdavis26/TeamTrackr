@@ -17,21 +17,11 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // NCAAF FBS = league 2
     const data = await apiFetch('/teams?league=2&season=2025');
     const raw = data.response || [];
 
-    const teams = raw
-      .filter(t => t.name && t.code)
-      .map(t => ({
-        id: `ncaaf-${t.code.toLowerCase()}`,
-        name: t.name,
-        abbreviation: t.code,
-        logo: t.logo || null,
-        apiId: t.id,
-      }));
-
-    return Response.json({ teams });
+    // Debug: show sample team structure
+    return Response.json({ count: raw.length, sample: raw.slice(0, 3) });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
