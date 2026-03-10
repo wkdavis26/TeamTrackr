@@ -15,6 +15,7 @@ const fetchF1Standings = async () => {
   const res = await base44.functions.invoke('f1Standings', {});
   const data = res.data;
   f1StandingsCache = { drivers: data.drivers || [], constructors: data.constructors || [] };
+  f1StandingsCacheKey = new Date().toDateString();
   return f1StandingsCache;
 };
 
