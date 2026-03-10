@@ -1,37 +1,28 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const API_KEY = Deno.env.get('Sports_API_Key');
-const BASE_URL = 'https://v1.american-football.api-sports.io';
-
-const apiFetch = async (endpoint) => {
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { 'x-apisports-key': API_KEY }
-  });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
-};
-
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Check 2026 season data
-    const data = await apiFetch('/games?league=2&season=2026');
-    const games = data.response || [];
-    
-    // Find Notre Dame game
-    const ndGame = games.find(g => 
-      g.teams?.home?.name?.includes('Notre Dame') || 
-      g.teams?.away?.name?.includes('Notre Dame')
+    const res = await fetch(
+      'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?limit=500&dates=20260901-20260910'
     );
+    const data = await res.json();
+    const events = data.events || [];
 
-    return Response.json({
-      total2026: games.length,
-      ndGame,
-      sample: games.slice(0, 2),
-    });
+    // Find Notre Dame game
+    const ndGames = events.filter(e => {
+      const comps = e.competitions?.[0]?.competitors || [];
+      return comps.some(c => c.team?.displayName?.includes('Notre Dame'));
+    }).map(e => ({
+      date: e.date,
+      home: e.competitions?.[0]?.competitors?.find(c => c.homeAway === 'home')?.team?.displayName,
+      away: e.competitions?.[0]?.competitors?.find(c => c.homeAway === 'away')?.team?.displayName,
+    }));
+
+    return Response.json({ totalGames: events.length, ndGames });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
