@@ -386,10 +386,15 @@ export default function GameCard({ game, compact = false }) {
         <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-1.5 flex-1">
             {liveScore?.isLive ?
-            <>
-                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0" />
-                <span className="text-xs text-red-600 font-semibold">LIVE</span>
-              </> :
+            <a
+              href={createPageUrl(`GameCast?game_id=${game.id}&league=${encodeURIComponent(game.league)}`)}
+              onClick={e => e.stopPropagation()}
+              className="flex items-center gap-1.5 bg-red-50 px-2 py-1 rounded-full hover:bg-red-100 transition-colors"
+            >
+              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0" />
+              <span className="text-xs text-red-600 font-bold">LIVE</span>
+              <ChevronRight className="w-3 h-3 text-red-400" />
+            </a> :
 
             <>
                 <Clock className="w-3.5 h-3.5 text-gray-400" />
