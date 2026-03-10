@@ -833,7 +833,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   }
 
   // Parse Champions League games (from api-sports backend function)
-  if (hasEuropeanLeague && uclGames.length > 0) {
+  if (hasEuropeanLeague && championsLeagueGames.length > 0) {
     const europeanLeagues = ['Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
     uclGames.forEach(game => {
       const gameDate = new Date(game.date);
