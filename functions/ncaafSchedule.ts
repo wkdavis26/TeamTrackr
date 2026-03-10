@@ -17,12 +17,18 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // NCAAF FBS = league 2. Try upcoming season first, fall back to current.
+    // NCAAF FBS = league 2. Try current year, fall back to previous year if no data.
     const currentYear = new Date().getFullYear();
-    const [teamsData, gamesData] = await Promise.all([
-      apiFetch(`/teams?league=2&season=${currentYear}`),
-      apiFetch(`/games?league=2&season=${currentYear}`),
+    const tryYear = async (year) => Promise.all([
+      apiFetch(`/teams?league=2&season=${year}`),
+      apiFetch(`/games?league=2&season=${year}`),
     ]);
+
+    let [teamsData, gamesData] = await tryYear(currentYear);
+    // If no games returned for current year, try previous year (off-season case)
+    if (!(gamesData.response?.length > 0)) {
+      [teamsData, gamesData] = await tryYear(currentYear - 1);
+    }
 
     // Build apiId -> code map
     const codeMap = {};
