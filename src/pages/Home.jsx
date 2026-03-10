@@ -59,13 +59,13 @@ export default function Home() {
     }
   }, []);
 
-  // Deduplicate teams for display
+  // Deduplicate teams by team_id + league
   const favoriteTeams = React.useMemo(() => {
-    const seen = new Set();
+    const seen = new Map();
     return rawFavoriteTeams.filter(team => {
       const key = `${team.team_id}-${team.league}`;
       if (seen.has(key)) return false;
-      seen.add(key);
+      seen.set(key, team);
       return true;
     });
   }, [rawFavoriteTeams]);
