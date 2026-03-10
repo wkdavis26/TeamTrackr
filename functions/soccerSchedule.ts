@@ -42,7 +42,9 @@ Deno.serve(async (req) => {
 
     const config = LEAGUE_CONFIG[league];
     const now = new Date();
-    const season = now.getFullYear();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    const season = month >= 7 ? year : year - 1; // July onwards = new season
 
     // Fetch games for current season
     const data = await apiFetch(`/fixtures?league=${config.leagueId}&season=${season}`);
