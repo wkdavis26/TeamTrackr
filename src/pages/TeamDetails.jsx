@@ -52,9 +52,11 @@ export default function TeamDetails() {
     const groups = {};
     teamGames.forEach(game => {
       const key = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date(game.date));
+      console.log('[TeamDetails] Game:', game.homeTeam?.name, 'vs', game.awayTeam?.name, 'UTC date:', game.date, 'grouped key:', key);
       if (!groups[key]) groups[key] = [];
       groups[key].push(game);
     });
+    console.log('[TeamDetails] Final gamesByDate keys:', Object.keys(groups));
     return groups;
   }, [teamGames]);
 
