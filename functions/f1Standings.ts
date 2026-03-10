@@ -41,12 +41,21 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const year = new Date().getFullYear();
+    let year = new Date().getFullYear();
 
-    const [driversData, teamsData] = await Promise.all([
+    let [driversData, teamsData] = await Promise.all([
       apiFetch(`/rankings/drivers?season=${year}`),
       apiFetch(`/rankings/teams?season=${year}`),
     ]);
+
+    // Fall back to previous year if no data yet
+    if (!driversData.response?.length && !teamsData.response?.length) {
+      year = year - 1;
+      [driversData, teamsData] = await Promise.all([
+        apiFetch(`/rankings/drivers?season=${year}`),
+        apiFetch(`/rankings/teams?season=${year}`),
+      ]);
+    }
 
     const drivers = (driversData.response || []).map(entry => {
       const nationality = entry.driver?.nationality || '';
