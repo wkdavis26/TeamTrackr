@@ -40,32 +40,35 @@ export default function Home() {
     enabled: !!currentUser
   });
 
-  // Deduplicate teams by team_id + league (keep first occurrence, delete duplicates)
-  const favoriteTeams = React.useMemo(() => {
+  // Clean up duplicates once
+  React.useEffect(() => {
     const seen = new Set();
-    const deduped = [];
     const toDelete = [];
     
     rawFavoriteTeams.forEach(team => {
       const key = `${team.team_id}-${team.league}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        deduped.push(team);
-      } else {
+      if (seen.has(key)) {
         toDelete.push(team.id);
+      } else {
+        seen.add(key);
       }
     });
     
-    // Delete duplicates in the background with query invalidation
     if (toDelete.length > 0) {
-      toDelete.forEach(async (id) => {
-        await base44.entities.FavoriteTeam.delete(id);
-      });
-      queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
+      toDelete.forEach(id => base44.entities.FavoriteTeam.delete(id));
     }
-    
-    return deduped;
-  }, [rawFavoriteTeams, queryClient]);
+  }, []);
+
+  // Deduplicate teams for display
+  const favoriteTeams = React.useMemo(() => {
+    const seen = new Set();
+    return rawFavoriteTeams.filter(team => {
+      const key = `${team.team_id}-${team.league}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [rawFavoriteTeams]);
 
   const { data: upcomingGames = [], isLoading: isLoadingGames } = useQuery({
     queryKey: ['schedules-v3', favoriteTeams.map((t) => t.team_id).join(',')],
