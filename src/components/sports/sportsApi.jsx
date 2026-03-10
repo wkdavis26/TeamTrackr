@@ -758,15 +758,16 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     const nbaIds = teamIdsByLeague['NBA'];
     console.log('[NBA] Favorite team IDs:', nbaIds);
     console.log('[NBA] Sample game:', nbaGames[0]);
+    console.log('[NBA] todayMidnight:', new Date(now).toISOString());
     nbaGames.forEach(g => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
-      console.log(`[NBA] Checking game: ${homeId} vs ${awayId}`);
-      const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
-      if (!favoriteTeamId) return;
       const gameDate = new Date(g.date);
+      console.log(`[NBA] Checking game: ${homeId} vs ${awayId}, date: ${gameDate.toISOString()}`);
+      const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) { console.log('[NBA] No favorite team found'); return; }
       const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
-      if (gameDate < todayMidnight) return;
+      if (gameDate < todayMidnight) { console.log('[NBA] Game date is before today'); return; }
       allGames.push({
         id: `nba-${g.id}`,
         date: gameDate,
