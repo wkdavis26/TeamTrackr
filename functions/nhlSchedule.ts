@@ -54,6 +54,13 @@ Deno.serve(async (req) => {
     const now = new Date();
 
     const games = (rawGames || [])
+      .filter(g => {
+        // Only include upcoming games (after now - 4 hour window)
+        const gameDate = new Date(g.date);
+        if (isNaN(gameDate.getTime())) return false;
+        const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+        return gameDate > liveWindowStart;
+      })
       .map(g => {
         const homeApiId = g.teams?.home?.id;
         const awayApiId = g.teams?.away?.id;
@@ -75,7 +82,8 @@ Deno.serve(async (req) => {
           venue: g.venue?.name || 'TBD',
           status: g.status?.short || 'NS',
         };
-      });
+      })
+      .filter(g => g.homeTeam.id && g.awayTeam.id);
 
     return Response.json({ games }, {
       headers: {
