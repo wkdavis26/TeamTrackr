@@ -1067,30 +1067,6 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
-  // Parse NCAA Basketball games (from api-sports backend function)
-  if (teamIdsByLeague['NCAAB']) {
-    const ncaabIds = teamIdsByLeague['NCAAB'];
-    ncaabGames.forEach(game => {
-      const homeId = game.homeTeam?.id;
-      const awayId = game.awayTeam?.id;
-      const favoriteTeamId = ncaabIds.find(id => id === homeId || id === awayId);
-      if (!favoriteTeamId) return;
-      const gameDate = new Date(game.date);
-      if (isNaN(gameDate.getTime()) || gameDate <= now) return;
-      allGames.push({
-        id: `ncaab-${game.id}`,
-        date: gameDate,
-        league: 'NCAAB',
-        leagueIcon: '🏀',
-        homeTeam: { id: homeId, name: game.homeTeam?.name, logo: game.homeTeam?.logo },
-        awayTeam: { id: awayId, name: game.awayTeam?.name, logo: game.awayTeam?.logo },
-        favoriteTeamId,
-        venue: game.venue || 'TBD',
-        status: game.status || 'Scheduled',
-      });
-    });
-  }
-
   // Parse NCAA Baseball games
   if (teamIdsByLeague['NCAAB-Baseball']) {
     const ncaaBaseballIds = teamIdsByLeague['NCAAB-Baseball'];
