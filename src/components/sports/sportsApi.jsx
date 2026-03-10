@@ -806,14 +806,30 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
-  // Parse Premier League games
+  // Parse Premier League games (from api-sports backend function)
   if (teamIdsByLeague['Premier League']) {
-    plGames.forEach(event => {
-      const game = parseESPNEvent(event, 'Premier League', teamIdsByLeague['Premier League']);
-      if (game && game.date > now) allGames.push(game);
+    plGames.forEach(game => {
+      const homeId = game.homeTeam?.id;
+      const awayId = game.awayTeam?.id;
+      const favoriteTeamId = teamIdsByLeague['Premier League'].find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(game.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: `pl-${game.id}`,
+        date: gameDate,
+        league: 'Premier League',
+        leagueIcon: '⚽',
+        homeTeam: { id: homeId, name: game.homeTeam?.name, logo: game.homeTeam?.logo },
+        awayTeam: { id: awayId, name: game.awayTeam?.name, logo: game.awayTeam?.logo },
+        favoriteTeamId,
+        venue: game.venue || 'TBD',
+        status: game.status || 'Scheduled',
+        odds: game.odds || null,
+      });
     });
   }
-  
+
   // Parse Champions League games for European league teams
   if (hasEuropeanLeague && uclGames.length > 0) {
     const europeanLeagues = ['Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
