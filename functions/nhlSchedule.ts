@@ -19,10 +19,10 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Fetch teams and games in parallel - NHL is league 57
+    // Fetch teams and games in parallel - NHL is league 57, try season 2025
     const [teamsData, gamesData] = await Promise.all([
-      apiFetch('/teams?league=57&season=2026'),
-      apiFetch('/games?league=57&season=2026'),
+      apiFetch('/teams?league=57&season=2025'),
+      apiFetch('/games?league=57&season=2025'),
     ]);
 
     const teams = teamsData?.response || [];
