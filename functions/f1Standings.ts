@@ -50,6 +50,7 @@ Deno.serve(async (req) => {
         apiFetch(`/rankings/drivers?season=${year}`),
         apiFetch(`/rankings/teams?season=${year}`),
       ]);
+      console.log(`Year ${year}: drivers=${driversData.response?.length}, teams=${teamsData.response?.length}`);
       if (driversData.response?.length > 0 || teamsData.response?.length > 0) break;
       year--;
     }
