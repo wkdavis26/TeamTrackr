@@ -30,6 +30,7 @@ Deno.serve(async (req) => {
     });
 
     const now = new Date();
+    const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
     const games = (gamesData.response || [])
       .filter(g => {
@@ -38,9 +39,8 @@ Deno.serve(async (req) => {
         const timeStr = g.game?.date?.time || '00:00';
         if (!dateStr) return false;
         const gameDate = new Date(`${dateStr}T${timeStr}:00Z`);
-        // Include games not yet finished (future + today)
-        const status = g.game?.status?.short;
-        return status === 'NS' || status === 'SCH' || gameDate > now;
+        // Include games in progress (started within 4 hours) and upcoming
+        return gameDate > liveWindowStart;
       })
       .map(g => {
         const homeApiId = g.teams?.home?.id;
