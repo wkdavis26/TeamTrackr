@@ -124,6 +124,7 @@ const fetchNBAStandings = async () => {
 
 const fetchLeagueStandings = async (league) => {
   if (league === 'NFL') return []; // NFL standings handled in NFLStandingCard
+  if (league === 'NBA' || league === 'WNBA') return []; // NBA/WNBA standings handled locally
   if (standingsCache[league]) return standingsCache[league];
   try {
     const { base44 } = await import('@/api/base44Client');
