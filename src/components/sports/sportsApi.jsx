@@ -177,11 +177,12 @@ export const fetchLaLigaSchedule = async () => {
   }
 };
 
-// Fetch NCAA Football schedule
+// Fetch NCAA Football schedule from api-sports backend function
 export const fetchNCAAFSchedule = async () => {
   try {
-    const endOfSeason = new Date(2027, 0, 31); // through January 2027 (covers bowl games)
-    return await fetchESPNScheduleRange('football/college-football', endOfSeason);
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('ncaafSchedule', {});
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching NCAAF schedule:', error);
     return [];
