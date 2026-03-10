@@ -4,7 +4,7 @@ export const LEAGUES = {
   NFL: {
     name: "NFL",
     icon: "🏈",
-    espnPath: "football/nfl",
+    espnPath: null, // uses api-sports via nflTeams/nflStandings/nflSchedule backend functions
     color: "#013369",
   },
   NHL: {
