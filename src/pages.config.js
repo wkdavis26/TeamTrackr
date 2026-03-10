@@ -49,12 +49,14 @@
  */
 import Home from './pages/Home';
 import TeamDetails from './pages/TeamDetails';
+import GameCast from './pages/GameCast';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Home": Home,
     "TeamDetails": TeamDetails,
+    "GameCast": GameCast,
 }
 
 export const pagesConfig = {
