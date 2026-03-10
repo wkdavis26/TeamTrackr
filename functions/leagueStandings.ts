@@ -59,10 +59,15 @@ Deno.serve(async (req) => {
     }
 
     // Transform api-sports response into ESPN-like format for frontend
-    const standings = data.response.map(group => {
-      const confName = group.group?.name || group.country?.name || null;
-      const entries = (group.standings || []).flatMap((division) => {
-        return (division.map((team, rank) => ({
+    // api-sports returns array of divisions with teams
+    const allEntries = [];
+    
+    (data.response || []).forEach(divisionGroup => {
+      const confName = divisionGroup.group?.name || null;
+      const divName = divisionGroup.division?.name || null;
+      
+      (divisionGroup.standings || []).forEach((team, rank) => {
+        allEntries.push({
           team: {
             id: team.team?.id,
             abbreviation: team.team?.code || team.team?.name?.substring(0, 3).toUpperCase(),
@@ -71,28 +76,21 @@ Deno.serve(async (req) => {
             color: null,
           },
           stats: [
-            { name: 'wins', abbreviation: 'W', displayValue: String(team.wins || 0), value: String(team.wins || 0) },
-            { name: 'losses', abbreviation: 'L', displayValue: String(team.losses || 0), value: String(team.losses || 0) },
-            { name: 'draws', abbreviation: 'D', displayValue: String(team.draws || 0), value: String(team.draws || 0), type: 'draws' },
+            { name: 'wins', abbreviation: 'W', displayValue: String(team.win || team.wins || 0), value: String(team.win || team.wins || 0) },
+            { name: 'losses', abbreviation: 'L', displayValue: String(team.loss || team.losses || 0), value: String(team.loss || team.losses || 0) },
             { name: 'winPercent', abbreviation: 'PCT', displayValue: team.percentage || '0.000', value: team.percentage || '0.000' },
             { name: 'points', abbreviation: 'PTS', displayValue: String(team.points || 0), value: String(team.points || 0) },
-            { name: 'gamesBehind', abbreviation: 'GB', displayValue: String(team.gamesBehind || '—'), value: String(team.gamesBehind || '—') },
-            { name: 'otLosses', abbreviation: 'OTL', displayValue: String(team.otLosses || 0), value: String(team.otLosses || 0) },
-            { name: 'total', type: 'total', summary: `${team.wins || 0}-${team.losses || 0}` },
+            { name: 'gamesBehind', abbreviation: 'GB', displayValue: String(team.gamesBehind || 0), value: String(team.gamesBehind || 0) },
+            { name: 'total', type: 'total', summary: `${team.win || team.wins || 0}-${team.loss || team.losses || 0}` },
           ],
           _confName: confName,
-          _divName: group.group?.name || null,
+          _divName: divName,
           _divRank: rank + 1,
-        })) || []);
+        });
       });
-
-      return { confName, entries };
     });
 
-    // Flatten and compute conference/division ranks
-    const allEntries = standings.flatMap(s => s.entries.map(e => ({ ...e, _confName: s.confName })));
-    
-    // Compute conference ranks if applicable
+    // Compute conference ranks
     const confMap = {};
     allEntries.forEach(e => {
       if (e._confName) {
@@ -103,8 +101,8 @@ Deno.serve(async (req) => {
     
     Object.values(confMap).forEach(list => {
       list.sort((a, b) => 
-        parseFloat(b.stats?.find(s => s.name === 'points' || s.name === 'wins')?.value ?? 0) -
-        parseFloat(a.stats?.find(s => s.name === 'points' || s.name === 'wins')?.value ?? 0)
+        parseFloat(b.stats?.find(s => s.name === 'wins')?.value ?? 0) -
+        parseFloat(a.stats?.find(s => s.name === 'wins')?.value ?? 0)
       );
       list.forEach((e, i) => { e._confRank = i + 1; });
     });
