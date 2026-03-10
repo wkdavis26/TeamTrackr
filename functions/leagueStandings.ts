@@ -45,9 +45,22 @@ Deno.serve(async (req) => {
       return Response.json({ standings: [] });
     }
 
+    // Determine sport and season
+    const sportMap = {
+      'NHL': 'hockey',
+      'MLB': 'baseball',
+      'Premier League': 'football',
+      'La Liga': 'football',
+      'Serie A': 'football',
+      'Bundesliga': 'football',
+      'MLS': 'football',
+    };
+
+    const sport = sportMap[league];
+    const season = new Date().getFullYear();
+
     // Fetch standings from api-sports
-    const endpoint = `/${config.sport}/standings?season=${config.season}&league=${config.league}`;
-    const fullUrl = `${API_BASE}${endpoint}`;
+    const endpoint = `/${sport}/standings?league=${config.leagueId}&season=${season}`;
     const data = await apiFetch(endpoint);
 
     if (!data || !data.response) {
