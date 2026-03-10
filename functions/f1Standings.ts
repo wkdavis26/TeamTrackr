@@ -41,20 +41,18 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    let year = new Date().getFullYear();
+    // Try current year first, fall back up to 3 years until we get data
+    const currentYear = new Date().getFullYear();
+    let year = currentYear;
+    let driversData, teamsData;
 
-    let [driversData, teamsData] = await Promise.all([
-      apiFetch(`/rankings/drivers?season=${year}`),
-      apiFetch(`/rankings/teams?season=${year}`),
-    ]);
-
-    // Fall back to previous year if no data yet
-    if (!driversData.response?.length && !teamsData.response?.length) {
-      year = year - 1;
+    for (let attempt = 0; attempt < 3; attempt++) {
       [driversData, teamsData] = await Promise.all([
         apiFetch(`/rankings/drivers?season=${year}`),
         apiFetch(`/rankings/teams?season=${year}`),
       ]);
+      if (driversData.response?.length > 0 || teamsData.response?.length > 0) break;
+      year--;
     }
 
     const drivers = (driversData.response || []).map(entry => {
