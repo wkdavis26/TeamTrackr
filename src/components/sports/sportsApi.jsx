@@ -1007,19 +1007,51 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
-  // Parse Serie A games
+  // Parse Serie A games (from api-sports backend function)
   if (teamIdsByLeague['Serie A']) {
-    serieAGames.forEach(event => {
-      const game = parseESPNEvent(event, 'Serie A', teamIdsByLeague['Serie A']);
-      if (game && game.date > now) allGames.push(game);
+    serieAGames.forEach(game => {
+      const homeId = game.homeTeam?.id;
+      const awayId = game.awayTeam?.id;
+      const favoriteTeamId = teamIdsByLeague['Serie A'].find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(game.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: `sa-${game.id}`,
+        date: gameDate,
+        league: 'Serie A',
+        leagueIcon: '⚽',
+        homeTeam: { id: homeId, name: game.homeTeam?.name, logo: game.homeTeam?.logo },
+        awayTeam: { id: awayId, name: game.awayTeam?.name, logo: game.awayTeam?.logo },
+        favoriteTeamId,
+        venue: game.venue || 'TBD',
+        status: game.status || 'Scheduled',
+        odds: game.odds || null,
+      });
     });
   }
 
-  // Parse Bundesliga games
+  // Parse Bundesliga games (from api-sports backend function)
   if (teamIdsByLeague['Bundesliga']) {
-    bundesligaGames.forEach(event => {
-      const game = parseESPNEvent(event, 'Bundesliga', teamIdsByLeague['Bundesliga']);
-      if (game && game.date > now) allGames.push(game);
+    bundesligaGames.forEach(game => {
+      const homeId = game.homeTeam?.id;
+      const awayId = game.awayTeam?.id;
+      const favoriteTeamId = teamIdsByLeague['Bundesliga'].find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(game.date);
+      if (gameDate <= now) return;
+      allGames.push({
+        id: `bl-${game.id}`,
+        date: gameDate,
+        league: 'Bundesliga',
+        leagueIcon: '⚽',
+        homeTeam: { id: homeId, name: game.homeTeam?.name, logo: game.homeTeam?.logo },
+        awayTeam: { id: awayId, name: game.awayTeam?.name, logo: game.awayTeam?.logo },
+        favoriteTeamId,
+        venue: game.venue || 'TBD',
+        status: game.status || 'Scheduled',
+        odds: game.odds || null,
+      });
     });
   }
 
