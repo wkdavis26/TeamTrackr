@@ -103,11 +103,12 @@ export const fetchNHLSchedule = async () => {
   }
 };
 
-// Fetch MLB schedule (regular season ends ~Sep 27, 2026)
+// Fetch MLB schedule via api-sports
 export const fetchMLBSchedule = async () => {
   try {
-    const endOfSeason = new Date(2026, 8, 27); // Sep 27
-    return await fetchESPNScheduleRange('baseball/mlb', endOfSeason);
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('mlbSchedule', {});
+    return res.data?.games || [];
   } catch (error) {
     console.error('Error fetching MLB schedule:', error);
     return [];
