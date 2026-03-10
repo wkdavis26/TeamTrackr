@@ -1015,10 +1015,11 @@ export const fetchAllSchedules = async (favoriteTeams) => {
 
   // Parse Serie A games (from api-sports backend function)
   if (teamIdsByLeague['Serie A']) {
+    const serieAIds = teamIdsByLeague['Serie A'];
     serieAGames.forEach(game => {
       const homeId = game.homeTeam?.id;
       const awayId = game.awayTeam?.id;
-      const favoriteTeamId = teamIdsByLeague['Serie A'].find(id => id === homeId || id === awayId);
+      const favoriteTeamId = serieAIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = typeof game.date === 'string' ? new Date(game.date) : game.date;
       if (gameDate <= now) return;
