@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
       pts: String(entry.points ?? 0),
     }));
 
-    return Response.json({ drivers, constructors });
+    return Response.json({ drivers, constructors, _debug: { year, driverCount: driversData.response?.length, teamCount: teamsData.response?.length, errors: driversData.errors } });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
