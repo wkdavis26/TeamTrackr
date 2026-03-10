@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       pts: String(entry.points ?? 0),
     }));
 
-    return Response.json({ drivers, constructors, _sample: driversData.response?.[0] });
+    return Response.json({ _sample: driversData.response?.[0] });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
