@@ -1037,8 +1037,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   if (teamIdsByLeague['Serie A']) {
     const serieAIds = teamIdsByLeague['Serie A'];
     serieAGames.forEach(game => {
-      const homeId = `serie-a-${game.homeTeam?.id}`;
-      const awayId = `serie-a-${game.awayTeam?.id}`;
+      const homeId = game.homeTeam?.id;
+      const awayId = game.awayTeam?.id;
       const favoriteTeamId = serieAIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
@@ -1062,8 +1062,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   if (teamIdsByLeague['Bundesliga']) {
     const bundesligaIds = teamIdsByLeague['Bundesliga'];
     bundesligaGames.forEach(game => {
-      const homeId = `bundesliga-${game.homeTeam?.id}`;
-      const awayId = `bundesliga-${game.awayTeam?.id}`;
+      const homeId = game.homeTeam?.id;
+      const awayId = game.awayTeam?.id;
       const favoriteTeamId = bundesligaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
