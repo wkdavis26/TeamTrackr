@@ -832,30 +832,33 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
-  // Parse Champions League games for European league teams
+  // Parse Champions League games (from api-sports backend function)
   if (hasEuropeanLeague && uclGames.length > 0) {
     const europeanLeagues = ['Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
-    uclGames.forEach(event => {
-      if (!event.competitions?.[0]) return;
-      const competition = event.competitions[0];
-      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
-      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
-      if (!homeTeam || !awayTeam) return;
-      const gameDate = new Date(event.date);
+    uclGames.forEach(game => {
+      const gameDate = new Date(game.date);
       if (gameDate <= now) return;
-      // Try to match each team's abbreviation against favorite teams in any European league
+      
+      // Match team IDs against favorite teams from any European league
       for (const league of europeanLeagues) {
         if (!teamIdsByLeague[league]) continue;
-        const homeId = `${league.toLowerCase().replace(/\s+/g, '-')}-${(homeTeam.team?.abbreviation || '').toLowerCase()}`;
-        const awayId = `${league.toLowerCase().replace(/\s+/g, '-')}-${(awayTeam.team?.abbreviation || '').toLowerCase()}`;
+        
+        // Extract numeric ID from the game's team IDs
+        const homeNumId = game.homeTeam?.id?.toString();
+        const awayNumId = game.awayTeam?.id?.toString();
+        
+        // Build league-specific IDs
+        const homeId = homeNumId ? `${league.toLowerCase().replace(/\s+/g, '-')}-${homeNumId}` : null;
+        const awayId = awayNumId ? `${league.toLowerCase().replace(/\s+/g, '-')}-${awayNumId}` : null;
+        
         const favoriteTeamId = teamIdsByLeague[league].find(id => id === homeId || id === awayId);
         if (!favoriteTeamId) continue;
-        // Avoid duplicate if the same event was already added from a league fetch
-        if (allGames.find(g => g.id === event.id)) break;
-        const broadcasts = (competition.broadcasts || [])
-          .flatMap(b => b.names || [typeof b.market === 'string' ? b.market : null, typeof b.type === 'string' ? b.type : null].filter(Boolean));
+        
+        // Avoid duplicate if already added
+        if (allGames.find(g => g.id === `ucl-${game.id}`)) break;
+        
         allGames.push({
-          id: event.id,
+          id: `ucl-${game.id}`,
           date: gameDate,
           league,
           leagueIcon: '⭐',
@@ -863,22 +866,20 @@ export const fetchAllSchedules = async (favoriteTeams) => {
           competitionLabel: 'UEFA Champions League',
           homeTeam: {
             id: homeId,
-            name: homeTeam.team?.displayName || homeTeam.team?.name,
-            logo: homeTeam.team?.logo,
-            color: homeTeam.team?.color,
+            name: game.homeTeam?.name,
+            logo: game.homeTeam?.logo,
           },
           awayTeam: {
             id: awayId,
-            name: awayTeam.team?.displayName || awayTeam.team?.name,
-            logo: awayTeam.team?.logo,
-            color: awayTeam.team?.color,
+            name: game.awayTeam?.name,
+            logo: game.awayTeam?.logo,
           },
           favoriteTeamId,
-          venue: competition.venue?.fullName || 'TBD',
-          status: event.status?.type?.description || 'Scheduled',
-          broadcasts: broadcasts.length > 0 ? broadcasts : null,
+          venue: game.venue || 'TBD',
+          status: game.status || 'Scheduled',
+          broadcasts: null,
         });
-        break; // only add once per event
+        break;
       }
     });
   }
