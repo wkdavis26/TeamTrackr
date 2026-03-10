@@ -825,9 +825,11 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   // Parse Premier League games (from api-sports backend function)
   if (teamIdsByLeague['Premier League']) {
     const plIds = teamIdsByLeague['Premier League'];
+    console.log('[Premier League] Looking for:', plIds, 'Sample game:', plGames[0]);
     plGames.forEach(game => {
       const homeId = game.homeTeam?.id;
       const awayId = game.awayTeam?.id;
+      console.log('[Premier League] Game IDs:', homeId, awayId);
       const favoriteTeamId = plIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(game.date);
