@@ -45,15 +45,7 @@ Deno.serve(async (req) => {
     const year = now.getFullYear();
     const season = month >= 7 ? year : year - 1; // July onwards = new season
 
-    // Fetch teams to create ID-to-slug mapping
-    const teamsData = await apiFetch(`/teams?league=${config.leagueId}`);
-    const teamIdMap = {};
-    if (teamsData?.response) {
-      teamsData.response.forEach(team => {
-        const teamSlug = team.team.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        teamIdMap[team.team.id] = teamSlug;
-      });
-    }
+
 
     // Fetch games for current season
     const data = await apiFetch(`/fixtures?league=${config.leagueId}&season=${season}`);
