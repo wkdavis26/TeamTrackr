@@ -72,9 +72,9 @@ export default function Home() {
   });
 
   const handleToggleTeam = (team) => {
-    const existing = favoriteTeams.find((t) => t.team_id === team.team_id);
+    const existing = favoriteTeams.find((t) => t.team_id === team.team_id && t.league === team.league);
     if (existing) {
-      deleteTeamMutation.mutate(team.team_id);
+      deleteTeamMutation.mutate(existing.id);
     } else {
       // Check for duplicates in the mutation queue to prevent accidental double-adds
       if (!createTeamMutation.isPending) {
