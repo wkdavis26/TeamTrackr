@@ -38,18 +38,7 @@ Deno.serve(async (req) => {
       }
     });
 
-    // If no teams, return debug info to check structure
-    if (teams.length === 0) {
-      return Response.json({ 
-        games: [], 
-        debug: {
-          teamsCount: teams.length,
-          gamesCount: rawGames.length,
-          sampleTeam: teams[0],
-          sampleGame: rawGames[0]
-        }
-      });
-    }
+
 
     const now = new Date();
 
