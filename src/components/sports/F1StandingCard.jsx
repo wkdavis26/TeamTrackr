@@ -138,9 +138,9 @@ export default function F1StandingCard({ team }) {
             ) : standings?.drivers?.length > 0 ? (
               standings.drivers.map(driver => (
                 <div key={driver.abbr} className="flex items-center gap-2">
-                  {driver.flagUrl && (
-                    <img src={driver.flagUrl} alt="" className="w-4 h-3 object-cover rounded-sm flex-shrink-0" />
-                  )}
+                  {driver.flagUrl
+                    ? <img src={driver.flagUrl} alt="" className="w-4 h-3 object-cover rounded-sm flex-shrink-0" />
+                    : <div className="w-4 h-3 flex-shrink-0" />}
                   <span className="text-xs text-gray-700 flex-1 truncate">{driver.name}</span>
                   <span className="text-xs font-bold text-gray-900 w-8 text-right">
                     {driver.rank > 0 ? `#${driver.rank}` : '—'}
