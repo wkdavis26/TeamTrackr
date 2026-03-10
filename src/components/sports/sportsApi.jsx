@@ -1191,5 +1191,6 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   }
 
   // Sort by date
+  console.log('[fetchAllSchedules] Returning', allGames.length, 'games');
   return allGames.sort((a, b) => a.date - b.date);
 };
