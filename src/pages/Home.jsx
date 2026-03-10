@@ -47,6 +47,10 @@ export default function Home() {
     staleTime: 0
   });
 
+  React.useEffect(() => {
+    console.log('[Home] upcomingGames:', upcomingGames);
+  }, [upcomingGames]);
+
   const createTeamMutation = useMutation({
     mutationFn: (team) => base44.entities.FavoriteTeam.create(team),
     onSuccess: () => {
