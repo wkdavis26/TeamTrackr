@@ -22,7 +22,7 @@ export const LEAGUES = {
   NBA: {
     name: "NBA",
     icon: "🏀",
-    espnPath: "basketball/nba",
+    espnPath: null, // uses api-sports via nbaTeams/nbaSchedule backend functions
     color: "#C9082A",
   },
   "Premier League": {
@@ -151,9 +151,9 @@ export const fetchLeagueTeams = async (leagueKey) => {
   const league = LEAGUES[leagueKey];
   if (!league) return [];
 
-  // NFL / NCAAF: use api-sports backend functions
-  if (leagueKey === 'NFL' || leagueKey === 'NCAAF') {
-    const fnName = leagueKey === 'NFL' ? 'nflTeams' : 'ncaafTeams';
+  // NFL / NCAAF / NBA: use api-sports backend functions
+  if (leagueKey === 'NFL' || leagueKey === 'NCAAF' || leagueKey === 'NBA') {
+    const fnName = leagueKey === 'NFL' ? 'nflTeams' : leagueKey === 'NCAAF' ? 'ncaafTeams' : 'nbaTeams';
     try {
       const { base44 } = await import('@/api/base44Client');
       const res = await base44.functions.invoke(fnName, {});
