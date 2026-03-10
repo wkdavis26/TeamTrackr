@@ -87,19 +87,14 @@ Deno.serve(async (req) => {
       // Extract odds from the bet structure
       let odds = null;
       if (firstBookmaker?.bets && firstBookmaker.bets.length > 0) {
-        const matchBet = firstBookmaker.bets.find(b => 
-          b.name === 'Match Winner' || 
-          b.name === '1x2' || 
-          b.name === 'Win' ||
-          b.name === 'Match Result'
-        );
+        const matchBet = firstBookmaker.bets.find(b => b.name === 'Match Winner');
         
-        if (matchBet?.values && matchBet.values.length > 0) {
+        if (matchBet?.values && matchBet.values.length >= 3) {
           odds = {
             bookmaker: firstBookmaker.name,
-            home: matchBet.values.find(v => v.value === '1')?.odd,
-            draw: matchBet.values.find(v => v.value === 'X')?.odd,
-            away: matchBet.values.find(v => v.value === '2')?.odd,
+            home: matchBet.values.find(v => v.value === 'Home')?.odd,
+            draw: matchBet.values.find(v => v.value === 'Draw')?.odd,
+            away: matchBet.values.find(v => v.value === 'Away')?.odd,
           };
         }
       }
