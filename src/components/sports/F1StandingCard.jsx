@@ -4,70 +4,16 @@ import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { LEAGUES } from './teamsData';
-
-// Driver abbreviation → F1 team ID mapping for 2026 season
-const DRIVER_TEAM_MAP = {
-  'RUS': 'f1-mercedes', 'ANT': 'f1-mercedes',
-  'VER': 'f1-red-bull', 'HAD': 'f1-red-bull',
-  'LEC': 'f1-ferrari',  'HAM': 'f1-ferrari',
-  'NOR': 'f1-mclaren',  'PIA': 'f1-mclaren',
-  'ALO': 'f1-aston-martin', 'STR': 'f1-aston-martin',
-  'GAS': 'f1-alpine',   'DOO': 'f1-alpine',
-  'ALB': 'f1-williams', 'SAI': 'f1-williams',
-  'LAW': 'f1-alphatauri', 'TSU': 'f1-alphatauri',
-  'HUL': 'f1-alfa-romeo', 'BOR': 'f1-alfa-romeo',
-  'OCO': 'f1-haas',     'BEA': 'f1-haas',
-};
+import { base44 } from '@/api/base44Client';
 
 let f1StandingsCache = null;
 
 const fetchF1Standings = async () => {
   if (f1StandingsCache?.drivers?.length > 0) return f1StandingsCache;
-  try {
-    const year = new Date().getFullYear();
-    const res = await fetch(`https://site.api.espn.com/apis/v2/sports/racing/f1/standings?season=${year}`);
-    if (!res.ok) return { drivers: [], constructors: [] };
-    const data = await res.json();
-
-    const driverGroup = data.children?.find(c => c.name?.toLowerCase().includes('driver')) || data.children?.[0];
-    const constructorGroup = data.children?.find(c => c.name?.toLowerCase().includes('constructor')) || data.children?.[1];
-
-    const drivers = (driverGroup?.standings?.entries || []).map(entry => ({
-      name: entry.athlete?.shortName || entry.athlete?.displayName || '',
-      abbr: entry.athlete?.abbreviation || '',
-      flagUrl: entry.athlete?.flag?.href || null,
-      teamId: DRIVER_TEAM_MAP[entry.athlete?.abbreviation] || null,
-      rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
-      pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
-    }));
-
-    const constructors = (constructorGroup?.standings?.entries || []).map(entry => ({
-      name: entry.team?.displayName || entry.team?.name || '',
-      rank: parseInt(entry.stats?.find(s => s.name === 'rank')?.displayValue) || 0,
-      pts: entry.stats?.find(s => s.name === 'championshipPts')?.displayValue || '0',
-    }));
-
-    f1StandingsCache = { drivers, constructors };
-    return f1StandingsCache;
-  } catch (e) {
-    return { drivers: [], constructors: [] };
-  }
-};
-
-// Map team name from ESPN to our F1 team ID
-const teamNameToId = (name) => {
-  const n = (name || '').toLowerCase();
-  if (n.includes('red bull')) return 'f1-red-bull';
-  if (n.includes('ferrari')) return 'f1-ferrari';
-  if (n.includes('mercedes')) return 'f1-mercedes';
-  if (n.includes('mclaren')) return 'f1-mclaren';
-  if (n.includes('aston martin')) return 'f1-aston-martin';
-  if (n.includes('alpine')) return 'f1-alpine';
-  if (n.includes('williams')) return 'f1-williams';
-  if (n.includes('racing bulls') || n.includes('rb') || n.includes('alphatauri')) return 'f1-alphatauri';
-  if (n.includes('sauber') || n.includes('kick')) return 'f1-sauber';
-  if (n.includes('haas')) return 'f1-haas';
-  return null;
+  const res = await base44.functions.invoke('f1Standings', {});
+  const data = res.data;
+  f1StandingsCache = { drivers: data.drivers || [], constructors: data.constructors || [] };
+  return f1StandingsCache;
 };
 
 export default function F1StandingCard({ team }) {
