@@ -10,7 +10,8 @@ let f1StandingsCache = null;
 let f1StandingsCacheKey = null;
 
 const fetchF1Standings = async () => {
-  if (f1StandingsCache?.drivers?.length > 0) return f1StandingsCache;
+  const today = new Date().toDateString();
+  if (f1StandingsCache?.drivers?.length > 0 && f1StandingsCacheKey === today) return f1StandingsCache;
   const res = await base44.functions.invoke('f1Standings', {});
   const data = res.data;
   f1StandingsCache = { drivers: data.drivers || [], constructors: data.constructors || [] };
