@@ -1021,8 +1021,8 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const awayId = game.awayTeam?.id;
       const favoriteTeamId = serieAIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
-      const gameDate = typeof game.date === 'string' ? new Date(game.date) : game.date;
-      if (gameDate < now) return;
+      const gameDate = new Date(game.date);
+      if (isNaN(gameDate.getTime()) || gameDate <= now) return;
       allGames.push({
         id: `sa-${game.id}`,
         date: gameDate,
