@@ -86,19 +86,20 @@ Deno.serve(async (req) => {
       
       // Extract odds from the bet structure
       let odds = null;
-      if (firstBookmaker?.bets) {
-        // Log first bet structure to debug
-        if (game.fixture.id === futureGames[0]?.fixture.id) {
-          console.log('[soccerSchedule] First bet:', JSON.stringify(firstBookmaker.bets[0], null, 2));
-        }
+      if (firstBookmaker?.bets && firstBookmaker.bets.length > 0) {
+        const matchBet = firstBookmaker.bets.find(b => 
+          b.name === 'Match Winner' || 
+          b.name === '1x2' || 
+          b.name === 'Win' ||
+          b.name === 'Match Result'
+        );
         
-        const matchBet = firstBookmaker.bets.find(b => b.name === 'Match Winner' || b.name === '1x2' || b.name === 'Win');
-        if (matchBet?.values) {
+        if (matchBet?.values && matchBet.values.length > 0) {
           odds = {
             bookmaker: firstBookmaker.name,
-            home: matchBet.values.find(v => v.value === '1' || v.name?.includes('Home'))?.odd,
-            draw: matchBet.values.find(v => v.value === 'X' || v.name?.includes('Draw'))?.odd,
-            away: matchBet.values.find(v => v.value === '2' || v.name?.includes('Away'))?.odd,
+            home: matchBet.values.find(v => v.value === '1')?.odd,
+            draw: matchBet.values.find(v => v.value === 'X')?.odd,
+            away: matchBet.values.find(v => v.value === '2')?.odd,
           };
         }
       }
