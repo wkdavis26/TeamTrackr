@@ -91,11 +91,16 @@ export const fetchNFLSchedule = async () => {
   }
 };
 
-// Fetch NHL schedule via ESPN scoreboard — iterates day by day through end of regular season (Apr 17)
+// Fetch NHL schedule via api-sports
 export const fetchNHLSchedule = async () => {
-  // NHL regular season ends ~April 17, 2026
-  const endOfSeason = new Date(2026, 3, 17); // April 17
-  return fetchESPNScheduleRange('hockey/nhl', endOfSeason);
+  try {
+    const { base44 } = await import('@/api/base44Client');
+    const res = await base44.functions.invoke('nhlSchedule', {});
+    return res.data?.games || [];
+  } catch (error) {
+    console.error('Error fetching NHL schedule:', error);
+    return [];
+  }
 };
 
 // Fetch MLB schedule (regular season ends ~Sep 27, 2026)
