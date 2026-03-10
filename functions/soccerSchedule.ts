@@ -53,37 +53,48 @@ Deno.serve(async (req) => {
       return Response.json({ games: [] });
     }
 
-    // Filter for future games and parse into standardized format
-    const games = data.response
-      .filter(game => new Date(game.fixture.date) > now)
-      .map(game => {
-        const homeTeamName = game.teams.home.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        const awayTeamName = game.teams.away.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-        const odds = game.odds?.[0];
-        
-        return {
-          id: game.fixture.id,
-          date: new Date(game.fixture.date),
-          homeTeam: {
-            id: `${league.toLowerCase().replace(/\s+/g, '-')}-${homeTeamName}`,
-            name: game.teams.home.name,
-            logo: game.teams.home.logo,
-          },
-          awayTeam: {
-            id: `${league.toLowerCase().replace(/\s+/g, '-')}-${awayTeamName}`,
-            name: game.teams.away.name,
-            logo: game.teams.away.logo,
-          },
-          venue: game.fixture.venue?.name || 'TBD',
-          status: game.fixture.status?.long || 'Scheduled',
-          odds: odds ? {
-            bookmaker: odds.bookmaker?.name,
-            home: odds.values?.find(v => v.odd === '1')?.value,
-            draw: odds.values?.find(v => v.odd === 'X')?.value,
-            away: odds.values?.find(v => v.odd === '2')?.value,
-          } : null,
-        };
+    // Filter for future games
+    const futureGames = data.response.filter(game => new Date(game.fixture.date) > now);
+
+    // Fetch odds for these games using the /odds/live/bets endpoint
+    const oddsData = await apiFetch(`/odds?fixture=${futureGames.map(g => g.fixture.id).join('-')}`);
+    const oddsMap = {};
+    if (oddsData?.response) {
+      oddsData.response.forEach(oddItem => {
+        oddsMap[oddItem.fixture.id] = oddItem.bookmakers || [];
       });
+    }
+
+    // Parse games into standardized format
+    const games = futureGames.map(game => {
+      const homeTeamName = game.teams.home.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const awayTeamName = game.teams.away.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const bookmakers = oddsMap[game.fixture.id] || [];
+      const firstBookmaker = bookmakers[0];
+      
+      return {
+        id: game.fixture.id,
+        date: new Date(game.fixture.date),
+        homeTeam: {
+          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${homeTeamName}`,
+          name: game.teams.home.name,
+          logo: game.teams.home.logo,
+        },
+        awayTeam: {
+          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${awayTeamName}`,
+          name: game.teams.away.name,
+          logo: game.teams.away.logo,
+        },
+        venue: game.fixture.venue?.name || 'TBD',
+        status: game.fixture.status?.long || 'Scheduled',
+        odds: firstBookmaker ? {
+          bookmaker: firstBookmaker.name,
+          home: firstBookmaker.bets?.find(b => b.name === '1')?.values?.[0]?.odd,
+          draw: firstBookmaker.bets?.find(b => b.name === 'X')?.values?.[0]?.odd,
+          away: firstBookmaker.bets?.find(b => b.name === '2')?.values?.[0]?.odd,
+        } : null,
+      };
+    });
 
     return Response.json({ games });
   } catch (error) {
