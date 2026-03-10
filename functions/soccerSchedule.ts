@@ -87,16 +87,19 @@ Deno.serve(async (req) => {
       // Odds endpoint may not be available with current API key
     }
 
+    // Helper to convert team name to slug
+    const nameToSlug = (name) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
     // Parse games into standardized format
     const games = futureGames.map(game => {
       const bookmakers = oddsMap[game.fixture.id] || [];
       const firstBookmaker = bookmakers[0];
-      
+
       // Extract odds from the bet structure
       let odds = null;
       if (firstBookmaker?.bets && firstBookmaker.bets.length > 0) {
         const matchBet = firstBookmaker.bets.find(b => b.name === 'Match Winner');
-        
+
         if (matchBet?.values && matchBet.values.length >= 3) {
           odds = {
             bookmaker: firstBookmaker.name,
@@ -106,17 +109,21 @@ Deno.serve(async (req) => {
           };
         }
       }
-      
+
+      const leagueSlug = league.toLowerCase().replace(/\s+/g, '-');
+      const homeSlug = nameToSlug(game.teams.home.name);
+      const awaySlug = nameToSlug(game.teams.away.name);
+
       return {
         id: game.fixture.id,
         date: new Date(game.fixture.date),
         homeTeam: {
-          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${game.teams.home.id}`,
+          id: `${leagueSlug}-${homeSlug}`,
           name: game.teams.home.name,
           logo: game.teams.home.logo,
         },
         awayTeam: {
-          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${game.teams.away.id}`,
+          id: `${leagueSlug}-${awaySlug}`,
           name: game.teams.away.name,
           logo: game.teams.away.logo,
         },
