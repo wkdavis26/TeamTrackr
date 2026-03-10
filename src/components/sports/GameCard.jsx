@@ -409,7 +409,7 @@ export default function GameCard({ game, compact = false }) {
           <div className="flex items-center gap-1.5 text-gray-400 flex-1 justify-end">
             {game.broadcasts && game.broadcasts.length > 0 ?
             <BroadcastDisplay broadcasts={game.broadcasts} /> :
-            !game.isF1Race &&
+
             <>
                 <MapPin className="w-3.5 h-3.5" />
                 <span className="text-xs truncate max-w-[100px]">{game.venue}</span>
