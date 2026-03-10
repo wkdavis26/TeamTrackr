@@ -23,10 +23,19 @@ Deno.serve(async (req) => {
 
     const now = new Date();
     
-    // Try fetching NCAA games - league 1 is NCAA basketball
-    let data = await apiFetch('/games?league=1&season=2025');
-    console.log('NCAA API response:', data.response?.length || 0, 'games');
-    let raw = data.response || [];
+    // Fetch NCAA games - try multiple league IDs since NCAA might be different
+    let data = null;
+    let raw = [];
+    
+    // Try league 1
+    try {
+      data = await apiFetch('/games?league=1&season=2025');
+      raw = data.response || [];
+    } catch (e) {
+      // Try without league filter
+      data = await apiFetch('/games?season=2025');
+      raw = data.response?.filter(g => g.league?.id === 1) || [];
+    }
 
     const games = raw
       .filter(g => {
@@ -37,12 +46,12 @@ Deno.serve(async (req) => {
         id: g.id,
         date: new Date(g.date),
         homeTeam: {
-          id: `ncaab-${g.teams?.home?.code?.toLowerCase() || ''}`,
+          id: `ncaab-${g.teams?.home?.code?.toLowerCase() || g.teams?.home?.id}`,
           name: g.teams?.home?.name,
           logo: g.teams?.home?.logo || null,
         },
         awayTeam: {
-          id: `ncaab-${g.teams?.away?.code?.toLowerCase() || ''}`,
+          id: `ncaab-${g.teams?.away?.code?.toLowerCase() || g.teams?.away?.id}`,
           name: g.teams?.away?.name,
           logo: g.teams?.away?.logo || null,
         },
@@ -50,10 +59,8 @@ Deno.serve(async (req) => {
         status: g.status?.long || 'Scheduled',
       }));
 
-    console.log('Returning', games.length, 'filtered games');
     return Response.json({ games });
   } catch (error) {
-    console.log('Error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
