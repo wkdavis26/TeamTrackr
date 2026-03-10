@@ -28,6 +28,9 @@ Deno.serve(async (req) => {
     const teams = teamsData?.response || [];
     const rawGames = gamesData?.response || [];
 
+    console.log('[NHL] Sample team:', JSON.stringify(teams[0]));
+    console.log('[NHL] Sample game:', JSON.stringify(rawGames[0]));
+
     // Build apiId -> abbreviation map
      const teamMap = {};
      teams.forEach(t => {
