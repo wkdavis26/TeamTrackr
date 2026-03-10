@@ -912,10 +912,11 @@ export const fetchAllSchedules = async (favoriteTeams) => {
 
   // Parse La Liga games (from api-sports backend function)
   if (teamIdsByLeague['La Liga']) {
+    const laligaIds = teamIdsByLeague['La Liga'];
     laligaGames.forEach(game => {
       const homeId = game.homeTeam?.id;
       const awayId = game.awayTeam?.id;
-      const favoriteTeamId = teamIdsByLeague['La Liga'].find(id => id === homeId || id === awayId);
+      const favoriteTeamId = laligaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = typeof game.date === 'string' ? new Date(game.date) : game.date;
       if (gameDate <= now) return;
