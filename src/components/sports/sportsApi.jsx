@@ -762,7 +762,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(g.date);
-      if (gameDate <= liveWindowStart) return;
+      if (gameDate <= now) return;
       allGames.push({
         id: `nba-${g.id}`,
         date: gameDate,
