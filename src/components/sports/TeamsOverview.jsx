@@ -235,6 +235,7 @@ const fetchLeagueStandings = async (league) => {
 
 // Returns { ABBR: 'hexcolor' } from ESPN teams endpoint
 const fetchLeagueTeamColors = async (league) => {
+  if (league === 'NFL') return {}; // NFL colors handled in NFLStandingCard
   if (colorsCache[league]) return colorsCache[league];
   const path = STANDINGS_PATHS[league];
   if (!path) return {};
