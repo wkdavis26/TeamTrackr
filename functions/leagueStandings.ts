@@ -52,14 +52,12 @@ Deno.serve(async (req) => {
 
     // Fetch standings from api-sports
     const endpoint = `/${config.sport}/standings?season=${config.season}&league=${config.league}`;
+    const fullUrl = `${API_BASE}${endpoint}`;
     const data = await apiFetch(endpoint);
 
-    if (!data) {
-      console.error(`No data returned for ${league}`);
+    if (!data || !data.response) {
       return Response.json({ standings: [] });
     }
-
-    console.log(`api-sports response for ${league}:`, JSON.stringify(data).substring(0, 500));
 
     // Transform api-sports response into ESPN-like format for frontend
     // api-sports returns array of divisions with teams
