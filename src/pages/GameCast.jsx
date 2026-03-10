@@ -235,6 +235,58 @@ export default function GameCast() {
           </motion.div>
         )}
 
+        {/* Individual Player Stats */}
+        {playerTeams.length > 0 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-4">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Player Stats</h3>
+            {playerTeams.map((teamEntry, ti) => {
+              const teamAbbr = teamEntry.team?.abbreviation || (ti === 0 ? awayTeam?.team?.abbreviation : homeTeam?.team?.abbreviation) || `Team ${ti + 1}`;
+              return (
+                <div key={ti} className={ti > 0 ? 'mt-6' : ''}>
+                  <div className="text-xs font-bold text-gray-600 mb-3 pb-1 border-b border-gray-100">{teamAbbr}</div>
+                  {(teamEntry.statistics || []).map((statGroup, gi) => {
+                    const athletes = statGroup.athletes || [];
+                    const labels = statGroup.labels || [];
+                    const keys = statGroup.keys || [];
+                    if (!athletes.length || !labels.length) return null;
+                    return (
+                      <div key={gi} className="mb-5 last:mb-0">
+                        <div className="text-xs font-semibold text-emerald-600 mb-2">{statGroup.name}</div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs min-w-[360px]">
+                            <thead>
+                              <tr className="text-gray-400">
+                                <th className="text-left pb-1.5 font-medium w-32">Player</th>
+                                {labels.map((l, li) => (
+                                  <th key={li} className="text-right pb-1.5 font-medium px-1">{l}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                              {athletes.filter(a => a.active !== false && a.athlete).map((a, ai) => (
+                                <tr key={ai} className="hover:bg-gray-50">
+                                  <td className="py-1.5 pr-2 font-medium text-gray-800 whitespace-nowrap truncate max-w-[120px]">
+                                    {a.athlete?.shortName || a.athlete?.displayName}
+                                    {a.starter && <span className="ml-1 text-gray-300 text-[10px]">•</span>}
+                                  </td>
+                                  {(a.stats || []).map((val, vi) => (
+                                    <td key={vi} className="py-1.5 text-right text-gray-600 px-1 tabular-nums">{val}</td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </motion.div>
+        )}
+
         {/* Scoring Plays */}
         {scoringPlays.length > 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
