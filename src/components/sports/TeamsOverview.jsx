@@ -606,6 +606,8 @@ export default function TeamsOverview({ favoriteTeams }) {
                         {teams.map(team => (
                           league === 'F1' ? (
                             <F1StandingCard key={team.team_id} team={team} />
+                          ) : league === 'NFL' ? (
+                            <NFLStandingCard key={team.team_id} team={team} />
                           ) : (
                           <TeamStandingCard
                            key={team.team_id}
