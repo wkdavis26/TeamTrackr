@@ -17,10 +17,29 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // NCAA Basketball season is typically 2024-2025
-    const data = await apiFetch('/games?league=1&season=2025');
-    const raw = data.response || [];
+    // NCAA Basketball - trying multiple endpoints to find games
+    let raw = [];
     const now = new Date();
+    
+    // Try league 1 (NCAA)
+    try {
+      const data = await apiFetch('/games?league=1&season=2025');
+      if (data.response?.length > 0) {
+        raw = data.response;
+      }
+    } catch (e) {
+      console.log('League 1 failed, trying alternative');
+    }
+    
+    // If empty, try fetching all games and filter
+    if (raw.length === 0) {
+      try {
+        const data = await apiFetch('/games?season=2025');
+        raw = data.response || [];
+      } catch (e) {
+        console.log('Season fetch failed');
+      }
+    }
 
     const games = raw
       .filter(g => {
