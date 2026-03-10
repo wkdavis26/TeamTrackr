@@ -56,13 +56,16 @@ export default function Home() {
       }
     });
     
-    // Delete duplicates in the background
+    // Delete duplicates in the background with query invalidation
     if (toDelete.length > 0) {
-      toDelete.forEach(id => base44.entities.FavoriteTeam.delete(id));
+      toDelete.forEach(async (id) => {
+        await base44.entities.FavoriteTeam.delete(id);
+      });
+      queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
     }
     
     return deduped;
-  }, [rawFavoriteTeams]);
+  }, [rawFavoriteTeams, queryClient]);
 
   const { data: upcomingGames = [], isLoading: isLoadingGames } = useQuery({
     queryKey: ['schedules-v3', favoriteTeams.map((t) => t.team_id).join(',')],
