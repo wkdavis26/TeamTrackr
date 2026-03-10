@@ -681,7 +681,6 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     teamIdsByLeague['Bundesliga'] ? fetchBundesligaSchedule() : Promise.resolve([]),
     teamIdsByLeague['NCAAB'] ? fetchNCAABSchedule() : Promise.resolve([]),
     teamIdsByLeague['NCAAB-Baseball'] ? fetchNCAABaseballSchedule() : Promise.resolve([]),
-    hasEuropeanLeague ? fetchChampionsLeagueSchedule() : Promise.resolve([]),
     teamIdsByLeague['PWHL'] ? fetchPWHLSchedule() : Promise.resolve({ games: [], PWHL_TEAMS: {}, LSID_TO_PWHL: {} }),
     teamIdsByLeague['NWSL'] ? fetchNWSLSchedule() : Promise.resolve([]),
     hasEuropeanLeague ? fetchChampionsLeagueSchedule() : Promise.resolve([]),
