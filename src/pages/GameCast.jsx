@@ -253,25 +253,24 @@ export default function GameCast() {
                     return (
                       <div key={gi} className="mb-5 last:mb-0">
                         <div className="text-xs font-semibold text-emerald-600 mb-2">{statGroup.name}</div>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-xs min-w-[360px]">
+                        <div className="overflow-x-auto -mx-5 px-5">
+                          <table className="text-xs whitespace-nowrap">
                             <thead>
                               <tr className="text-gray-400">
-                                <th className="text-left pb-1.5 font-medium w-32">Player</th>
+                                <th className="text-left pb-1.5 font-medium pr-3 sticky left-0 bg-white min-w-[100px]">Player</th>
                                 {labels.map((l, li) => (
-                                  <th key={li} className="text-right pb-1.5 font-medium px-1">{l}</th>
+                                  <th key={li} className="text-right pb-1.5 font-medium px-2">{l}</th>
                                 ))}
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                               {athletes.filter(a => a.active !== false && a.athlete).map((a, ai) => (
-                                <tr key={ai} className="hover:bg-gray-50">
-                                  <td className="py-1.5 pr-2 font-medium text-gray-800 whitespace-nowrap truncate max-w-[120px]">
+                                <tr key={ai}>
+                                  <td className="py-1.5 pr-3 font-medium text-gray-800 sticky left-0 bg-white">
                                     {a.athlete?.shortName || a.athlete?.displayName}
-                                    {a.starter && <span className="ml-1 text-gray-300 text-[10px]">•</span>}
                                   </td>
                                   {(a.stats || []).map((val, vi) => (
-                                    <td key={vi} className="py-1.5 text-right text-gray-600 px-1 tabular-nums">{val}</td>
+                                    <td key={vi} className="py-1.5 text-right text-gray-600 px-2 tabular-nums">{val}</td>
                                   ))}
                                 </tr>
                               ))}
