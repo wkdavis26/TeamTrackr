@@ -175,7 +175,11 @@ export default function TeamDetails() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-4 mb-8"
         >
-          <div className="text-5xl">{getLeagueIcon()}</div>
+          {favoriteTeam?.logo_url ? (
+            <img src={favoriteTeam.logo_url} alt={teamName} className="w-16 h-16 object-contain" />
+          ) : (
+            <div className="text-5xl">{getLeagueIcon()}</div>
+          )}
           <div>
             <h1 className="text-4xl font-bold text-gray-900">{teamName}</h1>
             <p className="text-gray-500">{league} Upcoming Games</p>
