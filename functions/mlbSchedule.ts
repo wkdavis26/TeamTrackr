@@ -26,6 +26,7 @@ Deno.serve(async (req) => {
 
     const now = new Date();
     const season = now.getFullYear();
+    const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
     // Fetch games for current season
     const data = await apiFetch(`/baseball/games?season=${season}&league=1`);
@@ -34,12 +35,8 @@ Deno.serve(async (req) => {
       return Response.json({ games: [] });
     }
 
-    // Filter for games from today onwards and parse into standardized format
-    const todayMidnight = new Date(now);
-    todayMidnight.setHours(0, 0, 0, 0);
-
     const games = data.response
-      .filter(game => new Date(game.date) >= todayMidnight)
+      .filter(game => new Date(game.date) > liveWindowStart)
       .map(game => ({
         id: game.id,
         date: new Date(game.date),
