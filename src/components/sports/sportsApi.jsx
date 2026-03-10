@@ -743,11 +743,27 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
-  // Parse NBA games
+  // Parse NBA games (flat format from api-sports nbaSchedule function)
   if (teamIdsByLeague['NBA']) {
-    nbaGames.forEach(event => {
-      const game = parseESPNEvent(event, 'NBA', teamIdsByLeague['NBA']);
-      if (game && game.date > liveWindowStart) allGames.push(game);
+    const nbaIds = teamIdsByLeague['NBA'];
+    nbaGames.forEach(g => {
+      const homeId = g.homeTeam?.id;
+      const awayId = g.awayTeam?.id;
+      const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(g.date);
+      if (gameDate <= liveWindowStart) return;
+      allGames.push({
+        id: `nba-${g.id}`,
+        date: gameDate,
+        league: 'NBA',
+        leagueIcon: '🏀',
+        homeTeam: { id: homeId, name: g.homeTeam?.name, logo: g.homeTeam?.logo },
+        awayTeam: { id: awayId, name: g.awayTeam?.name, logo: g.awayTeam?.logo },
+        favoriteTeamId,
+        venue: g.venue || 'TBD',
+        status: g.status || 'NS',
+      });
     });
   }
   
