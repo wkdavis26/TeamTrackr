@@ -644,7 +644,11 @@ const getTeamEmoji = (teamId) => {
 
 // Main function to fetch all schedules for favorite teams
 export const fetchAllSchedules = async (favoriteTeams) => {
-  if (!favoriteTeams || favoriteTeams.length === 0) return [];
+  console.log('[fetchAllSchedules] Called with teams:', favoriteTeams?.map(t => `${t.league}:${t.team_id}`) || []);
+  if (!favoriteTeams || favoriteTeams.length === 0) {
+    console.log('[fetchAllSchedules] No teams, returning empty');
+    return [];
+  }
   
   const teamIdsByLeague = {};
   favoriteTeams.forEach(team => {
