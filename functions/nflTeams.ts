@@ -23,18 +23,22 @@ Deno.serve(async (req) => {
       data = await apiFetch(`/teams?league=1&season=${year - 1}`);
     }
 
-    const teams = (data.response || [])
-      .filter(({ team }) => team.code && !team.national)
-      .map(({ team }) => ({
-        id: `nfl-${team.code.toLowerCase()}`,
-        name: team.name,
-        abbreviation: team.code,
-        logo: team.logo || null,
-        conference: team.conference,
-        division: team.division,
-      }));
+    // Debug: return the raw first entry to inspect the shape
+    const sample = data.response?.[0];
 
-    return Response.json({ teams });
+    const teams = (data.response || [])
+      .filter(entry => entry.team && entry.team.name)
+      .map(entry => {
+        const team = entry.team;
+        return {
+          id: `nfl-${(team.code || team.name).toLowerCase().replace(/\s+/g, '-')}`,
+          name: team.name,
+          abbreviation: team.code || '',
+          logo: team.logo || null,
+        };
+      });
+
+    return Response.json({ teams, sample });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
