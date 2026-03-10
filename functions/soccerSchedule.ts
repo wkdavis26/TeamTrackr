@@ -41,11 +41,19 @@ Deno.serve(async (req) => {
 
     const config = LEAGUE_CONFIG[league];
     const now = new Date();
-    const month = now.getMonth();
-    const year = now.getFullYear();
-    const season = month >= 7 ? year : year - 1; // July onwards = new season
 
+    // Fetch league info to get current season
+    const leagueInfo = await apiFetch(`/leagues?id=${config.leagueId}&current=true`);
+    let season = null;
 
+    if (leagueInfo?.response && leagueInfo.response.length > 0) {
+      const currentSeasons = leagueInfo.response[0].seasons.filter(s => s.current === true);
+      season = currentSeasons.length > 0 ? currentSeasons[0].year : leagueInfo.response[0].seasons[0].year;
+    } else {
+      // Fallback: use most recent season based on current date
+      const year = now.getFullYear();
+      season = now.getMonth() >= 7 ? year : year - 1;
+    }
 
     // Fetch games for current season
     const data = await apiFetch(`/fixtures?league=${config.leagueId}&season=${season}`);
