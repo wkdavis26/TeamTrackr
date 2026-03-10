@@ -44,7 +44,8 @@ export default function Home() {
     queryKey: ['schedules-v3', favoriteTeams.map((t) => t.team_id).join(',')],
     queryFn: () => fetchAllSchedules(favoriteTeams),
     enabled: favoriteTeams.length > 0,
-    staleTime: 0
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000 // Keep in memory for 10 minutes
   });
 
   React.useEffect(() => {

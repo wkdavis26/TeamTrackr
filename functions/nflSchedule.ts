@@ -70,7 +70,11 @@ Deno.serve(async (req) => {
       })
       .filter(g => g.homeTeam.id && g.awayTeam.id);
 
-    return Response.json({ games });
+    return Response.json({ games }, {
+      headers: {
+        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+      }
+    });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
