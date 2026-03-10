@@ -182,7 +182,7 @@ export default function TeamDetails() {
           )}
           <div>
             <h1 className="text-4xl font-bold text-gray-900">{teamName}</h1>
-            <p className="text-gray-500">{league} Upcoming Games</p>
+            <p className="text-gray-500">{league} Upcoming {league === 'F1' ? 'Races' : 'Games'}</p>
           </div>
         </motion.div>
 
