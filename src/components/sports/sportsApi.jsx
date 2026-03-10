@@ -746,23 +746,23 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   if (teamIdsByLeague['NBA']) {
     const nbaIds = teamIdsByLeague['NBA'];
     console.log('[NBA] Looking for favorite IDs:', nbaIds, 'Total games from API:', nbaGames.length);
-    console.log('[NBA] Sample game:', nbaGames[0]);
-    nbaGames.forEach(g => {
+    nbaGames.forEach((g, idx) => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
-      console.log('[NBA] Game IDs - Home:', homeId, 'Away:', awayId, 'Looking in:', nbaIds);
       const gameDate = new Date(g.date);
       const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
-      if (!favoriteTeamId) {
-        console.log('[NBA] No favorite found for', homeId, 'vs', awayId);
+      
+      if (!favoriteTeamId) return;
+      if (isNaN(gameDate.getTime())) return;
+      
+      const passes = gameDate > liveWindowStart;
+      console.log(`[NBA ${idx}] ${homeId} vs ${awayId}, Fav: ${favoriteTeamId}, Date: ${gameDate.toISOString()}, Pass: ${passes}, Threshold: ${liveWindowStart.toISOString()}`);
+      
+      if (!passes) {
+        console.log(`[NBA ${idx}] FILTERED: ${gameDate.getTime()} <= ${liveWindowStart.getTime()}`);
         return;
       }
-      if (isNaN(gameDate.getTime())) {
-        console.log('[NBA] Invalid date:', g.date);
-        return;
-      }
-      console.log('[NBA] Game date:', gameDate.toISOString(), 'NOW:', now.toISOString(), 'passes:', gameDate > liveWindowStart);
-      if (gameDate <= liveWindowStart) return;
+      
       allGames.push({
         id: `nba-${g.id}`,
         date: gameDate,
