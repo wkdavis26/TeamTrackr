@@ -756,9 +756,12 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   // Parse NBA games (flat format from api-sports nbaSchedule function)
   if (teamIdsByLeague['NBA']) {
     const nbaIds = teamIdsByLeague['NBA'];
+    console.log('[NBA] Favorite team IDs:', nbaIds);
+    console.log('[NBA] Sample game:', nbaGames[0]);
     nbaGames.forEach(g => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
+      console.log(`[NBA] Checking game: ${homeId} vs ${awayId}`);
       const favoriteTeamId = nbaIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(g.date);
