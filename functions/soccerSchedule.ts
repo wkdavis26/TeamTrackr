@@ -74,8 +74,11 @@ Deno.serve(async (req) => {
 
     // Parse games into standardized format
     const games = futureGames.map(game => {
-      const homeTeamName = game.teams.home.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      const awayTeamName = game.teams.away.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      // Use team ID from API if available, fallback to slug from name
+      const homeTeamId = game.teams.home.id ? String(game.teams.home.id).toLowerCase() 
+        : game.teams.home.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const awayTeamId = game.teams.away.id ? String(game.teams.away.id).toLowerCase()
+        : game.teams.away.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       const bookmakers = oddsMap[game.fixture.id] || [];
       const firstBookmaker = bookmakers[0];
       
@@ -98,12 +101,12 @@ Deno.serve(async (req) => {
         id: game.fixture.id,
         date: new Date(game.fixture.date),
         homeTeam: {
-          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${homeTeamName}`,
+          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${homeTeamId}`,
           name: game.teams.home.name,
           logo: game.teams.home.logo,
         },
         awayTeam: {
-          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${awayTeamName}`,
+          id: `${league.toLowerCase().replace(/\s+/g, '-')}-${awayTeamId}`,
           name: game.teams.away.name,
           logo: game.teams.away.logo,
         },
