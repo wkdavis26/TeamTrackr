@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
     const endpoint = `/standings?league=${config.leagueId}&season=${season}`;
     const data = await apiFetch(endpoint);
 
-    if (!data?.response || data.response.length === 0) {
+    if (!data?.response) {
       // Return empty if API doesn't have data
       return Response.json({ standings: [] });
     }
@@ -80,30 +80,35 @@ Deno.serve(async (req) => {
     // Transform api-sports response into ESPN-like format for frontend
     const allEntries = [];
     
-    (data.response || []).forEach(divisionGroup => {
-      const confName = divisionGroup.group?.name || null;
-      const divName = divisionGroup.group?.name || null;
+    // api-sports returns an array of standings grouped by stage
+    const standingsArray = Array.isArray(data.response) ? data.response : [];
+    
+    standingsArray.forEach((stageGroup) => {
+      const confName = stageGroup.group?.name || null;
+      const divName = stageGroup.group?.name || null;
       
-      (divisionGroup.standings || []).forEach((team, rank) => {
-        allEntries.push({
-          team: {
-            id: team.team?.id,
-            abbreviation: team.team?.code || team.team?.name?.substring(0, 3).toUpperCase(),
-            displayName: team.team?.name,
-            logo: team.team?.logo,
-            color: null,
-          },
-          stats: [
-            { name: 'wins', abbreviation: 'W', displayValue: String(team.all?.wins || 0), value: String(team.all?.wins || 0) },
-            { name: 'losses', abbreviation: 'L', displayValue: String(team.all?.losses || 0), value: String(team.all?.losses || 0) },
-            { name: 'winPercent', abbreviation: 'PCT', displayValue: (team.goalsDiff !== undefined ? team.goalsDiff : 0).toString(), value: String(team.goalsDiff || 0) },
-            { name: 'points', abbreviation: 'PTS', displayValue: String(team.points || 0), value: String(team.points || 0) },
-            { name: 'gamesBehind', abbreviation: 'GB', displayValue: '0', value: '0' },
-            { name: 'total', type: 'total', summary: `${team.all?.wins || 0}-${team.all?.losses || 0}` },
-          ],
-          _confName: confName,
-          _divName: divName,
-          _divRank: rank + 1,
+      (stageGroup.standings || []).forEach((standingArray, divIndex) => {
+        (standingArray || []).forEach((team, rank) => {
+          allEntries.push({
+            team: {
+              id: team.team?.id,
+              abbreviation: team.team?.code || team.team?.name?.substring(0, 3).toUpperCase(),
+              displayName: team.team?.name,
+              logo: team.team?.logo,
+              color: null,
+            },
+            stats: [
+              { name: 'wins', abbreviation: 'W', displayValue: String(team.all?.wins || 0), value: String(team.all?.wins || 0) },
+              { name: 'losses', abbreviation: 'L', displayValue: String(team.all?.losses || 0), value: String(team.all?.losses || 0) },
+              { name: 'winPercent', abbreviation: 'PCT', displayValue: (team.goalsDiff !== undefined ? team.goalsDiff : 0).toString(), value: String(team.goalsDiff || 0) },
+              { name: 'points', abbreviation: 'PTS', displayValue: String(team.points || 0), value: String(team.points || 0) },
+              { name: 'gamesBehind', abbreviation: 'GB', displayValue: '0', value: '0' },
+              { name: 'total', type: 'total', summary: `${team.all?.wins || 0}-${team.all?.losses || 0}` },
+            ],
+            _confName: confName,
+            _divName: divName,
+            _divRank: rank + 1,
+          });
         });
       });
     });
