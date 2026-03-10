@@ -762,6 +762,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     const nbaIds = teamIdsByLeague['NBA'];
     const todayMidnightUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
     console.log('[NBA] todayMidnightUTC:', todayMidnightUTC.toISOString(), 'nbaIds:', nbaIds);
+    if (nbaGames.length > 0) console.log('[NBA] First game home/away:', nbaGames[0].homeTeam?.id, nbaGames[0].awayTeam?.id);
     let nbaParsedCount = 0;
     nbaGames.forEach(g => {
       const homeId = g.homeTeam?.id;
