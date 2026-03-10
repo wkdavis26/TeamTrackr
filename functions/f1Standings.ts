@@ -56,11 +56,12 @@ Deno.serve(async (req) => {
     }
 
     const drivers = (driversData.response || []).map(entry => {
-      const nationality = entry.driver?.nationality || '';
+      const nationality = entry.driver?.nationality || entry.driver?.nat || '';
       const countryCode = NATIONALITY_TO_CODE[nationality] || null;
+      const imageUrl = entry.driver?.image || null;
       return {
         name: entry.driver?.name || '',
-        abbr: entry.driver?.abbr || '',
+        abbr: entry.driver?.abbr || entry.driver?.id || '',
         teamName: entry.team?.name || '',
         teamId: teamNameToId(entry.team?.name),
         flagUrl: countryCode ? `https://flagcdn.com/16x12/${countryCode}.png` : null,
