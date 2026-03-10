@@ -30,8 +30,10 @@ Deno.serve(async (req) => {
     // Fetch NCAA Basketball games (league 116)
     try {
       data = await apiFetch('/games?league=116&season=2025');
+      console.log('[DEBUG] NCAA Basketball API response:', { status: data?.response?.length, firstGame: data?.response?.[0] });
       raw = data.response || [];
     } catch (e) {
+      console.log('[ERROR] NCAA Basketball API call failed:', e.message);
       // Return empty if API fails
       return Response.json({ games: [] });
     }
