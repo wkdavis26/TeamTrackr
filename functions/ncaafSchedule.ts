@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     const leaguesData = await apiFetch('/leagues');
     const teamsData = { response: [] };
     const gamesData = { response: [] };
-    return Response.json({ leagues: leaguesData.response?.map(l => ({ id: l.id, name: l.name, type: l.type })) });
+    return Response.json({ leagues: leaguesData.response, errors: leaguesData.errors, raw: JSON.stringify(leaguesData).slice(0, 500) });
 
     // Build apiId -> code map
     const codeMap = {};
