@@ -84,6 +84,20 @@ Deno.serve(async (req) => {
       const bookmakers = oddsMap[game.fixture.id] || [];
       const firstBookmaker = bookmakers[0];
       
+      // Extract odds from the bet structure
+      let odds = null;
+      if (firstBookmaker?.bets) {
+        const matchBet = firstBookmaker.bets.find(b => b.name === 'Match Winner' || b.name === '1x2' || b.name === 'Win');
+        if (matchBet?.values) {
+          odds = {
+            bookmaker: firstBookmaker.name,
+            home: matchBet.values.find(v => v.value === '1' || v.name?.includes('Home'))?.odd,
+            draw: matchBet.values.find(v => v.value === 'X' || v.name?.includes('Draw'))?.odd,
+            away: matchBet.values.find(v => v.value === '2' || v.name?.includes('Away'))?.odd,
+          };
+        }
+      }
+      
       return {
         id: game.fixture.id,
         date: new Date(game.fixture.date),
@@ -99,12 +113,7 @@ Deno.serve(async (req) => {
         },
         venue: game.fixture.venue?.name || 'TBD',
         status: game.fixture.status?.long || 'Scheduled',
-        odds: firstBookmaker ? {
-          bookmaker: firstBookmaker.name,
-          home: firstBookmaker.bets?.find(b => b.name === '1')?.values?.[0]?.odd,
-          draw: firstBookmaker.bets?.find(b => b.name === 'X')?.values?.[0]?.odd,
-          away: firstBookmaker.bets?.find(b => b.name === '2')?.values?.[0]?.odd,
-        } : null,
+        odds,
       };
     });
 
