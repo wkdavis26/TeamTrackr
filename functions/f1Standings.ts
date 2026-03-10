@@ -43,30 +43,66 @@ Deno.serve(async (req) => {
     // Try current year first, fall back up to 3 years until we get data
     const currentYear = new Date().getFullYear();
     let year = currentYear;
-    let driversData, teamsData;
+    let driversData, teamsData, allDriversData;
 
     for (let attempt = 0; attempt < 3; attempt++) {
-      [driversData, teamsData] = await Promise.all([
+      [driversData, teamsData, allDriversData] = await Promise.all([
         apiFetch(`/rankings/drivers?season=${year}`),
         apiFetch(`/rankings/teams?season=${year}`),
+        apiFetch(`/drivers?season=${year}`),
       ]);
       if (driversData.response?.length > 0 || teamsData.response?.length > 0) break;
       year--;
     }
 
-    const drivers = (driversData.response || []).map(entry => {
+    // Build a map of ranked drivers by name for fast lookup
+    const rankedByName = {};
+    for (const entry of (driversData.response || [])) {
+      const name = entry.driver?.name || '';
+      rankedByName[name] = { rank: entry.position || 0, pts: String(entry.points ?? 0) };
+    }
+
+    // Build full driver list from /drivers endpoint (includes 0-point drivers)
+    const driverSet = new Set();
+    const drivers = [];
+
+    // First add all drivers from the season roster
+    for (const entry of (allDriversData.response || [])) {
+      const name = entry.name || '';
+      const abbr = entry.abbr || '';
+      if (driverSet.has(name)) continue;
+      driverSet.add(name);
+      const teamName = entry.teams?.find(t => t.season === year)?.team?.name || '';
+      const countryCode = DRIVER_FLAG[abbr] || null;
+      const ranked = rankedByName[name] || { rank: 0, pts: '0' };
+      drivers.push({
+        name,
+        abbr,
+        teamName,
+        teamId: teamNameToId(teamName),
+        flagUrl: countryCode ? `https://flagcdn.com/16x12/${countryCode}.png` : null,
+        rank: ranked.rank,
+        pts: ranked.pts,
+      });
+    }
+
+    // Also add any ranked drivers not already in the roster list
+    for (const entry of (driversData.response || [])) {
+      const name = entry.driver?.name || '';
+      if (driverSet.has(name)) continue;
+      driverSet.add(name);
       const abbr = entry.driver?.abbr || '';
       const countryCode = DRIVER_FLAG[abbr] || null;
-      return {
-        name: entry.driver?.name || '',
+      drivers.push({
+        name,
         abbr,
         teamName: entry.team?.name || '',
         teamId: teamNameToId(entry.team?.name),
         flagUrl: countryCode ? `https://flagcdn.com/16x12/${countryCode}.png` : null,
         rank: entry.position || 0,
         pts: String(entry.points ?? 0),
-      };
-    });
+      });
+    }
 
     const constructors = (teamsData.response || []).map(entry => ({
       name: entry.team?.name || '',
