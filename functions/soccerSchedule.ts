@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
        const passes = gameDate > liveWindowStart && !['PPD', 'CANC', 'ABD'].includes(status);
        return passes;
      });
-     console.log(`[${league}] Total games: ${data.response.length}, After filtering: ${futureGames.length}, Now: ${now.toISOString()}, Window start: ${liveWindowStart.toISOString()}`);
+     console.error(`[${league}] Total ${data.response.length}, Future ${futureGames.length}, Now ${now.toISOString().slice(0,10)}, Window ${liveWindowStart.toISOString().slice(0,10)}`);
 
     // Fetch odds for games (requires premium API key with odds access)
     const oddsMap = {};
