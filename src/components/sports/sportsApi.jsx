@@ -745,8 +745,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   // Parse NBA games (flat format from api-sports nbaSchedule function)
   if (teamIdsByLeague['NBA']) {
     const nbaIds = teamIdsByLeague['NBA'];
-    console.log('[NBA] Looking for favorite IDs:', nbaIds, 'Total games from API:', nbaGames.length);
-    nbaGames.forEach((g, idx) => {
+    nbaGames.forEach(g => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
       const gameDate = new Date(g.date);
@@ -754,14 +753,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
       
       if (!favoriteTeamId) return;
       if (isNaN(gameDate.getTime())) return;
-      
-      const passes = gameDate > liveWindowStart;
-      console.log(`[NBA ${idx}] ${homeId} vs ${awayId}, Fav: ${favoriteTeamId}, Date: ${gameDate.toISOString()}, Pass: ${passes}, Threshold: ${liveWindowStart.toISOString()}`);
-      
-      if (!passes) {
-        console.log(`[NBA ${idx}] FILTERED: ${gameDate.getTime()} <= ${liveWindowStart.getTime()}`);
-        return;
-      }
+      if (gameDate <= liveWindowStart) return;
       
       allGames.push({
         id: `nba-${g.id}`,
