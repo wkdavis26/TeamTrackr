@@ -30,8 +30,8 @@ Deno.serve(async (req) => {
     const dayAfter = new Date(Date.now() + 172800000).toISOString().slice(0, 10);
 
     // NFL season starts in September; use previous year Jan–Aug, current year Sep–Dec
-    const now = new Date();
-    const season = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+    const _d = new Date();
+    const season = _d.getMonth() >= 8 ? _d.getFullYear() : _d.getFullYear() - 1;
 
     const [teamsData, gamesData, oddsToday, oddsTomorrow, oddsDayAfter] = await Promise.all([
       apiFetch(`/teams?league=1&season=${season}`),

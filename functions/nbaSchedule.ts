@@ -30,8 +30,8 @@ Deno.serve(async (req) => {
     const dayAfter = new Date(Date.now() + 172800000).toISOString().slice(0, 10);
 
     // NBA season starts in October; use previous year Jan–Sep, current year Oct–Dec
-    const now = new Date();
-    const season = now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1;
+    const _d = new Date();
+    const season = _d.getMonth() >= 9 ? _d.getFullYear() : _d.getFullYear() - 1;
 
     const [data, oddsToday, oddsTomorrow, oddsDayAfter] = await Promise.all([
       apiFetch(`/games?season=${season}`),
