@@ -4,6 +4,7 @@ import { isToday } from 'date-fns';
 import { MapPin, Clock, Tv, ChevronRight } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { getLeagueColor } from './teamsData';
+import { getTeamColor } from './teamColors';
 import { useGameOdds } from './useGameOdds';
 import { useLiveScore } from './useLiveScores';
 import { createPageUrl } from '@/utils';
