@@ -238,7 +238,7 @@ export default function GameCard({ game, compact = false }) {
     borderColor = getF1CountryColor(game.f1Country) || '#E10600'; // fallback to F1 red
   } else {
     const favoriteTeam = isFavoriteHome ? game.homeTeam : game.awayTeam;
-    const rawColor = favoriteTeam?.color;
+    const rawColor = favoriteTeam?.color || getTeamColor(favoriteTeam?.id);
     borderColor = rawColor ? `#${rawColor.replace('#', '')}` : null;
   }
   const teamColor = borderColor;
