@@ -29,11 +29,15 @@ Deno.serve(async (req) => {
     const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
     const dayAfter = new Date(Date.now() + 172800000).toISOString().slice(0, 10);
 
+    // NBA season starts in October; use previous year Jan–Sep, current year Oct–Dec
+    const now = new Date();
+    const season = now.getMonth() >= 9 ? now.getFullYear() : now.getFullYear() - 1;
+
     const [data, oddsToday, oddsTomorrow, oddsDayAfter] = await Promise.all([
-      apiFetch('/games?season=2025'),
-      apiFetch(`/odds?season=2025&bookmaker=8&date=${today}`).catch(() => null),
-      apiFetch(`/odds?season=2025&bookmaker=8&date=${tomorrow}`).catch(() => null),
-      apiFetch(`/odds?season=2025&bookmaker=8&date=${dayAfter}`).catch(() => null),
+      apiFetch(`/games?season=${season}`),
+      apiFetch(`/odds?season=${season}&bookmaker=8&date=${today}`).catch(() => null),
+      apiFetch(`/odds?season=${season}&bookmaker=8&date=${tomorrow}`).catch(() => null),
+      apiFetch(`/odds?season=${season}&bookmaker=8&date=${dayAfter}`).catch(() => null),
     ]);
 
     const raw = data.response || [];
