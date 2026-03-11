@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
        const longStatus = game.fixture.status?.long || 'Unknown';
        statusCounts[shortStatus] = (statusCounts[shortStatus] || 0) + 1;
        
-       const passes = gameDate > liveWindowStart && !['PPD', 'CANC', 'ABD'].includes(shortStatus);
+       const passes = gameDate > liveWindowStart && !['PPD', 'CANC', 'ABD', 'PST'].includes(shortStatus);
        if (passes) futureGames.push(game);
      });
      console.error(`[${league}] Total ${data.response.length}, Future ${futureGames.length}, StatusCodes: ${JSON.stringify(statusCounts)}`);
