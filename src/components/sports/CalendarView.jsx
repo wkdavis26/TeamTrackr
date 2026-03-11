@@ -56,7 +56,8 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
     const awayAbbr = game.awayTeam.name.split(' ').pop();
     const homeAbbr = game.homeTeam.name.split(' ').pop();
     const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
-    const teamColor = getTeamColor(game.favoriteTeamId) || (favTeam?.color ? `#${favTeam.color.replace('#', '')}` : '#4b5563');
+    const rawColor = getTeamColor(game.favoriteTeamId);
+    const teamColor = rawColor ? `#${rawColor}` : (favTeam?.color ? `#${favTeam.color.replace('#', '')}` : '#4b5563');
     const teamsLabel = game.isF1Race
       ? `${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}`
       : `${awayAbbr} @ ${homeAbbr}`;
