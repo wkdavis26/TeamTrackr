@@ -61,8 +61,7 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
       : `${awayAbbr} @ ${homeAbbr}`;
     return (
       <div
-        className="rounded px-1 py-0.5 text-[10px] leading-tight text-center"
-        style={teamColor && !isSelected ? { backgroundColor: teamColor, color: '#fff' } : {}}
+        className={cn("rounded px-1 py-0.5 text-[10px] leading-tight text-center", isSelected ? "bg-white/20 text-white" : "bg-primary text-primary-foreground")}
       >
         <div className="opacity-80 text-[9px]">{gameTime}</div>
         <div className="font-semibold truncate">{teamsLabel}</div>
