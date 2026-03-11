@@ -1,17 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-const API_BASE = 'https://api-sports-io.p.rapidapi.com';
 const API_KEY = Deno.env.get('Sports_API_Key');
+const BASE_URL = 'https://v1.baseball.api-sports.io';
 
 const apiFetch = async (endpoint) => {
-  const url = `${API_BASE}${endpoint}`;
-  const res = await fetch(url, {
-    headers: {
-      'x-rapidapi-key': API_KEY,
-      'x-rapidapi-host': 'api-sports-io.p.rapidapi.com',
-    },
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
+    headers: { 'x-apisports-key': API_KEY }
   });
-  if (!res.ok) return null;
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json();
 };
 
@@ -19,42 +15,50 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const now = new Date();
     const season = now.getFullYear();
     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
-    // Fetch games for current season
-    const data = await apiFetch(`/baseball/games?season=${season}&league=1`);
+    const [teamsData, gamesData] = await Promise.all([
+      apiFetch(`/teams?league=1&season=${season}`),
+      apiFetch(`/games?league=1&season=${season}`),
+    ]);
 
-    if (!data || !data.response) {
-      return Response.json({ games: [] });
-    }
+    // Build code map: teamId -> abbreviation code
+    const codeMap = {};
+    (teamsData?.response || []).forEach(t => {
+      if (t.id && t.code) codeMap[t.id] = t.code;
+    });
 
-    const games = data.response
-      .filter(game => new Date(game.date) > liveWindowStart)
-      .map(game => ({
-        id: game.id,
-        date: new Date(game.date),
-        homeTeam: {
-          id: `mlb-${game.teams.home.name.toLowerCase().replace(/\s+/g, '-')}`,
-          name: game.teams.home.name,
-          logo: game.teams.home.logo,
-        },
-        awayTeam: {
-          id: `mlb-${game.teams.away.name.toLowerCase().replace(/\s+/g, '-')}`,
-          name: game.teams.away.name,
-          logo: game.teams.away.logo,
-        },
-        venue: game.venue?.name || 'TBD',
-        status: game.status?.long || 'Scheduled',
-      }));
+    const raw = gamesData?.response || [];
 
-    return Response.json({ games });
+    const games = raw
+      .filter(g => new Date(g.date) > liveWindowStart)
+      .map(g => {
+        const homeCode = codeMap[g.teams?.home?.id];
+        const awayCode = codeMap[g.teams?.away?.id];
+        return {
+          id: g.id,
+          date: g.date,
+          homeTeam: {
+            id: homeCode ? `mlb-${homeCode.toLowerCase()}` : null,
+            name: g.teams?.home?.name || '',
+            logo: g.teams?.home?.logo || null,
+          },
+          awayTeam: {
+            id: awayCode ? `mlb-${awayCode.toLowerCase()}` : null,
+            name: g.teams?.away?.name || '',
+            logo: g.teams?.away?.logo || null,
+          },
+          venue: g.venue?.name || 'TBD',
+          status: g.status?.long || 'Scheduled',
+        };
+      })
+      .filter(g => g.homeTeam.id && g.awayTeam.id);
+
+    return Response.json({ games }, { headers: { 'Cache-Control': 'public, max-age=300' } });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

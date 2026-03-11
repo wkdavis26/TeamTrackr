@@ -746,12 +746,28 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
-  // Parse MLB games - for MLB include games from today onwards (Spring Training games may have already started today)
+  // Parse MLB games (flat format from api-sports mlbSchedule function)
   if (teamIdsByLeague['MLB']) {
+    const mlbIds = teamIdsByLeague['MLB'];
     const todayMidnight = new Date(now); todayMidnight.setHours(0,0,0,0);
-    mlbGames.forEach(event => {
-      const game = parseESPNEvent(event, 'MLB', teamIdsByLeague['MLB']);
-      if (game && game.date >= todayMidnight) allGames.push(game);
+    mlbGames.forEach(g => {
+      const homeId = g.homeTeam?.id;
+      const awayId = g.awayTeam?.id;
+      const favoriteTeamId = mlbIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(g.date);
+      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
+      allGames.push({
+        id: `mlb-${g.id}`,
+        date: gameDate,
+        league: 'MLB',
+        leagueIcon: '⚾',
+        homeTeam: { id: homeId, name: g.homeTeam?.name, logo: g.homeTeam?.logo },
+        awayTeam: { id: awayId, name: g.awayTeam?.name, logo: g.awayTeam?.logo },
+        favoriteTeamId,
+        venue: g.venue || 'TBD',
+        status: g.status || 'Scheduled',
+      });
     });
   }
   
