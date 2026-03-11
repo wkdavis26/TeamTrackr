@@ -212,8 +212,7 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
                     return (
                       <div
                         key={i}
-                        className="rounded-md px-1.5 py-1 text-white text-[10px] leading-tight cursor-default"
-                        style={{ backgroundColor: teamColor }}
+                        className="rounded-md px-1.5 py-1 text-primary-foreground bg-primary text-[10px] leading-tight cursor-default"
                       >
                         <div className="font-semibold truncate">{label}</div>
                         <div className="opacity-80">{gameTime} CT</div>
