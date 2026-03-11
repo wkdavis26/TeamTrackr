@@ -778,6 +778,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
         favoriteTeamId,
         venue: g.venue || 'TBD',
         status: g.status || 'NS',
+        odds: g.odds || null,
       });
     });
   }
