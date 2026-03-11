@@ -56,14 +56,14 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
     const awayAbbr = game.awayTeam.name.split(' ').pop();
     const homeAbbr = game.homeTeam.name.split(' ').pop();
     const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
-    const teamColor = getTeamColor(game.favoriteTeamId) || (favTeam?.color ? `#${favTeam.color.replace('#', '')}` : '#4b5563');
+    const teamColor = favTeam?.color ? `#${favTeam.color.replace('#', '')}` : null;
     const teamsLabel = game.isF1Race
       ? `${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}`
       : `${awayAbbr} @ ${homeAbbr}`;
     return (
       <div
         className="rounded px-1 py-0.5 text-[10px] leading-tight text-center text-white"
-        style={!isSelected ? { backgroundColor: teamColor } : { backgroundColor: 'rgba(255,255,255,0.25)' }}
+        style={{ backgroundColor: teamColor || '#6b7280' }}
       >
         <div className="opacity-80 text-[9px]">{gameTime}</div>
         <div className="font-semibold truncate">{teamsLabel}</div>
@@ -214,7 +214,8 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
                     return (
                       <div
                         key={i}
-                        className="rounded-md px-1.5 py-1 text-primary-foreground bg-primary text-[10px] leading-tight cursor-default"
+                        className="rounded-md px-1.5 py-1 text-white text-[10px] leading-tight cursor-default"
+                        style={{ backgroundColor: teamColor || '#6b7280' }}
                       >
                         <div className="font-semibold truncate">{label}</div>
                         <div className="opacity-80">{gameTime} CT</div>
