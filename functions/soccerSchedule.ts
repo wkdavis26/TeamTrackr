@@ -32,7 +32,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json().catch(() => ({}));
+    let body;
+    try {
+      body = await req.json();
+    } catch {
+      body = {};
+    }
     const league = body.league;
 
     if (!league || !LEAGUE_CONFIG[league]) {
