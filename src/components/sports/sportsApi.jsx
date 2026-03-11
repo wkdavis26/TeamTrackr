@@ -721,11 +721,27 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
   
-  // Parse NHL games (ESPN format)
+  // Parse NHL games (flat api-sports format, same as NBA)
   if (teamIdsByLeague['NHL']) {
-    nhlGames.forEach(event => {
-      const game = parseESPNEvent(event, 'NHL', teamIdsByLeague['NHL']);
-      if (game && game.date > liveWindowStart) allGames.push(game);
+    const nhlIds = teamIdsByLeague['NHL'];
+    nhlGames.forEach(g => {
+      const homeId = g.homeTeam?.id;
+      const awayId = g.awayTeam?.id;
+      const favoriteTeamId = nhlIds.find(id => id === homeId || id === awayId);
+      if (!favoriteTeamId) return;
+      const gameDate = new Date(g.date);
+      if (isNaN(gameDate.getTime()) || gameDate <= liveWindowStart) return;
+      allGames.push({
+        id: `nhl-${g.id}`,
+        date: gameDate,
+        league: 'NHL',
+        leagueIcon: '🏒',
+        homeTeam: { id: homeId, name: g.homeTeam?.name, logo: g.homeTeam?.logo },
+        awayTeam: { id: awayId, name: g.awayTeam?.name, logo: g.awayTeam?.logo },
+        favoriteTeamId,
+        venue: g.venue || 'TBD',
+        status: g.status || 'NS',
+      });
     });
   }
   
