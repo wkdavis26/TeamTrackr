@@ -69,18 +69,11 @@ Deno.serve(async (req) => {
 
     // Filter for in-progress and upcoming games (within 4 hour lookback)
      const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
-     const futureGames = [];
-     const statusCounts = {};
-     data.response.forEach(game => {
+     const futureGames = data.response.filter(game => {
        const gameDate = new Date(game.fixture.date);
-       const shortStatus = game.fixture.status?.short || 'UNKNOWN';
-       const longStatus = game.fixture.status?.long || 'Unknown';
-       statusCounts[shortStatus] = (statusCounts[shortStatus] || 0) + 1;
-       
-       const passes = gameDate > liveWindowStart && !['PPD', 'CANC', 'ABD', 'PST'].includes(shortStatus);
-       if (passes) futureGames.push(game);
+       const status = game.fixture.status?.short || '';
+       return gameDate > liveWindowStart && !['PPD', 'CANC', 'ABD', 'PST'].includes(status);
      });
-     console.error(`[${league}] Total ${data.response.length}, Future ${futureGames.length}, StatusCodes: ${JSON.stringify(statusCounts)}`);
 
     // Fetch odds for games (requires premium API key with odds access)
     const oddsMap = {};
