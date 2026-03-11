@@ -1168,7 +1168,5 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
-  // Sort by date
-  console.log('[fetchAllSchedules] Final allGames count:', allGames.length, 'Games:', allGames);
   return allGames.sort((a, b) => a.date - b.date);
 };
