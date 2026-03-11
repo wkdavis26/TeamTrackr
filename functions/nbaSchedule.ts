@@ -11,18 +11,53 @@ const apiFetch = async (endpoint) => {
   return res.json();
 };
 
+const fmtOdd = (o) => {
+  if (!o) return null;
+  const n = parseFloat(o);
+  if (isNaN(n)) return null;
+  if (n >= 2.0) return `+${Math.round((n - 1) * 100)}`;
+  return `${Math.round(-100 / (n - 1))}`;
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const data = await apiFetch('/games?season=2025');
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+    const dayAfter = new Date(Date.now() + 172800000).toISOString().slice(0, 10);
+
+    const [data, oddsToday, oddsTomorrow, oddsDayAfter] = await Promise.all([
+      apiFetch('/games?season=2025'),
+      apiFetch(`/odds?season=2025&bookmaker=8&date=${today}`).catch(() => null),
+      apiFetch(`/odds?season=2025&bookmaker=8&date=${tomorrow}`).catch(() => null),
+      apiFetch(`/odds?season=2025&bookmaker=8&date=${dayAfter}`).catch(() => null),
+    ]);
+
     const raw = data.response || [];
     const now = new Date();
     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
-    // Status 0 = Not Started, 1 = In Progress, 2 = Finished
+    // Build odds map: gameId -> odds
+    const oddsMap = {};
+    [...(oddsToday?.response || []), ...(oddsTomorrow?.response || []), ...(oddsDayAfter?.response || [])].forEach(item => {
+      const gameId = item.game?.id;
+      if (!gameId) return;
+      const bets = item.bookmakers?.[0]?.bets || [];
+      const ml = bets.find(b => b.name === 'Money Line' || b.name === 'Moneyline');
+      const mlVals = ml?.values || [];
+      const homeOdd = mlVals.find(v => v.value === 'Home')?.odd;
+      const awayOdd = mlVals.find(v => v.value === 'Away')?.odd;
+      if (homeOdd || awayOdd) {
+        oddsMap[gameId] = {
+          homeMoneyline: fmtOdd(homeOdd),
+          awayMoneyline: fmtOdd(awayOdd),
+        };
+      }
+    });
+
     const games = raw
       .filter(g => ['0', '1', 0, 1].includes(g.status?.short))
       .filter(g => new Date(g.date?.start) > liveWindowStart)
@@ -42,13 +77,10 @@ Deno.serve(async (req) => {
         venue: g.arena?.name || 'TBD',
         status: 'NS',
         stage: g.league === 'standard' ? '' : g.league,
+        odds: oddsMap[g.id] || null,
       }));
 
-    return Response.json({ games }, {
-      headers: {
-        'Cache-Control': 'public, max-age=300',
-      }
-    });
+    return Response.json({ games }, { headers: { 'Cache-Control': 'public, max-age=300' } });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

@@ -13,13 +13,9 @@ const LEAGUE_CONFIG = {
 
 const apiFetch = async (endpoint) => {
   const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: {
-      'x-apisports-key': API_KEY,
-    },
+    headers: { 'x-apisports-key': API_KEY },
   });
-  if (!res.ok) {
-    return null;
-  }
+  if (!res.ok) return null;
   return res.json();
 };
 
@@ -27,17 +23,10 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     let body;
-    try {
-      body = await req.json();
-    } catch {
-      body = {};
-    }
+    try { body = await req.json(); } catch { body = {}; }
     const league = body.league;
 
     if (!league || !LEAGUE_CONFIG[league]) {
@@ -47,96 +36,70 @@ Deno.serve(async (req) => {
     const config = LEAGUE_CONFIG[league];
     const now = new Date();
 
-    // Fetch league info to get current season
+    // Get current season
     const leagueInfo = await apiFetch(`/leagues?id=${config.leagueId}&current=true`);
     let season = null;
-
-    if (leagueInfo?.response && leagueInfo.response.length > 0) {
+    if (leagueInfo?.response?.length > 0) {
       const currentSeasons = leagueInfo.response[0].seasons.filter(s => s.current === true);
       season = currentSeasons.length > 0 ? currentSeasons[0].year : leagueInfo.response[0].seasons[0].year;
     } else {
-      // Fallback: use most recent season based on current date
-      const year = now.getFullYear();
-      season = now.getMonth() >= 7 ? year : year - 1;
+      season = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
     }
 
-    // Fetch games for current season
-    const data = await apiFetch(`/fixtures?league=${config.leagueId}&season=${season}`);
+    // Fetch fixtures and bulk odds in parallel
+    const today = now.toISOString().slice(0, 10);
+    const in7Days = new Date(now.getTime() + 7 * 86400000).toISOString().slice(0, 10);
 
-    if (!data || !data.response) {
-      return Response.json({ games: [] });
-    }
+    const [data, oddsData] = await Promise.all([
+      apiFetch(`/fixtures?league=${config.leagueId}&season=${season}`),
+      apiFetch(`/odds?league=${config.leagueId}&season=${season}&bookmaker=8&from=${today}&to=${in7Days}`).catch(() => null),
+    ]);
 
-    // Filter for in-progress and upcoming games (within 4 hour lookback)
-     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
-     const futureGames = data.response.filter(game => {
-       const gameDate = new Date(game.fixture.date);
-       const status = game.fixture.status?.short || '';
-       return gameDate > liveWindowStart && !['PPD', 'CANC', 'ABD', 'PST'].includes(status);
-     });
+    if (!data?.response) return Response.json({ games: [] });
 
-    // Fetch odds for games (requires premium API key with odds access)
+    // Build odds map: fixtureId -> { home, draw, away }
     const oddsMap = {};
-    try {
-      // Fetch odds for first 5 games
-      for (let i = 0; i < Math.min(5, futureGames.length); i++) {
-        const gameId = futureGames[i].fixture.id;
-        const oddsData = await apiFetch(`/odds?fixture=${gameId}`);
-        if (oddsData?.response && Array.isArray(oddsData.response)) {
-          oddsData.response.forEach(oddItem => {
-            oddsMap[oddItem.fixture.id] = oddItem.bookmakers || [];
-          });
-        }
-      }
-    } catch (e) {
-      // Odds endpoint may not be available with current API key
-    }
-
-    // Helper to convert team name to slug
-    const nameToSlug = (name) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-    // Parse games into standardized format
-    const games = futureGames.map(game => {
-      const bookmakers = oddsMap[game.fixture.id] || [];
-      const firstBookmaker = bookmakers[0];
-
-      // Extract odds from the bet structure
-      let odds = null;
-      if (firstBookmaker?.bets && firstBookmaker.bets.length > 0) {
-        const matchBet = firstBookmaker.bets.find(b => b.name === 'Match Winner');
-
-        if (matchBet?.values && matchBet.values.length >= 3) {
-          odds = {
-            bookmaker: firstBookmaker.name,
-            home: matchBet.values.find(v => v.value === 'Home')?.odd,
-            draw: matchBet.values.find(v => v.value === 'Draw')?.odd,
-            away: matchBet.values.find(v => v.value === 'Away')?.odd,
-          };
-        }
-      }
-
-      const leagueSlug = league.toLowerCase().replace(/\s+/g, '-');
-      const homeSlug = nameToSlug(game.teams.home.name);
-      const awaySlug = nameToSlug(game.teams.away.name);
-
-      return {
-        id: game.fixture.id,
-        date: new Date(game.fixture.date),
-        homeTeam: {
-          id: `${leagueSlug}-${homeSlug}`,
-          name: game.teams.home.name,
-          logo: game.teams.home.logo,
-        },
-        awayTeam: {
-          id: `${leagueSlug}-${awaySlug}`,
-          name: game.teams.away.name,
-          logo: game.teams.away.logo,
-        },
-        venue: game.fixture.venue?.name || 'TBD',
-        status: game.fixture.status?.long || 'Scheduled',
-        odds,
+    (oddsData?.response || []).forEach(item => {
+      const fixtureId = item.fixture?.id;
+      if (!fixtureId) return;
+      const bets = item.bookmakers?.[0]?.bets || [];
+      const matchWinner = bets.find(b => b.name === 'Match Winner');
+      if (!matchWinner?.values) return;
+      const vals = matchWinner.values;
+      oddsMap[fixtureId] = {
+        home: vals.find(v => v.value === 'Home')?.odd || null,
+        draw: vals.find(v => v.value === 'Draw')?.odd || null,
+        away: vals.find(v => v.value === 'Away')?.odd || null,
       };
     });
+
+    const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+    const futureGames = data.response.filter(game => {
+      const gameDate = new Date(game.fixture.date);
+      const status = game.fixture.status?.short || '';
+      return gameDate > liveWindowStart && !['PPD', 'CANC', 'ABD', 'PST'].includes(status);
+    });
+
+    const nameToSlug = (name) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const leagueSlug = league.toLowerCase().replace(/\s+/g, '-');
+
+    const games = futureGames.map(game => ({
+      id: game.fixture.id,
+      date: new Date(game.fixture.date),
+      homeTeam: {
+        id: `${leagueSlug}-${nameToSlug(game.teams.home.name)}`,
+        name: game.teams.home.name,
+        logo: game.teams.home.logo,
+      },
+      awayTeam: {
+        id: `${leagueSlug}-${nameToSlug(game.teams.away.name)}`,
+        name: game.teams.away.name,
+        logo: game.teams.away.logo,
+      },
+      venue: game.fixture.venue?.name || 'TBD',
+      status: game.fixture.status?.long || 'Scheduled',
+      odds: oddsMap[game.fixture.id] || null,
+    }));
 
     return Response.json({ games });
   } catch (error) {
