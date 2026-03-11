@@ -7,7 +7,7 @@ const apiFetch = async (endpoint) => {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     headers: { 'x-apisports-key': API_KEY }
   });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  if (!res.ok) throw new Error(`API error: ${res.status} ${endpoint}`);
   return res.json();
 };
 
@@ -18,48 +18,68 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const now = new Date();
-    const season = now.getFullYear();
+    const currentYear = now.getFullYear();
     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
-    const [teamsData, gamesData] = await Promise.all([
-      apiFetch(`/teams?league=1&season=${season}`),
-      apiFetch(`/games?league=1&season=${season}`),
-    ]);
+    // Try current year first, fall back to previous year if no games found
+    // (handles pre-season period before api-sports has current year data)
+    const trySeasons = [currentYear, currentYear - 1];
 
-    // Build code map: teamId -> abbreviation code
-    const codeMap = {};
-    (teamsData?.response || []).forEach(t => {
-      if (t.id && t.code) codeMap[t.id] = t.code;
-    });
+    let allGames = [];
+    let teamMap = {};
 
-    const raw = gamesData?.response || [];
+    for (const season of trySeasons) {
+      const [teamsData, gamesData] = await Promise.all([
+        apiFetch(`/teams?league=1&season=${season}`),
+        apiFetch(`/games?league=1&season=${season}`),
+      ]);
 
-    const games = raw
-      .filter(g => new Date(g.date) > liveWindowStart)
-      .map(g => {
-        const homeCode = codeMap[g.teams?.home?.id];
-        const awayCode = codeMap[g.teams?.away?.id];
-        return {
-          id: g.id,
-          date: g.date,
-          homeTeam: {
-            id: homeCode ? `mlb-${homeCode.toLowerCase()}` : null,
-            name: g.teams?.home?.name || '',
-            logo: g.teams?.home?.logo || null,
-          },
-          awayTeam: {
-            id: awayCode ? `mlb-${awayCode.toLowerCase()}` : null,
-            name: g.teams?.away?.name || '',
-            logo: g.teams?.away?.logo || null,
-          },
-          venue: g.venue?.name || 'TBD',
-          status: g.status?.long || 'Scheduled',
-        };
-      })
-      .filter(g => g.homeTeam.id && g.awayTeam.id);
+      const teams = teamsData?.response || [];
+      const rawGames = gamesData?.response || [];
 
-    return Response.json({ games }, { headers: { 'Cache-Control': 'public, max-age=300' } });
+      // Build code map: teamId -> abbreviation code
+      const codeMap = {};
+      teams.forEach(t => {
+        if (t.id && t.code) codeMap[t.id] = t.code;
+      });
+
+      const seasonGames = rawGames
+        .filter(g => new Date(g.date) > liveWindowStart)
+        .map(g => {
+          const homeCode = codeMap[g.teams?.home?.id];
+          const awayCode = codeMap[g.teams?.away?.id];
+          return {
+            id: g.id,
+            date: g.date,
+            homeTeam: {
+              id: homeCode ? `mlb-${homeCode.toLowerCase()}` : null,
+              name: g.teams?.home?.name || '',
+              logo: g.teams?.home?.logo || null,
+            },
+            awayTeam: {
+              id: awayCode ? `mlb-${awayCode.toLowerCase()}` : null,
+              name: g.teams?.away?.name || '',
+              logo: g.teams?.away?.logo || null,
+            },
+            venue: g.venue?.name || 'TBD',
+            status: g.status?.long || 'Scheduled',
+          };
+        })
+        .filter(g => g.homeTeam.id && g.awayTeam.id);
+
+      if (seasonGames.length > 0) {
+        allGames = seasonGames;
+        teamMap = codeMap;
+        console.log(`MLB: found ${seasonGames.length} games for season ${season}`);
+        break;
+      } else {
+        console.log(`MLB: no games for season ${season}, teams found: ${teams.length}, raw games: ${rawGames.length}`);
+      }
+    }
+
+    return Response.json({ games: allGames }, { headers: { 'Cache-Control': 'public, max-age=300' } });
   } catch (error) {
+    console.error('mlbSchedule error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
