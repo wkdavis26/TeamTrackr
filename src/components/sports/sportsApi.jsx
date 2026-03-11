@@ -103,7 +103,7 @@ export const fetchNHLSchedule = async () => {
   }
 };
 
-// Fetch MLB schedule via ESPN
+// Fetch MLB schedule via ESPN (handles spring training + regular season)
 export const fetchMLBSchedule = async () => {
   try {
     const endOfSeason = new Date(new Date().getFullYear(), 9, 31); // through end of October
