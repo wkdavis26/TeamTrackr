@@ -217,7 +217,8 @@ const getCTNoonDate = (d) => {
 };
 
 export default function GameCard({ game, compact = false }) {
-  const odds = useGameOdds(game?.id, game?.league);
+  const fetchedOdds = useGameOdds(game?.id, game?.league);
+  const odds = fetchedOdds || game?.odds || null;
   const liveScore = useLiveScore(game);
 
   if (!game || !game.homeTeam || !game.awayTeam) return null;
