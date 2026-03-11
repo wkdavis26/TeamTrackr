@@ -1,7 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-
 const API_BASE = 'https://v3.football.api-sports.io';
 const API_KEY = Deno.env.get('Sports_API_Key');
 
