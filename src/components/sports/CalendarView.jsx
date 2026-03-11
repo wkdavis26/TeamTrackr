@@ -203,7 +203,8 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
                 <div key={day.toISOString()} className="p-1.5 space-y-1">
                   {dayGames.map((game, i) => {
                     const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
-                    const teamColor = getTeamColor(game.favoriteTeamId) || (favTeam?.color ? `#${favTeam.color.replace('#', '')}` : '#4b5563');
+                    const rawColor = getTeamColor(game.favoriteTeamId);
+                    const teamColor = rawColor ? `#${rawColor}` : (favTeam?.color ? `#${favTeam.color.replace('#', '')}` : '#4b5563');
                     const gameTime = new Intl.DateTimeFormat('en-US', {
                       timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit', hour12: true,
                     }).format(new Date(game.date));
