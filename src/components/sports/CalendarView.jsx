@@ -56,14 +56,14 @@ export default function CalendarView({ games, hidePreseason, onToggleHidePreseas
     const awayAbbr = game.awayTeam.name.split(' ').pop();
     const homeAbbr = game.homeTeam.name.split(' ').pop();
     const favTeam = game.homeTeam.id === game.favoriteTeamId ? game.homeTeam : game.awayTeam;
-    const teamColor = favTeam?.color ? `#${favTeam.color.replace('#', '')}` : null;
+    const teamColor = getTeamColor(game.favoriteTeamId) || (favTeam?.color ? `#${favTeam.color.replace('#', '')}` : '#4b5563');
     const teamsLabel = game.isF1Race
       ? `${game.f1Country ? game.f1Country + ' ' : ''}${game.f1Session || 'Race'}`
       : `${awayAbbr} @ ${homeAbbr}`;
     return (
       <div
         className="rounded px-1 py-0.5 text-[10px] leading-tight text-center text-white"
-        style={{ backgroundColor: teamColor || '#6b7280' }}
+        style={!isSelected ? { backgroundColor: teamColor } : { backgroundColor: 'rgba(255,255,255,0.25)' }}
       >
         <div className="opacity-80 text-[9px]">{gameTime}</div>
         <div className="font-semibold truncate">{teamsLabel}</div>
