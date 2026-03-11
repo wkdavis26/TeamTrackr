@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import GameCard from './GameCard';
+import { getTeamColor } from './teamColors';
 
 export default function CalendarView({ games, hidePreseason, onToggleHidePreseason }) {
   const getInitialMonth = () => {
