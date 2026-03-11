@@ -156,6 +156,7 @@ export const fetchLeagueTeams = async (leagueKey) => {
     'NFL': 'nflTeams',
     'NCAAF': 'ncaafTeams',
     'NBA': 'nbaTeams',
+    'NHL': 'nhlTeams',
     'Premier League': 'premierLeagueTeams',
     'La Liga': 'laLigaTeams',
     'Serie A': 'serieATeams',
