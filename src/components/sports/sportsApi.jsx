@@ -651,7 +651,7 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   // Fetch all schedules in parallel
   const hasEuropeanLeague = ['Premier League', 'La Liga', 'Serie A', 'Bundesliga'].some(l => teamIdsByLeague[l]);
 
-  const [nflGames, nhlGames, mlbGames, nbaGames, wnbaGames, plGames, laligaGames, mlsGames, f1Games, ncaafGames, worldCupGames, euroGames, intlGames, serieAGames, bundesligaGames, ncaabGames, ncaaBaseballGames, womensIntlGames, uclGames, pwhlResult, nwslGames, championsLeagueGames] = await Promise.all([
+  const [nflGames, nhlGames, mlbGames, nbaGames, wnbaGames, plGames, laligaGames, mlsGames, f1Games, ncaafGames, worldCupGames, euroGames, intlGames, womensIntlGames, serieAGames, bundesligaGames, ncaabGames, ncaaBaseballGames, pwhlResult, nwslGames, championsLeagueGames] = await Promise.all([
    teamIdsByLeague['NFL'] ? fetchNFLSchedule() : Promise.resolve([]),
    teamIdsByLeague['NHL'] ? fetchNHLSchedule() : Promise.resolve([]),
    teamIdsByLeague['MLB'] ? fetchMLBSchedule() : Promise.resolve([]),
