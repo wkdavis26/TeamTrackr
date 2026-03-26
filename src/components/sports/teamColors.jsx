@@ -31,6 +31,16 @@ export const TEAM_COLORS = {
   'nfl-panthers': '0085CA', 'nfl-saints': 'D3BC8D', 'nfl-buccaneers': 'D50A0A', 'nfl-cardinals': '97233F',
   'nfl-rams': '003594', 'nfl-seahawks': '002244', 'nfl-49ers': 'AA0000', 'nfl-commanders': '5A1414',
   'nfl-giants': '0B2265', 'nfl-cowboys': '003594', 'nfl-eagles': '004C54', 'nfl-redskins': '773141',
+
+  // MLB
+  'mlb-ari': 'A71930', 'mlb-atl': 'CE1141', 'mlb-bal': 'DF4601', 'mlb-bos': 'BD3039',
+  'mlb-chc': '0E3386', 'mlb-cws': '27251F', 'mlb-cin': 'C6011F', 'mlb-cle': '00385D',
+  'mlb-col': '33006F', 'mlb-det': '0C2340', 'mlb-hou': 'EB6E1F', 'mlb-kc': '004687',
+  'mlb-laa': 'BA0021', 'mlb-lad': '005A9C', 'mlb-mia': '00A3E0', 'mlb-mil': '12284B',
+  'mlb-min': '002B5C', 'mlb-nym': '002D72', 'mlb-nyy': '003087', 'mlb-oak': '003831',
+  'mlb-phi': 'E81828', 'mlb-pit': '27251F', 'mlb-sd': '2F241D', 'mlb-sf': 'FD5A1E',
+  'mlb-sea': '0C2C56', 'mlb-stl': 'C41E3A', 'mlb-tb': '092C5C', 'mlb-tex': 'C0111F',
+  'mlb-tor': '134A8E', 'mlb-wsh': 'AB0003',
 };
 
 export const getTeamColor = (teamId) => TEAM_COLORS[teamId] || null;

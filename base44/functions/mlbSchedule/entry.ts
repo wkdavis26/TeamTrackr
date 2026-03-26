@@ -11,8 +11,14 @@ const apiFetch = async (endpoint) => {
   return res.json();
 };
 
-// This function is kept for future use when api-sports has current season data.
-// Currently MLB schedule is fetched directly from ESPN in the frontend (sportsApi.js).
+const fmtOdd = (o) => {
+  if (!o) return null;
+  const n = parseFloat(o);
+  if (isNaN(n)) return null;
+  if (n >= 2.0) return `+${Math.round((n - 1) * 100)}`;
+  return `${Math.round(-100 / (n - 1))}`;
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -23,11 +29,9 @@ Deno.serve(async (req) => {
     const currentYear = now.getFullYear();
     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
-    // Try current year first, fall back to previous year
     const trySeasons = [currentYear, currentYear - 1];
     let allGames = [];
 
-    // Map team name -> MLB abbreviation directly — no /teams API dependency
     const mlbAbbreviations = {
       'Arizona Diamondbacks': 'ari', 'Atlanta Braves': 'atl', 'Baltimore Orioles': 'bal', 'Boston Red Sox': 'bos',
       'Chicago Cubs': 'chc', 'Chicago White Sox': 'cws', 'Cincinnati Reds': 'cin', 'Cleveland Guardians': 'cle',
@@ -50,29 +54,70 @@ Deno.serve(async (req) => {
       const gamesData = await apiFetch(`/games?league=1&season=${season}`);
       const rawGames = gamesData?.response || [];
 
-      const seasonGames = rawGames
-        .filter(g => new Date(g.date) > liveWindowStart)
-        .map(g => ({
-          id: g.id,
-          date: g.date,
-          homeTeam: {
-            id: mlbTeamNameToId(g.teams?.home?.name),
-            name: g.teams?.home?.name || '',
-            logo: g.teams?.home?.logo || null,
-          },
-          awayTeam: {
-            id: mlbTeamNameToId(g.teams?.away?.name),
-            name: g.teams?.away?.name || '',
-            logo: g.teams?.away?.logo || null,
-          },
-          venue: g.venue?.name || 'TBD',
-          status: g.status?.long || 'Scheduled',
-        }));
+      const upcomingRaw = rawGames.filter(g => new Date(g.date) > liveWindowStart);
 
-      if (seasonGames.length > 0) {
-        allGames = seasonGames;
-        break;
-      }
+      if (upcomingRaw.length === 0) continue;
+
+      // Fetch odds for each upcoming game concurrently
+      const oddsResults = await Promise.all(
+        upcomingRaw.map(g => apiFetch(`/odds?game=${g.id}`).catch(() => null))
+      );
+
+      // Build odds map: gameId -> odds
+      const oddsMap = {};
+      oddsResults.forEach(oddsData => {
+        const item = oddsData?.response?.[0];
+        if (!item) return;
+        const gameId = item.game?.id;
+        if (!gameId) return;
+        for (const bookmaker of (item.bookmakers || [])) {
+          const bets = bookmaker.bets || [];
+          const ml = bets.find(b => b.name === 'Home/Away' || b.name === 'Money Line' || b.name === 'Moneyline');
+          const spreadBet = bets.find(b => b.name === 'Asian Handicap' || b.name === 'Run Line');
+          const ouBet = bets.find(b => b.name === 'Over/Under' || b.name === 'Total');
+          if (!ml) continue;
+          const mlVals = ml.values || [];
+          const homeOdd = mlVals.find(v => v.value === 'Home')?.odd;
+          const awayOdd = mlVals.find(v => v.value === 'Away')?.odd;
+          if (homeOdd || awayOdd) {
+            const spreadVals = spreadBet?.values || [];
+            const homeSpreadVal = spreadVals.find(v => v.value?.startsWith('Home'));
+            const spreadNum = homeSpreadVal?.handicap || homeSpreadVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+
+            const ouVals = ouBet?.values || [];
+            const overVal = ouVals.find(v => v.value?.startsWith('Over'));
+            const ouNum = overVal?.handicap || overVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+
+            oddsMap[gameId] = {
+              homeMoneyline: fmtOdd(homeOdd),
+              awayMoneyline: fmtOdd(awayOdd),
+              spread: spreadNum ? String(spreadNum) : null,
+              overUnder: ouNum ? String(ouNum) : null,
+            };
+            break;
+          }
+        }
+      });
+
+      allGames = upcomingRaw.map(g => ({
+        id: g.id,
+        date: g.date,
+        homeTeam: {
+          id: mlbTeamNameToId(g.teams?.home?.name),
+          name: g.teams?.home?.name || '',
+          logo: g.teams?.home?.logo || null,
+        },
+        awayTeam: {
+          id: mlbTeamNameToId(g.teams?.away?.name),
+          name: g.teams?.away?.name || '',
+          logo: g.teams?.away?.logo || null,
+        },
+        venue: g.venue?.name || 'TBD',
+        status: g.status?.long || 'Scheduled',
+        odds: oddsMap[g.id] || null,
+      }));
+
+      break;
     }
 
     return Response.json({ games: allGames }, { headers: { 'Cache-Control': 'public, max-age=300' } });
