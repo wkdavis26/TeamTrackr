@@ -124,8 +124,13 @@ const fetchNBAStandings = async () => {
 
 const fetchLeagueStandings = async (league) => {
   if (league === 'NFL') return []; // NFL standings handled in NFLStandingCard
-  if (league === 'NBA' || league === 'WNBA') return []; // NBA/WNBA standings handled locally
+  if (league === 'WNBA') return [];
   if (standingsCache[league]) return standingsCache[league];
+  if (league === 'NBA') {
+    const entries = await fetchNBAStandings();
+    standingsCache['NBA'] = entries;
+    return entries;
+  }
   try {
     const { base44 } = await import('@/api/base44Client');
     const res = await base44.functions.invoke('leagueStandings', { league });
@@ -202,9 +207,16 @@ const findEntryForTeam = (entries, teamId) => {
 
   // All other sports: match by abbreviation derived from team_id suffix
   const suffix = getTeamAbbr(teamId).toUpperCase().replace(/-/g, '');
-  return entries.find(e => {
+  // Try abbreviation match first
+  const byAbbr = entries.find(e => {
     const abbr = (e.team?.abbreviation || '').toUpperCase().replace(/-/g, '');
     return abbr === suffix;
+  });
+  if (byAbbr) return byAbbr;
+  // Fallback: match by displayName containing the suffix (handles non-standard abbreviations like NHL)
+  return entries.find(e => {
+    const name = (e.team?.displayName || '').toUpperCase().replace(/\s+/g, '');
+    return name.includes(suffix);
   });
 };
 
