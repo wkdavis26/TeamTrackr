@@ -1,199 +1,102 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
-const API_BASE = 'https://v3.football.api-sports.io';
+const apiKey = () => Deno.env.get('Sports_API_Key');
 
-const apiFetch = async (endpoint) => {
+const apiFetch = async (baseUrl, endpoint) => {
   try {
-    const url = `${API_BASE}${endpoint}`;
-    const apiKey = Deno.env.get('Sports_API_Key');
-    const res = await fetch(url, {
-      headers: {
-        'x-apisports-key': apiKey,
-      },
+    const res = await fetch(`${baseUrl}${endpoint}`, {
+      headers: { 'x-apisports-key': apiKey() },
     });
-    if (!res.ok) {
-      return null;
-    }
+    if (!res.ok) return null;
     return res.json();
-  } catch (e) {
+  } catch (_) {
     return null;
   }
 };
 
-// Map league names to api-sports league IDs
+// Each league maps to its correct sport-specific base URL and league ID
 const LEAGUE_CONFIG = {
-  'NHL': { leagueId: 1 },
-  'MLB': { leagueId: 1 },
-  'Premier League': { leagueId: 39 },
-  'La Liga': { leagueId: 140 },
-  'Serie A': { leagueId: 135 },
-  'Bundesliga': { leagueId: 78 },
-  'MLS': { leagueId: 218 },
+  'NHL':            { base: 'https://v1.hockey.api-sports.io',     leagueId: 57  },
+  'MLB':            { base: 'https://v1.baseball.api-sports.io',   leagueId: 1   },
+  'NBA':            { base: 'https://v1.basketball.api-sports.io', leagueId: 12  },
+  'Premier League': { base: 'https://v3.football.api-sports.io',   leagueId: 39  },
+  'La Liga':        { base: 'https://v3.football.api-sports.io',   leagueId: 140 },
+  'Serie A':        { base: 'https://v3.football.api-sports.io',   leagueId: 135 },
+  'Bundesliga':     { base: 'https://v3.football.api-sports.io',   leagueId: 78  },
+  'MLS':            { base: 'https://v3.football.api-sports.io',   leagueId: 253 },
+};
+
+const getCurrentSeason = (league) => {
+  const now = new Date();
+  const month = now.getMonth(); // 0-indexed
+  const year = now.getFullYear();
+
+  if (['NHL', 'NBA'].includes(league)) {
+    // Seasons run Oct–Jun; season "2025" means 2025-26
+    return month >= 9 ? year : year - 1;
+  }
+  if (league === 'MLB') {
+    // Season runs Mar–Oct
+    return year;
+  }
+  // Soccer: season runs Aug–May
+  return month >= 7 ? year : year - 1;
+};
+
+const normalizeStandings = (data) => {
+  const allEntries = [];
+
+  (data.response || []).forEach((stageGroup) => {
+    const confName = stageGroup.group?.name || null;
+    (stageGroup.standings || []).forEach((standingArray) => {
+      (standingArray || []).forEach((team, rank) => {
+        allEntries.push({
+          team: {
+            id: team.team?.id,
+            abbreviation: team.team?.code || team.team?.name?.substring(0, 3).toUpperCase(),
+            displayName: team.team?.name,
+            logo: team.team?.logo,
+            color: null,
+          },
+          stats: [
+            { name: 'wins',       abbreviation: 'W',   displayValue: String(team.all?.win  || team.all?.wins  || 0) },
+            { name: 'losses',     abbreviation: 'L',   displayValue: String(team.all?.lose || team.all?.losses || 0) },
+            { name: 'goalsDiff',  abbreviation: 'GD',  displayValue: String(team.goalsDiff || 0) },
+            { name: 'points',     abbreviation: 'PTS', displayValue: String(team.points || 0) },
+            { name: 'total',      type: 'total',       summary: `${team.all?.win || team.all?.wins || 0}-${team.all?.draw || team.all?.draws || 0}-${team.all?.lose || team.all?.losses || 0}` },
+          ],
+          _confName: confName,
+          _divRank: rank + 1,
+        });
+      });
+    });
+  });
+
+  return allEntries;
 };
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
     const league = body.league;
 
-    if (!league) {
-      return Response.json({ error: 'league parameter required' }, { status: 400 });
-    }
+    if (!league) return Response.json({ error: 'league parameter required' }, { status: 400 });
 
     const config = LEAGUE_CONFIG[league];
-    if (!config) {
+    if (!config) return Response.json({ standings: [] });
+
+    const season = getCurrentSeason(league);
+    const data = await apiFetch(config.base, `/standings?league=${config.leagueId}&season=${season}`);
+
+    if (!data?.response?.length) {
       return Response.json({ standings: [] });
     }
 
-    // Use current or previous season based on month (season runs Aug-May)
-    const now = new Date();
-    const month = now.getMonth();
-    const year = now.getFullYear();
-    const season = month >= 7 ? year : year - 1;
-
-    // Try to fetch standings directly first
-    let data = await apiFetch(`/standings?league=${config.leagueId}&season=${season}`);
-    
-    // If no standings available, derive from fixtures
-    if (!data?.response || !Array.isArray(data.response) || data.response.length === 0) {
-      const fixturesData = await apiFetch(`/fixtures?league=${config.leagueId}&season=${season}&status=FT`);
-      
-      if (!fixturesData?.response || fixturesData.response.length === 0) {
-        return Response.json({ standings: [] });
-      }
-
-      // Build standings from completed fixtures
-      const teamStats = {};
-      
-      fixturesData.response.forEach(fixture => {
-        const homeTeam = fixture.teams.home;
-        const awayTeam = fixture.teams.away;
-        const goals = fixture.goals;
-        
-        if (!teamStats[homeTeam.id]) {
-          teamStats[homeTeam.id] = { 
-            team: homeTeam, 
-            played: 0, 
-            wins: 0, 
-            draws: 0, 
-            losses: 0, 
-            gf: 0, 
-            ga: 0, 
-            gd: 0, 
-            points: 0 
-          };
-        }
-        if (!teamStats[awayTeam.id]) {
-          teamStats[awayTeam.id] = { 
-            team: awayTeam, 
-            played: 0, 
-            wins: 0, 
-            draws: 0, 
-            losses: 0, 
-            gf: 0, 
-            ga: 0, 
-            gd: 0, 
-            points: 0 
-          };
-        }
-
-        const homeStats = teamStats[homeTeam.id];
-        const awayStats = teamStats[awayTeam.id];
-        
-        homeStats.played += 1;
-        awayStats.played += 1;
-        homeStats.gf += goals.home;
-        homeStats.ga += goals.away;
-        awayStats.gf += goals.away;
-        awayStats.ga += goals.home;
-
-        if (goals.home > goals.away) {
-          homeStats.wins += 1;
-          homeStats.points += 3;
-          awayStats.losses += 1;
-        } else if (goals.home < goals.away) {
-          awayStats.wins += 1;
-          awayStats.points += 3;
-          homeStats.losses += 1;
-        } else {
-          homeStats.draws += 1;
-          homeStats.points += 1;
-          awayStats.draws += 1;
-          awayStats.points += 1;
-        }
-        
-        homeStats.gd = homeStats.gf - homeStats.ga;
-        awayStats.gd = awayStats.gf - awayStats.ga;
-      });
-
-      // Sort by points then goal difference
-      const standings = Object.values(teamStats)
-        .sort((a, b) => {
-          if (b.points !== a.points) return b.points - a.points;
-          if (b.gd !== a.gd) return b.gd - a.gd;
-          return b.gf - a.gf;
-        })
-        .map((stat, rank) => ({
-          team: {
-            id: stat.team.id,
-            abbreviation: stat.team.code || stat.team.name.substring(0, 3).toUpperCase(),
-            displayName: stat.team.name,
-            logo: stat.team.logo,
-            color: null,
-          },
-          stats: [
-            { name: 'wins', abbreviation: 'W', displayValue: String(stat.wins), value: String(stat.wins) },
-            { name: 'losses', abbreviation: 'L', displayValue: String(stat.losses), value: String(stat.losses) },
-            { name: 'winPercent', abbreviation: 'GD', displayValue: String(stat.gd), value: String(stat.gd) },
-            { name: 'points', abbreviation: 'PTS', displayValue: String(stat.points), value: String(stat.points) },
-            { name: 'total', type: 'total', summary: `${stat.wins}-${stat.draws}-${stat.losses}` },
-          ],
-          _divRank: rank + 1,
-        }));
-
-      return Response.json({ standings });
-    }
-
-    // Transform api-sports standings response
-    const allEntries = [];
-    
-    (data.response || []).forEach((stageGroup) => {
-      const confName = stageGroup.group?.name || null;
-      const divName = stageGroup.group?.name || null;
-      
-      (stageGroup.standings || []).forEach((standingArray, divIndex) => {
-        (standingArray || []).forEach((team, rank) => {
-          allEntries.push({
-            team: {
-              id: team.team?.id,
-              abbreviation: team.team?.code || team.team?.name?.substring(0, 3).toUpperCase(),
-              displayName: team.team?.name,
-              logo: team.team?.logo,
-              color: null,
-            },
-            stats: [
-              { name: 'wins', abbreviation: 'W', displayValue: String(team.all?.wins || 0), value: String(team.all?.wins || 0) },
-              { name: 'losses', abbreviation: 'L', displayValue: String(team.all?.losses || 0), value: String(team.all?.losses || 0) },
-              { name: 'winPercent', abbreviation: 'GD', displayValue: String(team.goalsDiff || 0), value: String(team.goalsDiff || 0) },
-              { name: 'points', abbreviation: 'PTS', displayValue: String(team.points || 0), value: String(team.points || 0) },
-              { name: 'total', type: 'total', summary: `${team.all?.wins || 0}-${team.all?.draws || 0}-${team.all?.losses || 0}` },
-            ],
-            _confName: confName,
-            _divName: divName,
-            _divRank: rank + 1,
-          });
-        });
-      });
-    });
-
-    return Response.json({ standings: allEntries });
+    return Response.json({ standings: normalizeStandings(data) });
   } catch (error) {
     return Response.json({ error: error.message, standings: [] }, { status: 500 });
   }
