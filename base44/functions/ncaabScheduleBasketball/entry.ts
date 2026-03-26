@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
     const [data, oddsData] = await Promise.all([
       apiFetch(`/games?league=${LEAGUE_ID}&season=${season}`),
-      apiFetch(`/odds?league=${LEAGUE_ID}&season=${season}&bookmaker=8&from=${today}&to=${in7Days}`).catch(() => null),
+      apiFetch(`/odds?league=${LEAGUE_ID}&season=${season}&from=${today}&to=${in7Days}`).catch(() => null),
     ]);
 
     if (!data?.response) return Response.json({ games: [] });
@@ -44,12 +44,25 @@ Deno.serve(async (req) => {
       const gameId = item.game?.id;
       if (!gameId) return;
       const bets = item.bookmakers?.[0]?.bets || [];
-      const matchWinner = bets.find(b => b.name === 'Home/Away');
-      if (!matchWinner?.values) return;
-      const vals = matchWinner.values;
+      const ml = bets.find(b => b.name === 'Home/Away');
+      const spreadBet = bets.find(b => b.name === 'Asian Handicap' || b.name === 'Point Spread');
+      const ouBet = bets.find(b => b.name === 'Over/Under' || b.name === 'Total');
+      if (!ml?.values) return;
+      const vals = ml.values;
+
+      const spreadVals = spreadBet?.values || [];
+      const homeSpreadVal = spreadVals.find(v => v.value?.startsWith('Home'));
+      const spreadNum = homeSpreadVal?.handicap || homeSpreadVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+
+      const ouVals = ouBet?.values || [];
+      const overVal = ouVals.find(v => v.value?.startsWith('Over'));
+      const ouNum = overVal?.handicap || overVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+
       oddsMap[gameId] = {
-        home: toAmericanOdds(vals.find(v => v.value === 'Home')?.odd),
-        away: toAmericanOdds(vals.find(v => v.value === 'Away')?.odd),
+        homeMoneyline: toAmericanOdds(vals.find(v => v.value === 'Home')?.odd),
+        awayMoneyline: toAmericanOdds(vals.find(v => v.value === 'Away')?.odd),
+        spread: spreadNum ? String(spreadNum) : null,
+        overUnder: ouNum ? String(ouNum) : null,
       };
     });
 

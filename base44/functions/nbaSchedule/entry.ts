@@ -35,9 +35,9 @@ Deno.serve(async (req) => {
 
     const [data, oddsToday, oddsTomorrow, oddsDayAfter] = await Promise.all([
       apiFetch(`/games?season=${season}`),
-      apiFetch(`/odds?league=standard&season=${season}&bookmaker=8&date=${today}`).catch(() => null),
-      apiFetch(`/odds?league=standard&season=${season}&bookmaker=8&date=${tomorrow}`).catch(() => null),
-      apiFetch(`/odds?league=standard&season=${season}&bookmaker=8&date=${dayAfter}`).catch(() => null),
+      apiFetch(`/odds?league=standard&season=${season}&date=${today}`).catch(() => null),
+      apiFetch(`/odds?league=standard&season=${season}&date=${tomorrow}`).catch(() => null),
+      apiFetch(`/odds?league=standard&season=${season}&date=${dayAfter}`).catch(() => null),
     ]);
 
     const raw = data.response || [];
@@ -51,13 +51,25 @@ Deno.serve(async (req) => {
       if (!gameId) return;
       const bets = item.bookmakers?.[0]?.bets || [];
       const ml = bets.find(b => b.name === 'Money Line' || b.name === 'Moneyline');
+      const spreadBet = bets.find(b => b.name === 'Point Spread' || b.name === 'Asian Handicap' || b.name === 'Spread');
+      const ouBet = bets.find(b => b.name === 'Over/Under' || b.name === 'Total');
       const mlVals = ml?.values || [];
       const homeOdd = mlVals.find(v => v.value === 'Home')?.odd;
       const awayOdd = mlVals.find(v => v.value === 'Away')?.odd;
       if (homeOdd || awayOdd) {
+        const spreadVals = spreadBet?.values || [];
+        const homeSpreadVal = spreadVals.find(v => v.value?.startsWith('Home'));
+        const spreadNum = homeSpreadVal?.handicap || homeSpreadVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || spreadVals[0]?.handicap || null;
+
+        const ouVals = ouBet?.values || [];
+        const overVal = ouVals.find(v => v.value?.startsWith('Over'));
+        const ouNum = overVal?.handicap || overVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || ouVals[0]?.handicap || null;
+
         oddsMap[gameId] = {
           homeMoneyline: fmtOdd(homeOdd),
           awayMoneyline: fmtOdd(awayOdd),
+          spread: spreadNum ? String(spreadNum) : null,
+          overUnder: ouNum ? String(ouNum) : null,
         };
       }
     });

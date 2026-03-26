@@ -72,8 +72,7 @@ Deno.serve(async (req) => {
       )
     );
 
-    // Build odds map: gameId -> { homeMoneyline, awayMoneyline }
-    // NHL API uses "Home/Away" as the moneyline bet name
+    // Build odds map: gameId -> { homeMoneyline, awayMoneyline, spread, overUnder }
     const oddsMap = {};
     oddsResults.forEach(oddsData => {
       const item = oddsData?.response?.[0];
@@ -82,16 +81,31 @@ Deno.serve(async (req) => {
       if (!gameId) return;
       for (const bookmaker of (item.bookmakers || [])) {
         const bets = bookmaker.bets || [];
-        // "Home/Away" = 2-way moneyline (no draw); "3Way Result" includes draw
+        // "Home/Away" = 2-way moneyline; "3Way Result" includes draw
         const ml = bets.find(b => b.name === 'Home/Away') || bets.find(b => b.name === '3Way Result');
+        // "Asian Handicap" = puck line spread; "Over/Under" = total goals
+        const spreadBet = bets.find(b => b.name === 'Asian Handicap');
+        const ouBet = bets.find(b => b.name === 'Over/Under');
         if (!ml) continue;
         const mlVals = ml.values || [];
         const homeOdd = mlVals.find(v => v.value === 'Home')?.odd;
         const awayOdd = mlVals.find(v => v.value === 'Away')?.odd;
         if (homeOdd || awayOdd) {
+          // Extract spread: look for "Home +1.5" style value, grab the handicap number
+          const spreadVals = spreadBet?.values || [];
+          const homeSpreadVal = spreadVals.find(v => v.value?.startsWith('Home'));
+          const spreadNum = homeSpreadVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+
+          // Extract over/under: find the "Over X.5" value
+          const ouVals = ouBet?.values || [];
+          const overVal = ouVals.find(v => v.value?.startsWith('Over'));
+          const ouNum = overVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+
           oddsMap[gameId] = {
             homeMoneyline: fmtOdd(homeOdd),
             awayMoneyline: fmtOdd(awayOdd),
+            spread: spreadNum,
+            overUnder: ouNum,
           };
           break;
         }

@@ -57,19 +57,26 @@ Deno.serve(async (req) => {
 
     if (!data?.response) return Response.json({ games: [] });
 
-    // Build odds map: fixtureId -> { home, draw, away }
+    // Build odds map: fixtureId -> { home, draw, away, overUnder }
     const oddsMap = {};
     (oddsData?.response || []).forEach(item => {
       const fixtureId = item.fixture?.id;
       if (!fixtureId) return;
       const bets = item.bookmakers?.[0]?.bets || [];
       const matchWinner = bets.find(b => b.name === 'Match Winner');
+      const ouBet = bets.find(b => b.name === 'Goals Over/Under' || b.name === 'Over/Under');
       if (!matchWinner?.values) return;
       const vals = matchWinner.values;
+
+      const ouVals = ouBet?.values || [];
+      const overVal = ouVals.find(v => v.value?.startsWith('Over'));
+      const ouNum = overVal?.handicap || overVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+
       oddsMap[fixtureId] = {
         home: vals.find(v => v.value === 'Home')?.odd || null,
         draw: vals.find(v => v.value === 'Draw')?.odd || null,
         away: vals.find(v => v.value === 'Away')?.odd || null,
+        overUnder: ouNum ? String(ouNum) : null,
       };
     });
 
