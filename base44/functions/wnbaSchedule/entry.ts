@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
     const [data, oddsData] = await Promise.all([
       apiFetch(`/games?league=${LEAGUE_ID}&season=${season}`),
-      apiFetch(`/odds?league=${LEAGUE_ID}&season=${season}&bookmaker=8&from=${today}&to=${in7Days}`).catch(() => null),
+      apiFetch(`/odds?league=${LEAGUE_ID}&season=${season}&from=${today}&to=${in7Days}`).catch(() => null),
     ]);
 
     if (!data?.response) return Response.json({ games: [] });

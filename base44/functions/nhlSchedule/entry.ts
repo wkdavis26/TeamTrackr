@@ -29,32 +29,28 @@ Deno.serve(async (req) => {
     const _d = new Date();
     const season = _d.getMonth() >= 9 ? _d.getFullYear() : _d.getFullYear() - 1;
 
-    const [teamsData, gamesData] = await Promise.all([
-      apiFetch(`/teams?league=57&season=${season}`),
-      apiFetch(`/games?league=57&season=${season}`),
-    ]);
-
-    const teams = teamsData?.response || [];
+    const gamesData = await apiFetch(`/games?league=57&season=${season}`);
     const rawGames = gamesData?.response || [];
 
+    // Map team name -> abbreviation directly — no dependency on /teams API
     const nhlAbbreviations = {
-      'Boston Bruins': 'BOS', 'New York Rangers': 'NYR', 'Toronto Maple Leafs': 'TOR', 'Montreal Canadiens': 'MTL',
-      'Pittsburgh Penguins': 'PIT', 'Chicago Blackhawks': 'CHI', 'Los Angeles Kings': 'LAK', 'Edmonton Oilers': 'EDM',
-      'Tampa Bay Lightning': 'TBL', 'Colorado Avalanche': 'COL', 'Florida Panthers': 'FLA', 'Dallas Stars': 'DAL',
-      'Washington Capitals': 'WSH', 'Philadelphia Flyers': 'PHI', 'New Jersey Devils': 'NJD', 'New York Islanders': 'NYI',
-      'Carolina Hurricanes': 'CAR', 'Columbus Blue Jackets': 'CBJ', 'Minnesota Wild': 'MIN', 'Nashville Predators': 'NSH',
-      'St. Louis Blues': 'STL', 'Winnipeg Jets': 'WPG', 'Utah Hockey Club': 'UTA', 'San Jose Sharks': 'SJS',
-      'Anaheim Ducks': 'ANA', 'Calgary Flames': 'CGY', 'Vancouver Canucks': 'VAN', 'Vegas Golden Knights': 'VGK',
-      'Seattle Kraken': 'SEA', 'Ottawa Senators': 'OTT', 'Buffalo Sabres': 'BUF', 'Detroit Red Wings': 'DET',
+      'Boston Bruins': 'bos', 'New York Rangers': 'nyr', 'Toronto Maple Leafs': 'tor', 'Montreal Canadiens': 'mtl',
+      'Pittsburgh Penguins': 'pit', 'Chicago Blackhawks': 'chi', 'Los Angeles Kings': 'lak', 'Edmonton Oilers': 'edm',
+      'Tampa Bay Lightning': 'tbl', 'Colorado Avalanche': 'col', 'Florida Panthers': 'fla', 'Dallas Stars': 'dal',
+      'Washington Capitals': 'wsh', 'Philadelphia Flyers': 'phi', 'New Jersey Devils': 'njd', 'New York Islanders': 'nyi',
+      'Carolina Hurricanes': 'car', 'Columbus Blue Jackets': 'cbj', 'Minnesota Wild': 'min', 'Nashville Predators': 'nsh',
+      'St. Louis Blues': 'stl', 'Winnipeg Jets': 'wpg', 'Utah Hockey Club': 'uta', 'San Jose Sharks': 'sjs',
+      'Anaheim Ducks': 'ana', 'Calgary Flames': 'cgy', 'Vancouver Canucks': 'van', 'Vegas Golden Knights': 'vgk',
+      'Seattle Kraken': 'sea', 'Ottawa Senators': 'ott', 'Buffalo Sabres': 'buf', 'Detroit Red Wings': 'det',
     };
 
-    const teamMap = {};
-    teams.forEach(t => {
-      if (t.id && t.name) {
-        const abbr = nhlAbbreviations[t.name] || t.abbreviation || t.code || t.name.substring(0, 3).toLowerCase();
-        if (abbr) teamMap[t.id] = abbr.toLowerCase();
-      }
-    });
+    const teamNameToId = (name) => {
+      if (!name) return null;
+      const abbr = nhlAbbreviations[name];
+      if (abbr) return `nhl-${abbr}`;
+      // Fallback: slugify the name
+      return `nhl-${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`;
+    };
 
     const now = new Date();
     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
@@ -112,29 +108,23 @@ Deno.serve(async (req) => {
       }
     });
 
-    const games = upcomingRaw
-      .map(g => {
-        const homeCode = teamMap[g.teams?.home?.id];
-        const awayCode = teamMap[g.teams?.away?.id];
-        return {
-          id: g.id,
-          date: g.date,
-          homeTeam: {
-            id: homeCode ? `nhl-${homeCode}` : null,
-            name: g.teams?.home?.name || '',
-            logo: g.teams?.home?.logo || null,
-          },
-          awayTeam: {
-            id: awayCode ? `nhl-${awayCode}` : null,
-            name: g.teams?.away?.name || '',
-            logo: g.teams?.away?.logo || null,
-          },
-          venue: g.venue?.name || 'TBD',
-          status: g.status?.short || 'NS',
-          odds: oddsMap[g.id] || null,
-        };
-      })
-      .filter(g => g.homeTeam.id && g.awayTeam.id);
+    const games = upcomingRaw.map(g => ({
+      id: g.id,
+      date: g.date,
+      homeTeam: {
+        id: teamNameToId(g.teams?.home?.name),
+        name: g.teams?.home?.name || '',
+        logo: g.teams?.home?.logo || null,
+      },
+      awayTeam: {
+        id: teamNameToId(g.teams?.away?.name),
+        name: g.teams?.away?.name || '',
+        logo: g.teams?.away?.logo || null,
+      },
+      venue: g.venue?.name || 'TBD',
+      status: g.status?.short || 'NS',
+      odds: oddsMap[g.id] || null,
+    }));
 
     return Response.json({ games }, { headers: { 'Cache-Control': 'public, max-age=300' } });
   } catch (error) {

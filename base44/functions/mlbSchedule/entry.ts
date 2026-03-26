@@ -27,43 +27,47 @@ Deno.serve(async (req) => {
     const trySeasons = [currentYear, currentYear - 1];
     let allGames = [];
 
+    // Map team name -> MLB abbreviation directly — no /teams API dependency
+    const mlbAbbreviations = {
+      'Arizona Diamondbacks': 'ari', 'Atlanta Braves': 'atl', 'Baltimore Orioles': 'bal', 'Boston Red Sox': 'bos',
+      'Chicago Cubs': 'chc', 'Chicago White Sox': 'cws', 'Cincinnati Reds': 'cin', 'Cleveland Guardians': 'cle',
+      'Colorado Rockies': 'col', 'Detroit Tigers': 'det', 'Houston Astros': 'hou', 'Kansas City Royals': 'kc',
+      'Los Angeles Angels': 'laa', 'Los Angeles Dodgers': 'lad', 'Miami Marlins': 'mia', 'Milwaukee Brewers': 'mil',
+      'Minnesota Twins': 'min', 'New York Mets': 'nym', 'New York Yankees': 'nyy', 'Oakland Athletics': 'oak',
+      'Athletics': 'oak', 'Philadelphia Phillies': 'phi', 'Pittsburgh Pirates': 'pit', 'San Diego Padres': 'sd',
+      'San Francisco Giants': 'sf', 'Seattle Mariners': 'sea', 'St. Louis Cardinals': 'stl', 'Tampa Bay Rays': 'tb',
+      'Texas Rangers': 'tex', 'Toronto Blue Jays': 'tor', 'Washington Nationals': 'wsh',
+    };
+
+    const mlbTeamNameToId = (name) => {
+      if (!name) return null;
+      const abbr = mlbAbbreviations[name];
+      if (abbr) return `mlb-${abbr}`;
+      return `mlb-${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`;
+    };
+
     for (const season of trySeasons) {
-      const [teamsData, gamesData] = await Promise.all([
-        apiFetch(`/teams?league=1&season=${season}`),
-        apiFetch(`/games?league=1&season=${season}`),
-      ]);
-
-      const teams = teamsData?.response || [];
+      const gamesData = await apiFetch(`/games?league=1&season=${season}`);
       const rawGames = gamesData?.response || [];
-
-      const codeMap = {};
-      teams.forEach(t => {
-        if (t.id && t.code) codeMap[t.id] = t.code;
-      });
 
       const seasonGames = rawGames
         .filter(g => new Date(g.date) > liveWindowStart)
-        .map(g => {
-          const homeCode = codeMap[g.teams?.home?.id];
-          const awayCode = codeMap[g.teams?.away?.id];
-          return {
-            id: g.id,
-            date: g.date,
-            homeTeam: {
-              id: homeCode ? `mlb-${homeCode.toLowerCase()}` : null,
-              name: g.teams?.home?.name || '',
-              logo: g.teams?.home?.logo || null,
-            },
-            awayTeam: {
-              id: awayCode ? `mlb-${awayCode.toLowerCase()}` : null,
-              name: g.teams?.away?.name || '',
-              logo: g.teams?.away?.logo || null,
-            },
-            venue: g.venue?.name || 'TBD',
-            status: g.status?.long || 'Scheduled',
-          };
-        })
-        .filter(g => g.homeTeam.id && g.awayTeam.id);
+        .map(g => ({
+          id: g.id,
+          date: g.date,
+          homeTeam: {
+            id: mlbTeamNameToId(g.teams?.home?.name),
+            name: g.teams?.home?.name || '',
+            logo: g.teams?.home?.logo || null,
+          },
+          awayTeam: {
+            id: mlbTeamNameToId(g.teams?.away?.name),
+            name: g.teams?.away?.name || '',
+            logo: g.teams?.away?.logo || null,
+          },
+          venue: g.venue?.name || 'TBD',
+          status: g.status?.long || 'Scheduled',
+        }));
 
       if (seasonGames.length > 0) {
         allGames = seasonGames;
