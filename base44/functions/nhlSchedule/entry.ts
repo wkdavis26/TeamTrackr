@@ -25,20 +25,13 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const today = new Date().toISOString().slice(0, 10);
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-    const dayAfter = new Date(Date.now() + 172800000).toISOString().slice(0, 10);
-
     // NHL season starts in October; use previous year Jan–Sep, current year Oct–Dec
     const _d = new Date();
     const season = _d.getMonth() >= 9 ? _d.getFullYear() : _d.getFullYear() - 1;
 
-    const [teamsData, gamesData, oddsToday, oddsTomorrow, oddsDayAfter] = await Promise.all([
+    const [teamsData, gamesData] = await Promise.all([
       apiFetch(`/teams?league=57&season=${season}`),
       apiFetch(`/games?league=57&season=${season}`),
-      apiFetch(`/odds?league=57&season=${season}&bookmaker=8&date=${today}`).catch(() => null),
-      apiFetch(`/odds?league=57&season=${season}&bookmaker=8&date=${tomorrow}`).catch(() => null),
-      apiFetch(`/odds?league=57&season=${season}&bookmaker=8&date=${dayAfter}`).catch(() => null),
     ]);
 
     const teams = teamsData?.response || [];
@@ -63,32 +56,49 @@ Deno.serve(async (req) => {
       }
     });
 
-    // Build odds map: gameId -> { homeMoneyline, awayMoneyline }
-    const oddsMap = {};
-    [...(oddsToday?.response || []), ...(oddsTomorrow?.response || []), ...(oddsDayAfter?.response || [])].forEach(item => {
-      const gameId = item.game?.id;
-      if (!gameId) return;
-      const bets = item.bookmakers?.[0]?.bets || [];
-      const ml = bets.find(b => b.name === 'Money Line' || b.name === 'Moneyline');
-      const mlVals = ml?.values || [];
-      const homeOdd = mlVals.find(v => v.value === 'Home')?.odd;
-      const awayOdd = mlVals.find(v => v.value === 'Away')?.odd;
-      if (homeOdd || awayOdd) {
-        oddsMap[gameId] = {
-          homeMoneyline: fmtOdd(homeOdd),
-          awayMoneyline: fmtOdd(awayOdd),
-        };
-      }
-    });
-
     const now = new Date();
     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
 
-    const games = rawGames
-      .filter(g => {
-        const gameDate = new Date(g.date);
-        return !isNaN(gameDate.getTime()) && gameDate > liveWindowStart;
-      })
+    // Filter to upcoming games first, then fetch odds per game in parallel
+    const upcomingRaw = rawGames.filter(g => {
+      const gameDate = new Date(g.date);
+      return !isNaN(gameDate.getTime()) && gameDate > liveWindowStart;
+    });
+
+    // Fetch odds for each upcoming game concurrently
+    const oddsResults = await Promise.all(
+      upcomingRaw.map(g =>
+        apiFetch(`/odds?game=${g.id}`).catch(() => null)
+      )
+    );
+
+    // Build odds map: gameId -> { homeMoneyline, awayMoneyline }
+    // NHL API uses "Home/Away" as the moneyline bet name
+    const oddsMap = {};
+    oddsResults.forEach(oddsData => {
+      const item = oddsData?.response?.[0];
+      if (!item) return;
+      const gameId = item.game?.id;
+      if (!gameId) return;
+      for (const bookmaker of (item.bookmakers || [])) {
+        const bets = bookmaker.bets || [];
+        // "Home/Away" = 2-way moneyline (no draw); "3Way Result" includes draw
+        const ml = bets.find(b => b.name === 'Home/Away') || bets.find(b => b.name === '3Way Result');
+        if (!ml) continue;
+        const mlVals = ml.values || [];
+        const homeOdd = mlVals.find(v => v.value === 'Home')?.odd;
+        const awayOdd = mlVals.find(v => v.value === 'Away')?.odd;
+        if (homeOdd || awayOdd) {
+          oddsMap[gameId] = {
+            homeMoneyline: fmtOdd(homeOdd),
+            awayMoneyline: fmtOdd(awayOdd),
+          };
+          break;
+        }
+      }
+    });
+
+    const games = upcomingRaw
       .map(g => {
         const homeCode = teamMap[g.teams?.home?.id];
         const awayCode = teamMap[g.teams?.away?.id];
