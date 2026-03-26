@@ -64,12 +64,15 @@ Deno.serve(async (req) => {
       );
 
       // Build odds map: gameId -> odds
+      // Strategy: scan all bookmakers and pick the one with the most complete data
       const oddsMap = {};
       oddsResults.forEach(oddsData => {
         const item = oddsData?.response?.[0];
         if (!item) return;
         const gameId = item.game?.id;
         if (!gameId) return;
+
+        let best = null;
         for (const bookmaker of (item.bookmakers || [])) {
           const bets = bookmaker.bets || [];
           const ml = bets.find(b => b.name === 'Home/Away' || b.name === 'Money Line' || b.name === 'Moneyline');
@@ -79,24 +82,30 @@ Deno.serve(async (req) => {
           const mlVals = ml.values || [];
           const homeOdd = mlVals.find(v => v.value === 'Home')?.odd;
           const awayOdd = mlVals.find(v => v.value === 'Away')?.odd;
-          if (homeOdd || awayOdd) {
-            const spreadVals = spreadBet?.values || [];
-            const homeSpreadVal = spreadVals.find(v => v.value?.startsWith('Home'));
-            const spreadNum = homeSpreadVal?.handicap || homeSpreadVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+          if (!homeOdd && !awayOdd) continue;
 
-            const ouVals = ouBet?.values || [];
-            const overVal = ouVals.find(v => v.value?.startsWith('Over'));
-            const ouNum = overVal?.handicap || overVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+          const spreadVals = spreadBet?.values || [];
+          const homeSpreadVal = spreadVals.find(v => v.value?.startsWith('Home'));
+          const spreadNum = homeSpreadVal?.handicap || homeSpreadVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
 
-            oddsMap[gameId] = {
-              homeMoneyline: fmtOdd(homeOdd),
-              awayMoneyline: fmtOdd(awayOdd),
-              spread: spreadNum ? String(spreadNum) : null,
-              overUnder: ouNum ? String(ouNum) : null,
-            };
-            break;
-          }
+          const ouVals = ouBet?.values || [];
+          const overVal = ouVals.find(v => v.value?.startsWith('Over'));
+          const ouNum = overVal?.handicap || overVal?.value?.match(/([+-]?\d+\.?\d*)/)?.[1] || null;
+
+          const candidate = {
+            homeMoneyline: fmtOdd(homeOdd),
+            awayMoneyline: fmtOdd(awayOdd),
+            spread: spreadNum ? String(spreadNum) : null,
+            overUnder: ouNum ? String(ouNum) : null,
+          };
+
+          // Prefer the bookmaker with the most fields filled in
+          const score = (candidate.homeMoneyline ? 1 : 0) + (candidate.awayMoneyline ? 1 : 0) + (candidate.spread ? 1 : 0) + (candidate.overUnder ? 1 : 0);
+          const bestScore = best ? (best.homeMoneyline ? 1 : 0) + (best.awayMoneyline ? 1 : 0) + (best.spread ? 1 : 0) + (best.overUnder ? 1 : 0) : -1;
+          if (score > bestScore) best = candidate;
+          if (score === 4) break; // Can't do better
         }
+        if (best) oddsMap[gameId] = best;
       });
 
       allGames = upcomingRaw.map(g => ({
