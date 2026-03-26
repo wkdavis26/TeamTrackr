@@ -72,13 +72,50 @@ const normalizeStandings = (data, type) => {
   }
 
   if (type === 'flat') {
-    // NHL: response is array of arrays (groups), each containing team objects
-    // Each group represents a division; team.won / team.lost / team.points are direct fields
+    // NHL: api-sports groups by conference only. We add division via a static name lookup.
+    // Better: use team name to assign division
+    const NHL_DIV_BY_NAME = {
+      'Boston Bruins':        { conf: 'Eastern Conference', div: 'Atlantic' },
+      'Buffalo Sabres':       { conf: 'Eastern Conference', div: 'Atlantic' },
+      'Detroit Red Wings':    { conf: 'Eastern Conference', div: 'Atlantic' },
+      'Florida Panthers':     { conf: 'Eastern Conference', div: 'Atlantic' },
+      'Montreal Canadiens':   { conf: 'Eastern Conference', div: 'Atlantic' },
+      'Ottawa Senators':      { conf: 'Eastern Conference', div: 'Atlantic' },
+      'Tampa Bay Lightning':  { conf: 'Eastern Conference', div: 'Atlantic' },
+      'Toronto Maple Leafs':  { conf: 'Eastern Conference', div: 'Atlantic' },
+      'Carolina Hurricanes':  { conf: 'Eastern Conference', div: 'Metropolitan' },
+      'Columbus Blue Jackets':{ conf: 'Eastern Conference', div: 'Metropolitan' },
+      'New Jersey Devils':    { conf: 'Eastern Conference', div: 'Metropolitan' },
+      'New York Islanders':   { conf: 'Eastern Conference', div: 'Metropolitan' },
+      'New York Rangers':     { conf: 'Eastern Conference', div: 'Metropolitan' },
+      'Philadelphia Flyers':  { conf: 'Eastern Conference', div: 'Metropolitan' },
+      'Pittsburgh Penguins':  { conf: 'Eastern Conference', div: 'Metropolitan' },
+      'Washington Capitals':  { conf: 'Eastern Conference', div: 'Metropolitan' },
+      'Arizona Coyotes':      { conf: 'Western Conference', div: 'Central' },
+      'Chicago Blackhawks':   { conf: 'Western Conference', div: 'Central' },
+      'Colorado Avalanche':   { conf: 'Western Conference', div: 'Central' },
+      'Dallas Stars':         { conf: 'Western Conference', div: 'Central' },
+      'Minnesota Wild':       { conf: 'Western Conference', div: 'Central' },
+      'Nashville Predators':  { conf: 'Western Conference', div: 'Central' },
+      'St. Louis Blues':      { conf: 'Western Conference', div: 'Central' },
+      'Winnipeg Jets':        { conf: 'Western Conference', div: 'Central' },
+      'Utah Hockey Club':     { conf: 'Western Conference', div: 'Central' },
+      'Anaheim Ducks':        { conf: 'Western Conference', div: 'Pacific' },
+      'Calgary Flames':       { conf: 'Western Conference', div: 'Pacific' },
+      'Edmonton Oilers':      { conf: 'Western Conference', div: 'Pacific' },
+      'Los Angeles Kings':    { conf: 'Western Conference', div: 'Pacific' },
+      'San Jose Sharks':      { conf: 'Western Conference', div: 'Pacific' },
+      'Seattle Kraken':       { conf: 'Western Conference', div: 'Pacific' },
+      'Vancouver Canucks':    { conf: 'Western Conference', div: 'Pacific' },
+      'Vegas Golden Knights': { conf: 'Western Conference', div: 'Pacific' },
+    };
+
     const groups = (data.response || []);
     const allTeams = [];
     groups.forEach((group) => {
       const groupTeams = Array.isArray(group) ? group : [group];
       groupTeams.forEach((team) => {
+        const divInfo = NHL_DIV_BY_NAME[team.team?.name] || { conf: team.group?.name || 'Unknown', div: team.group?.name || 'Unknown' };
         allTeams.push({
           team: {
             id: team.team?.id,
@@ -88,19 +125,19 @@ const normalizeStandings = (data, type) => {
             color: null,
           },
           stats: [
-            { name: 'wins',   abbreviation: 'W',   displayValue: String(team.won  ?? 0) },
-            { name: 'losses', abbreviation: 'L',   displayValue: String(team.lost ?? 0) },
-            { name: 'otLosses', abbreviation: 'OTL', displayValue: String(team.games_ot ?? team.ot ?? 0) },
-            { name: 'points', abbreviation: 'PTS', displayValue: String(team.points ?? 0) },
+            { name: 'wins',     abbreviation: 'W',   displayValue: String(team.games?.win?.total    ?? team.won  ?? 0) },
+            { name: 'losses',   abbreviation: 'L',   displayValue: String(team.games?.lose?.total   ?? team.lost ?? 0) },
+            { name: 'otLosses', abbreviation: 'OTL', displayValue: String(team.games?.lose_overtime?.total ?? team.games_ot ?? team.ot ?? 0) },
+            { name: 'points',   abbreviation: 'PTS', displayValue: String(team.points ?? 0) },
           ],
-          _confName: team.group?.name || null,
-          _divName: team.group?.name || null,
+          _confName: divInfo.conf,
+          _divName:  divInfo.div,
           _divRank: team.position || 0,
         });
       });
     });
 
-    // Compute conference ranks and pts-back based on conference grouping
+    // Compute conference ranks and pts-back
     const confGroups = {};
     allTeams.forEach(t => {
       const conf = t._confName || 'Unknown';
@@ -117,7 +154,7 @@ const normalizeStandings = (data, type) => {
       });
     });
 
-    // Compute division pts-back — group by _divName, sort by points
+    // Compute division pts-back
     const divGroups = {};
     allTeams.forEach(t => {
       const div = t._divName || 'Unknown';
@@ -128,7 +165,7 @@ const normalizeStandings = (data, type) => {
       list.sort((a, b) => parseInt(b.stats.find(s => s.name === 'points')?.displayValue || 0) - parseInt(a.stats.find(s => s.name === 'points')?.displayValue || 0));
       const leaderPts = parseInt(list[0]?.stats.find(s => s.name === 'points')?.displayValue || 0);
       list.forEach((t, i) => {
-        if (!t._divRank) t._divRank = i + 1;
+        t._divRank = i + 1;
         const myPts = parseInt(t.stats.find(s => s.name === 'points')?.displayValue || 0);
         t._divPtsBack = leaderPts - myPts;
       });
@@ -165,9 +202,9 @@ const normalizeStandings = (data, type) => {
 
   if (type === 'nba') {
     // NBA via v2.nba.api-sports.io
-    // Schema: entry.team, entry.win.total, entry.loss.total, entry.win.percentage, entry.conference.name/rank
+    // Schema: entry.team, entry.win.total, entry.loss.total, entry.win.percentage, entry.conference.name/rank, entry.division.name/rank
     const flatTeams = (data.response || []).flat();
-    return flatTeams.map((entry) => ({
+    const allTeams = flatTeams.map((entry) => ({
       team: {
         id: entry.team?.id,
         abbreviation: entry.team?.code,
@@ -180,9 +217,51 @@ const normalizeStandings = (data, type) => {
         { name: 'losses', abbreviation: 'L',   displayValue: String(entry.loss?.total ?? 0) },
         { name: 'pct',    abbreviation: 'PCT', displayValue: String(entry.win?.percentage ?? '0.000') },
       ],
-      _confName: entry.conference?.name ? entry.conference.name.charAt(0).toUpperCase() + entry.conference.name.slice(1) : null,
-      _divRank: entry.conference?.rank ?? 0,
+      _confName: entry.conference?.name ? entry.conference.name.charAt(0).toUpperCase() + entry.conference.name.slice(1).toLowerCase() + 'ern Conference' : null,
+      _divName: entry.division?.name ? entry.division.name.charAt(0).toUpperCase() + entry.division.name.slice(1) : null,
+      _divRank: entry.division?.rank ?? 0,
+      _confRank: entry.conference?.rank ?? 0,
+      _wins: entry.win?.total ?? 0,
+      _losses: entry.loss?.total ?? 0,
     }));
+
+    // Compute conf pts-back (using wins as proxy for NBA)
+    const confGroups = {};
+    allTeams.forEach(t => {
+      const conf = t._confName || 'Unknown';
+      if (!confGroups[conf]) confGroups[conf] = [];
+      confGroups[conf].push(t);
+    });
+    Object.values(confGroups).forEach(list => {
+      list.sort((a, b) => b._wins - a._wins);
+      const leaderW = list[0]?._wins ?? 0;
+      const leaderL = list[0]?._losses ?? 0;
+      list.forEach((t, i) => {
+        if (!t._confRank) t._confRank = i + 1;
+        t._confPtsBack = ((leaderW - t._wins) + (t._losses - leaderL)) / 2;
+      });
+    });
+
+    // Compute div pts-back
+    const divGroups = {};
+    allTeams.forEach(t => {
+      const div = t._divName || 'Unknown';
+      if (!divGroups[div]) divGroups[div] = [];
+      divGroups[div].push(t);
+    });
+    Object.values(divGroups).forEach(list => {
+      list.sort((a, b) => b._wins - a._wins);
+      const leaderW = list[0]?._wins ?? 0;
+      const leaderL = list[0]?._losses ?? 0;
+      list.forEach((t, i) => {
+        if (!t._divRank) t._divRank = i + 1;
+        t._divPtsBack = ((leaderW - t._wins) + (t._losses - leaderL)) / 2;
+      });
+    });
+
+    // Clean up temp fields
+    allTeams.forEach(t => { delete t._wins; delete t._losses; });
+    return allTeams;
   }
 
   return [];

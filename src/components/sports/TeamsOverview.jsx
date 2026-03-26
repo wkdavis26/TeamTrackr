@@ -8,22 +8,6 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import F1StandingCard from './F1StandingCard';
 import NFLStandingCard from './NFLStandingCard';
 
-const STANDINGS_PATHS = {
-  // NFL handled via api-sports backend function (NFLStandingCard)
-  NHL:              'hockey/nhl',
-  MLB:              'baseball/mlb',
-  NBA:              'basketball/nba',
-  WNBA:             'basketball/wnba',
-  'Premier League': 'soccer/eng.1',
-  'La Liga':        'soccer/esp.1',
-  MLS:              'soccer/usa.1',
-  NCAAF:            'football/college-football',
-  NCAAB:            'basketball/mens-college-basketball',
-  'NCAAB-Baseball': 'baseball/college-baseball',
-  'FIFA World Cup': 'soccer/fifa.wc',
-  'UEFA Euro':      'soccer/uefa.euro',
-  'International':  'soccer/international',
-};
 
 const standingsCache = {}; // keyed by league
 const colorsCache = {};
@@ -58,79 +42,12 @@ const fetchNCAAFApRankings = async () => {
   }
 };
 
-// NBA division group IDs: Southwest=26, Northwest=27, Pacific=25, Atlantic=1, Central=2, Southeast=3
-const NBA_DIVISION_GROUPS = [
-  { id: 25, conf: 'Western Conference', div: 'Pacific' },
-  { id: 26, conf: 'Western Conference', div: 'Southwest' },
-  { id: 27, conf: 'Western Conference', div: 'Northwest' },
-  { id: 1,  conf: 'Eastern Conference', div: 'Atlantic' },
-  { id: 2,  conf: 'Eastern Conference', div: 'Central' },
-  { id: 3,  conf: 'Eastern Conference', div: 'Southeast' },
-];
 
-const fetchNBAStandings = async () => {
-  const allEntries = [];
-  await Promise.all(NBA_DIVISION_GROUPS.map(async ({ id, conf, div }) => {
-    try {
-      const res = await fetch(`https://site.api.espn.com/apis/v2/sports/basketball/nba/standings?group=${id}`);
-      if (!res.ok) return;
-      const data = await res.json();
-      const divEntries = data.standings?.entries || [];
-      const sorted = [...divEntries].sort((a, b) =>
-        parseFloat(b.stats?.find(s => s.name === 'winPercent')?.value ?? 0) -
-        parseFloat(a.stats?.find(s => s.name === 'winPercent')?.value ?? 0)
-      );
-      sorted.forEach((entry, rank) => {
-        allEntries.push({ ...entry, _confName: conf, _divName: div, _divRank: rank + 1 });
-      });
-    } catch {}
-  }));
-  const confMap = {};
-  allEntries.forEach(e => {
-    if (!confMap[e._confName]) confMap[e._confName] = [];
-    confMap[e._confName].push(e);
-  });
-  Object.values(confMap).forEach(list => {
-    list.sort((a, b) => parseFloat(b.stats?.find(s => s.name === 'wins')?.value ?? 0) - parseFloat(a.stats?.find(s => s.name === 'wins')?.value ?? 0));
-    list.forEach((e, i) => { e._confRank = i + 1; });
-    const leaderWins = parseFloat(list[0]?.stats?.find(s => s.name === 'wins')?.value ?? 0);
-    const leaderLosses = parseFloat(list[0]?.stats?.find(s => s.name === 'losses')?.value ?? 0);
-    list.forEach(e => {
-      const w = parseFloat(e.stats?.find(s => s.name === 'wins')?.value ?? 0);
-      const l = parseFloat(e.stats?.find(s => s.name === 'losses')?.value ?? 0);
-      e._confGamesBack = ((leaderWins - w) + (l - leaderLosses)) / 2;
-    });
-  });
-  const divMap = {};
-  allEntries.forEach(e => {
-    if (!divMap[e._divName]) divMap[e._divName] = [];
-    divMap[e._divName].push(e);
-  });
-  Object.values(divMap).forEach(list => {
-    list.sort((a, b) =>
-      parseFloat(b.stats?.find(s => s.name === 'winPercent')?.value ?? 0) -
-      parseFloat(a.stats?.find(s => s.name === 'winPercent')?.value ?? 0)
-    );
-    const leaderWins = parseFloat(list[0]?.stats?.find(s => s.name === 'wins')?.value ?? 0);
-    const leaderLosses = parseFloat(list[0]?.stats?.find(s => s.name === 'losses')?.value ?? 0);
-    list.forEach(e => {
-      const w = parseFloat(e.stats?.find(s => s.name === 'wins')?.value ?? 0);
-      const l = parseFloat(e.stats?.find(s => s.name === 'losses')?.value ?? 0);
-      e._divGamesBack = ((leaderWins - w) + (l - leaderLosses)) / 2;
-    });
-  });
-  return allEntries;
-};
 
 const fetchLeagueStandings = async (league) => {
   if (league === 'NFL') return []; // NFL standings handled in NFLStandingCard
   if (league === 'WNBA') return [];
   if (standingsCache[league]) return standingsCache[league];
-  if (league === 'NBA') {
-    const entries = await fetchNBAStandings();
-    standingsCache['NBA'] = entries;
-    return entries;
-  }
   try {
     const { base44 } = await import('@/api/base44Client');
     const res = await base44.functions.invoke('leagueStandings', { league });
@@ -319,11 +236,8 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                       .replace('Western Conference', 'West Conf.')
                       .replace('Conference', 'Conf.')}
                   </span>
-                  {isHockey && standing._confPtsBack != null && (
+                  {(isHockey || isNBA) && standing._confPtsBack != null && (
                     <span className="text-gray-400 text-xs">{standing._confPtsBack === 0 ? 'Leader' : `-${standing._confPtsBack} pts`}</span>
-                  )}
-                  {isNBA && standing._confGamesBack != null && (
-                    <span className="text-gray-400 text-xs">{standing._confGamesBack === 0 ? 'Leader' : `${standing._confGamesBack % 1 === 0 ? standing._confGamesBack : standing._confGamesBack.toFixed(1)} GB`}</span>
                   )}
                 </div>
               )}
@@ -335,17 +249,14 @@ function TeamStandingCard({ team, standing, loading, resolvedColor, apRankings =
                   </div>
                 ) : null
               ) : (
-              standing._divRank && standing._divName && standing._divName !== standing._confName && (
+              standing._divRank && standing._divName && (
               <div className="flex flex-col items-center bg-gray-50 rounded-lg px-2 py-1 flex-1">
                 <span className="font-bold text-gray-900 text-sm">#{standing._divRank}</span>
                 <span className="text-gray-400 truncate max-w-full text-center" title={standing._divName}>
                   {standing._divName.replace(' Division', ' Div.').replace(/^(\w+)$/, '$1 Div.')}
                 </span>
-                {isHockey && standing._divPtsBack != null && (
+                {(isHockey || isNBA) && standing._divPtsBack != null && (
                   <span className="text-gray-400 text-xs">{standing._divPtsBack === 0 ? 'Leader' : `-${standing._divPtsBack} pts`}</span>
-                )}
-                {isNBA && standing._divGamesBack != null && (
-                  <span className="text-gray-400 text-xs">{standing._divGamesBack === 0 ? 'Leader' : `${standing._divGamesBack % 1 === 0 ? standing._divGamesBack : standing._divGamesBack.toFixed(1)} GB`}</span>
                 )}
               </div>
               )
