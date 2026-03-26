@@ -54,7 +54,7 @@ export default function Home() {
   }, [rawFavoriteTeams]);
 
   const { data: upcomingGames = [], isLoading: isLoadingGames } = useQuery({
-    queryKey: ['schedules-v3', favoriteTeams.map((t) => t.team_id).join(',')],
+    queryKey: ['schedules-v4', favoriteTeams.map((t) => t.team_id).join(',')],
     queryFn: () => fetchAllSchedules(favoriteTeams),
     enabled: favoriteTeams.length > 0,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
@@ -69,7 +69,7 @@ export default function Home() {
     mutationFn: (team) => base44.entities.FavoriteTeam.create(team),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
-      queryClient.invalidateQueries({ queryKey: ['schedules-v3'] });
+      queryClient.invalidateQueries({ queryKey: ['schedules-v4'] });
     }
   });
 
@@ -77,7 +77,7 @@ export default function Home() {
     mutationFn: (dbId) => base44.entities.FavoriteTeam.delete(dbId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['favoriteTeams'] });
-      queryClient.invalidateQueries({ queryKey: ['schedules-v3'] });
+      queryClient.invalidateQueries({ queryKey: ['schedules-v4'] });
     }
   });
 

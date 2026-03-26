@@ -35,9 +35,9 @@ Deno.serve(async (req) => {
 
     const [data, oddsToday, oddsTomorrow, oddsDayAfter] = await Promise.all([
       apiFetch(`/games?season=${season}`),
-      apiFetch(`/odds?season=${season}&bookmaker=8&date=${today}`).catch(() => null),
-      apiFetch(`/odds?season=${season}&bookmaker=8&date=${tomorrow}`).catch(() => null),
-      apiFetch(`/odds?season=${season}&bookmaker=8&date=${dayAfter}`).catch(() => null),
+      apiFetch(`/odds?league=standard&season=${season}&bookmaker=8&date=${today}`).catch(() => null),
+      apiFetch(`/odds?league=standard&season=${season}&bookmaker=8&date=${tomorrow}`).catch(() => null),
+      apiFetch(`/odds?league=standard&season=${season}&bookmaker=8&date=${dayAfter}`).catch(() => null),
     ]);
 
     const raw = data.response || [];
