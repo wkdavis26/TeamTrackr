@@ -4,25 +4,20 @@ const apiKey = () => Deno.env.get('Sports_API_Key');
 
 const apiFetch = async (baseUrl, endpoint) => {
   const url = `${baseUrl}${endpoint}`;
-  console.log('Fetching:', url);
   const res = await fetch(url, {
     headers: { 'x-apisports-key': apiKey() },
   });
-  console.log('Status:', res.status);
-  const json = await res.json();
-  console.log('Response keys:', Object.keys(json));
-  console.log('Response errors:', JSON.stringify(json.errors));
-  console.log('Response results:', json.results);
-  return json;
+  return res.json();
 };
 
 // Each league maps to its correct sport-specific base URL, league ID, and response type
-// type 'football' = response[0].league.standings[][]
-// type 'flat'     = response[] (flat array of team objects, used by hockey/baseball/basketball)
+// type 'football' = response[0].league.standings[][] (soccer)
+// type 'flat'     = response[] flat array of team objects (hockey/baseball)
+// type 'nba'      = response[] from v2.nba.api-sports.io (different schema)
 const LEAGUE_CONFIG = {
   'NHL':            { base: 'https://v1.hockey.api-sports.io',     leagueId: 57,  type: 'flat'     },
-  'MLB':            { base: 'https://v1.baseball.api-sports.io',   leagueId: 1,   type: 'flat'     },
-  'NBA':            { base: 'https://v1.basketball.api-sports.io', leagueId: 12,  type: 'flat'     },
+  'MLB':            { base: 'https://v1.baseball.api-sports.io',   leagueId: 1,   type: 'baseball' },
+  'NBA':            { base: 'https://v2.nba.api-sports.io',        leagueId: 12,  type: 'nba'      },
   'Premier League': { base: 'https://v3.football.api-sports.io',   leagueId: 39,  type: 'football' },
   'La Liga':        { base: 'https://v3.football.api-sports.io',   leagueId: 140, type: 'football' },
   'Serie A':        { base: 'https://v3.football.api-sports.io',   leagueId: 135, type: 'football' },
@@ -40,7 +35,6 @@ const getCurrentSeason = (league) => {
     return month >= 9 ? year : year - 1;
   }
   if (league === 'MLB') {
-    // Season runs Mar–Oct
     return year;
   }
   // Soccer: season runs Aug–May
@@ -77,31 +71,83 @@ const normalizeStandings = (data, type) => {
     return allEntries;
   }
 
-  // 'flat': response is array of arrays (groups), each containing team objects (NHL, MLB, NBA)
-  const flatTeams = (data.response || []).flat();
-  return flatTeams.map((team, rank) => ({
-    team: {
-      id: team.team?.id,
-      abbreviation: team.team?.name?.substring(0, 3).toUpperCase(),
-      displayName: team.team?.name,
-      logo: team.team?.logo,
-      color: null,
-    },
-    stats: [
-      { name: 'wins',   abbreviation: 'W',   displayValue: String(team.games?.win?.total  || team.won  || 0) },
-      { name: 'losses', abbreviation: 'L',   displayValue: String(team.games?.lose?.total || team.lost || 0) },
-      { name: 'points', abbreviation: 'PTS', displayValue: String(team.points || 0) },
-    ],
-    _confName: team.group?.name || null,
-    _divRank: team.position || rank + 1,
-  }));
+  if (type === 'flat') {
+    // NHL: response is array of arrays (groups), each containing team objects
+    // team.won / team.lost / team.points are direct fields
+    const flatTeams = (data.response || []).flat();
+    return flatTeams.map((team, rank) => ({
+      team: {
+        id: team.team?.id,
+        abbreviation: team.team?.name?.split(' ').pop()?.substring(0, 3).toUpperCase(),
+        displayName: team.team?.name,
+        logo: team.team?.logo,
+        color: null,
+      },
+      stats: [
+        { name: 'wins',   abbreviation: 'W',   displayValue: String(team.won  ?? 0) },
+        { name: 'losses', abbreviation: 'L',   displayValue: String(team.lost ?? 0) },
+        { name: 'points', abbreviation: 'PTS', displayValue: String(team.points ?? 0) },
+      ],
+      _confName: team.group?.name || null,
+      _divRank: team.position || rank + 1,
+    }));
+  }
+
+  if (type === 'baseball') {
+    // MLB: response is flat array, stats are under team.games.win/lose
+    const flatTeams = (data.response || []).flat();
+    return flatTeams.map((team, rank) => {
+      const wins = team.games?.win?.total ?? 0;
+      const losses = team.games?.lose?.total ?? 0;
+      const pct = team.games?.win?.percentage ?? '0.000';
+      return {
+        team: {
+          id: team.team?.id,
+          abbreviation: team.team?.name?.split(' ').pop()?.substring(0, 3).toUpperCase(),
+          displayName: team.team?.name,
+          logo: team.team?.logo,
+          color: null,
+        },
+        stats: [
+          { name: 'wins',   abbreviation: 'W',   displayValue: String(wins) },
+          { name: 'losses', abbreviation: 'L',   displayValue: String(losses) },
+          { name: 'pct',    abbreviation: 'PCT', displayValue: String(pct) },
+        ],
+        _confName: team.group?.name || null,
+        _divRank: team.position || rank + 1,
+      };
+    });
+  }
+
+  if (type === 'nba') {
+    // NBA via v2.nba.api-sports.io
+    // Schema: entry.team, entry.win.total, entry.loss.total, entry.win.percentage, entry.conference.name/rank
+    const flatTeams = (data.response || []).flat();
+    return flatTeams.map((entry) => ({
+      team: {
+        id: entry.team?.id,
+        abbreviation: entry.team?.code,
+        displayName: entry.team?.name,
+        logo: entry.team?.logo,
+        color: null,
+      },
+      stats: [
+        { name: 'wins',   abbreviation: 'W',   displayValue: String(entry.win?.total ?? 0) },
+        { name: 'losses', abbreviation: 'L',   displayValue: String(entry.loss?.total ?? 0) },
+        { name: 'pct',    abbreviation: 'PCT', displayValue: String(entry.win?.percentage ?? '0.000') },
+      ],
+      _confName: entry.conference?.name ? entry.conference.name.charAt(0).toUpperCase() + entry.conference.name.slice(1) : null,
+      _divRank: entry.conference?.rank ?? 0,
+    }));
+  }
+
+  return [];
 };
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me().catch(() => null);
-    // Allow test calls without auth in dev
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
@@ -113,15 +159,14 @@ Deno.serve(async (req) => {
     if (!config) return Response.json({ standings: [] });
 
     const season = getCurrentSeason(league);
-    const data = await apiFetch(config.base, `/standings?league=${config.leagueId}&season=${season}`);
+    // NBA uses v2.nba.api-sports.io which requires league=standard (not a numeric league ID)
+    const endpoint = config.type === 'nba'
+      ? `/standings?league=standard&season=${season}`
+      : `/standings?league=${config.leagueId}&season=${season}`;
+    const data = await apiFetch(config.base, endpoint);
 
-    if (config.type === 'flat') {
-      return Response.json({ _debug_structure: (data?.response || []).flat()[0], _results: data?.results, _errors: data?.errors, _responseLength: data?.response?.length });
-    }
     const standings = normalizeStandings(data, config.type);
     return Response.json({ standings });
-
-    return Response.json({ standings: normalizeStandings(data) });
   } catch (error) {
     return Response.json({ error: error.message, standings: [] }, { status: 500 });
   }
