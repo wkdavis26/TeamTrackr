@@ -24,10 +24,10 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // NCAAB Men's Basketball league id = 116
-    const LEAGUE_ID = 116;
+    // WNBA league id = 12
+    const LEAGUE_ID = 12;
     const now = new Date();
-    const season = `${now.getFullYear() - 1}-${now.getFullYear()}`;
+    const season = now.getFullYear();
 
     const today = now.toISOString().slice(0, 10);
     const in7Days = new Date(now.getTime() + 7 * 86400000).toISOString().slice(0, 10);
@@ -53,9 +53,7 @@ Deno.serve(async (req) => {
       };
     });
 
-    const nameToSlug = (name) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
-
     const games = (data.response || [])
       .filter(g => {
         const d = new Date(g.date);
@@ -66,12 +64,12 @@ Deno.serve(async (req) => {
         id: g.id,
         date: new Date(g.date),
         homeTeam: {
-          id: `ncaab-${nameToSlug(g.teams?.home?.name || '')}`,
+          id: `wnba-${(g.teams?.home?.code || g.teams?.home?.name || '').toLowerCase().replace(/\s+/g, '-')}`,
           name: g.teams?.home?.name,
           logo: g.teams?.home?.logo || null,
         },
         awayTeam: {
-          id: `ncaab-${nameToSlug(g.teams?.away?.name || '')}`,
+          id: `wnba-${(g.teams?.away?.code || g.teams?.away?.name || '').toLowerCase().replace(/\s+/g, '-')}`,
           name: g.teams?.away?.name,
           logo: g.teams?.away?.logo || null,
         },

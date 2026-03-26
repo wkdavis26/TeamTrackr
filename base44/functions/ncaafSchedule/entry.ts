@@ -1,12 +1,14 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
-// NCAAF teams have no codes in api-sports, so we use ESPN for schedule data.
-// ESPN supports a date range via the scoreboard endpoint.
-const fmtDate = (d) => {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}${m}${day}`;
+const API_KEY = Deno.env.get('Sports_API_Key');
+const BASE_URL = 'https://v1.american-football.api-sports.io';
+
+const apiFetch = async (endpoint) => {
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
+    headers: { 'x-apisports-key': API_KEY }
+  });
+  if (!res.ok) return null;
+  return res.json();
 };
 
 Deno.serve(async (req) => {
@@ -15,52 +17,45 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // NCAA Football league id = 11
     const now = new Date();
-    const startStr = fmtDate(now);
-    // Cover through Jan 31 of next year (bowl games / playoff)
-    const end = new Date(now.getFullYear() + 1, 0, 31);
-    const endStr = fmtDate(end);
+    const season = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
 
-    const res = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?limit=500&dates=${startStr}-${endStr}`
-    );
-    if (!res.ok) throw new Error(`ESPN API error: ${res.status}`);
-    const data = await res.json();
-    const events = data.events || [];
+    const data = await apiFetch(`/games?league=11&season=${season}`);
+    if (!data?.response) return Response.json({ games: [] });
 
-    const games = events
-      .filter(e => e.competitions?.[0])
-      .map(e => {
-        const comp = e.competitions[0];
-        const home = comp.competitors?.find(c => c.homeAway === 'home');
-        const away = comp.competitors?.find(c => c.homeAway === 'away');
-        if (!home || !away) return null;
+    const nameToSlug = (name) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const liveWindowStart = new Date(now.getTime() - 4 * 60 * 60 * 1000);
+
+    const games = (data.response || [])
+      .filter(g => {
+        const d = new Date(g.game?.date?.date + 'T' + (g.game?.date?.time || '12:00') + ':00');
+        const status = g.game?.status?.short || '';
+        return d > liveWindowStart && !['FT', 'CANC', 'PST'].includes(status);
+      })
+      .map(g => {
+        const dateStr = g.game?.date?.date + 'T' + (g.game?.date?.time || '12:00') + ':00';
         return {
-          id: e.id,
-          date: e.date,
+          id: g.game?.id,
+          date: dateStr,
           homeTeam: {
-            id: `ncaaf-${home.team?.abbreviation?.toLowerCase()}`,
-            name: home.team?.displayName || home.team?.name,
-            logo: home.team?.logo || home.team?.logos?.[0]?.href || null,
+            id: `ncaaf-${nameToSlug(g.teams?.home?.name || '')}`,
+            name: g.teams?.home?.name,
+            logo: g.teams?.home?.logo || null,
           },
           awayTeam: {
-            id: `ncaaf-${away.team?.abbreviation?.toLowerCase()}`,
-            name: away.team?.displayName || away.team?.name,
-            logo: away.team?.logo || away.team?.logos?.[0]?.href || null,
+            id: `ncaaf-${nameToSlug(g.teams?.away?.name || '')}`,
+            name: g.teams?.away?.name,
+            logo: g.teams?.away?.logo || null,
           },
-          venue: comp.venue?.fullName || 'TBD',
-          status: e.status?.type?.description || 'Scheduled',
-          stage: e.season?.type === 1 ? 'Pre Season' : '',
+          venue: g.game?.venue?.name || 'TBD',
+          status: g.game?.status?.long || 'Scheduled',
+          stage: g.game?.stage || '',
         };
-      })
-      .filter(Boolean);
+      });
 
-    return Response.json({ games }, {
-      headers: {
-        'Cache-Control': 'public, max-age=300',
-      }
-    });
+    return Response.json({ games }, { headers: { 'Cache-Control': 'public, max-age=300' } });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message, games: [] }, { status: 500 });
   }
 });

@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 const API_KEY = Deno.env.get('Sports_API_Key');
-const BASE_URL = 'https://v1.american-football.api-sports.io';
+const BASE_URL = 'https://v3.football.api-sports.io';
 
 Deno.serve(async (req) => {
   try {
@@ -9,11 +9,11 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // NCAA Football league id = 11
     const now = new Date();
     const season = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
 
-    const res = await fetch(`${BASE_URL}/teams?league=11&season=${season}`, {
+    // Get teams from FIFA World Cup (1) as the base international team list
+    const res = await fetch(`${BASE_URL}/teams?league=1&season=${season}`, {
       headers: { 'x-apisports-key': API_KEY }
     });
     if (!res.ok) return Response.json({ teams: [] });
@@ -22,10 +22,10 @@ Deno.serve(async (req) => {
     const nameToSlug = (name) => name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
     const teams = (data.response || []).map(t => ({
-      id: `ncaaf-${nameToSlug(t.name || '')}`,
-      name: t.name,
-      abbreviation: t.code || t.name,
-      logo: t.logo || null,
+      id: `international-football-${nameToSlug(t.team?.name || '')}`,
+      name: t.team?.name,
+      abbreviation: t.team?.code || t.team?.name,
+      logo: t.team?.logo || null,
       color: null,
     }));
 
