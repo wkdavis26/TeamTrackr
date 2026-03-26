@@ -992,63 +992,50 @@ export const fetchAllSchedules = async (favoriteTeams) => {
     });
   }
 
-  // Parse NCAA Baseball games
+  // Parse NCAA Baseball games (flat api-sports format)
   if (teamIdsByLeague['NCAAB-Baseball']) {
     const ncaaBaseballIds = teamIdsByLeague['NCAAB-Baseball'];
-    ncaaBaseballGames.forEach(event => {
-      if (!event.competitions?.[0]) return;
-      const competition = event.competitions[0];
-      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
-      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
-      if (!homeTeam || !awayTeam) return;
-      const homeId = `ncaab-baseball-${homeTeam.team?.abbreviation?.toLowerCase()}`;
-      const awayId = `ncaab-baseball-${awayTeam.team?.abbreviation?.toLowerCase()}`;
+    ncaaBaseballGames.forEach(g => {
+      const homeId = g.homeTeam?.id;
+      const awayId = g.awayTeam?.id;
       const favoriteTeamId = ncaaBaseballIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
-      const gameDate = new Date(event.date);
-      if (gameDate <= now) return;
+      const gameDate = new Date(g.date);
+      if (isNaN(gameDate.getTime()) || gameDate <= liveWindowStart) return;
       allGames.push({
-        id: event.id,
+        id: `ncaab-baseball-${g.id}`,
         date: gameDate,
         league: 'NCAAB-Baseball',
         leagueIcon: '⚾',
-        homeTeam: { id: homeId, name: homeTeam.team?.displayName, logo: homeTeam.team?.logo, color: homeTeam.team?.color },
-        awayTeam: { id: awayId, name: awayTeam.team?.displayName, logo: awayTeam.team?.logo, color: awayTeam.team?.color },
+        homeTeam: { id: homeId, name: g.homeTeam?.name, logo: g.homeTeam?.logo },
+        awayTeam: { id: awayId, name: g.awayTeam?.name, logo: g.awayTeam?.logo },
         favoriteTeamId,
-        venue: competition.venue?.fullName || 'TBD',
-        status: event.status?.type?.description || 'Scheduled',
-        isPreseason: false,
+        venue: g.venue || 'TBD',
+        status: g.status || 'Scheduled',
       });
     });
   }
 
-  // Parse NWSL games
+  // Parse NWSL games (flat api-sports format)
   if (teamIdsByLeague['NWSL']) {
-    nwslGames.forEach(event => {
-      if (!event.competitions?.[0]) return;
-      const competition = event.competitions[0];
-      const homeTeam = competition.competitors?.find(c => c.homeAway === 'home');
-      const awayTeam = competition.competitors?.find(c => c.homeAway === 'away');
-      if (!homeTeam || !awayTeam) return;
-      const homeId = `nwsl-${(homeTeam.team?.abbreviation || '').toLowerCase()}`;
-      const awayId = `nwsl-${(awayTeam.team?.abbreviation || '').toLowerCase()}`;
-      const favoriteTeamId = teamIdsByLeague['NWSL'].find(id => id === homeId || id === awayId);
+    const nwslIds = teamIdsByLeague['NWSL'];
+    nwslGames.forEach(g => {
+      const homeId = g.homeTeam?.id;
+      const awayId = g.awayTeam?.id;
+      const favoriteTeamId = nwslIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
-      const gameDate = new Date(event.date);
-      if (gameDate <= now) return;
-      const broadcasts = (competition.broadcasts || []).flatMap(b => b.names || [b.market || b.type].filter(Boolean));
+      const gameDate = new Date(g.date);
+      if (isNaN(gameDate.getTime()) || gameDate <= liveWindowStart) return;
       allGames.push({
-        id: event.id,
+        id: `nwsl-${g.id}`,
         date: gameDate,
         league: 'NWSL',
         leagueIcon: '⚽',
-        homeTeam: { id: homeId, name: homeTeam.team?.displayName, logo: homeTeam.team?.logo, color: homeTeam.team?.color },
-        awayTeam: { id: awayId, name: awayTeam.team?.displayName, logo: awayTeam.team?.logo, color: awayTeam.team?.color },
+        homeTeam: { id: homeId, name: g.homeTeam?.name, logo: g.homeTeam?.logo },
+        awayTeam: { id: awayId, name: g.awayTeam?.name, logo: g.awayTeam?.logo },
         favoriteTeamId,
-        venue: competition.venue?.fullName || 'TBD',
-        status: event.status?.type?.description || 'Scheduled',
-        isPreseason: event.season?.type === 1 || event.seasonType?.type?.id === '1',
-        broadcasts: broadcasts.length > 0 ? broadcasts : null,
+        venue: g.venue || 'TBD',
+        status: g.status || 'Scheduled',
       });
     });
   }

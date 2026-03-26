@@ -76,13 +76,13 @@ export const LEAGUES = {
   "International Football": {
     name: "International Football",
     icon: "🌍",
-    espnPath: "soccer/fifa.world",
+    espnPath: null,
     color: "#003399",
   },
   "Women's International Football": {
     name: "Women's International Football",
     icon: "🌍",
-    espnPath: "soccer/fifa.wwc",
+    espnPath: null,
     color: "#8B0000",
   },
   "Serie A": {
@@ -100,19 +100,19 @@ export const LEAGUES = {
   WNBA: {
     name: "WNBA",
     icon: "🏀",
-    espnPath: "basketball/wnba",
+    espnPath: null,
     color: "#FF6900",
   },
   "NCAAB": {
     name: "NCAA Basketball",
     icon: "🏀",
-    espnPath: "basketball/mens-college-basketball",
+    espnPath: null,
     color: "#CC5500",
   },
   "NCAAB-Baseball": {
     name: "NCAA Baseball",
     icon: "⚾",
-    espnPath: "baseball/college-baseball",
+    espnPath: null,
     color: "#003087",
   },
   PGA: {
@@ -124,7 +124,7 @@ export const LEAGUES = {
   NWSL: {
     name: "NWSL",
     icon: "⚽",
-    espnPath: "soccer/usa.nwsl",
+    espnPath: null,
     color: "#004B87",
   },
   PWHL: {
@@ -151,12 +151,18 @@ export const fetchLeagueTeams = async (leagueKey) => {
   const league = LEAGUES[leagueKey];
   if (!league) return [];
 
-  // NFL / NCAAF / NBA / Soccer leagues: use api-sports backend functions
+  // All dynamic leagues use api-sports backend functions
   const backendFunctionMap = {
     'NFL': 'nflTeams',
     'NCAAF': 'ncaafTeams',
     'NBA': 'nbaTeams',
     'NHL': 'nhlTeams',
+    'NCAAB': 'ncaabTeams',
+    'WNBA': 'wnbaTeams',
+    'NWSL': 'nwslTeams',
+    'NCAAB-Baseball': 'ncaaBaseballTeams',
+    'International Football': 'internationalFootballTeams',
+    "Women's International Football": 'womensInternationalTeams',
     'Premier League': 'premierLeagueTeams',
     'La Liga': 'laLigaTeams',
     'Serie A': 'serieATeams',
@@ -182,31 +188,8 @@ export const fetchLeagueTeams = async (leagueKey) => {
     }
   }
 
-  if (!league.espnPath) {
-    // Return static data for F1, PWHL, etc.
-    return league?.teams || [];
-  }
-
-  try {
-    // NCAAF requires groups=80 (FBS) to return teams
-    const extraParams = leagueKey === 'NCAAF' ? '&groups=80' : leagueKey === 'NCAAB' ? '&groups=50' : '';
-    const response = await fetch(
-      `https://site.api.espn.com/apis/site/v2/sports/${league.espnPath}/teams?limit=500${extraParams}`
-    );
-    if (!response.ok) return [];
-    const data = await response.json();
-    const teams = data.sports?.[0]?.leagues?.[0]?.teams || [];
-    return teams.map(({ team }) => ({
-      id: `${leagueKey.toLowerCase().replace(/'/g, '').replace(/\s+/g, '-')}-${team.abbreviation.toLowerCase()}`,
-      name: team.displayName,
-      abbreviation: team.abbreviation,
-      logo: team.logos?.[0]?.href || null,
-      color: team.color,
-    }));
-  } catch (e) {
-    console.error(`Error fetching teams for ${leagueKey}:`, e);
-    return [];
-  }
+  // Return static data for F1, PWHL, etc.
+  return league?.teams || [];
 };
 
 export const getLeagueColor = (league) => {
