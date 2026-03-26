@@ -658,14 +658,13 @@ export const fetchAllSchedules = async (favoriteTeams) => {
   // Parse MLB games (flat format from api-sports mlbSchedule function)
   if (teamIdsByLeague['MLB']) {
     const mlbIds = teamIdsByLeague['MLB'];
-    const todayMidnight = new Date(now); todayMidnight.setHours(0, 0, 0, 0);
     mlbGames.forEach(g => {
       const homeId = g.homeTeam?.id;
       const awayId = g.awayTeam?.id;
       const favoriteTeamId = mlbIds.find(id => id === homeId || id === awayId);
       if (!favoriteTeamId) return;
       const gameDate = new Date(g.date);
-      if (isNaN(gameDate.getTime()) || gameDate < todayMidnight) return;
+      if (isNaN(gameDate.getTime()) || gameDate <= liveWindowStart) return;
       allGames.push({
         id: `mlb-${g.id}`,
         date: gameDate,
